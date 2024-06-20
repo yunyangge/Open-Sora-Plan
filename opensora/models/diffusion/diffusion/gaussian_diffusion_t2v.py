@@ -5,6 +5,7 @@
 
 
 import math
+from pickle import NONE
 
 import numpy as np
 import torch as th
@@ -762,7 +763,13 @@ class GaussianDiffusion_T:
             if self.loss_type == LossType.RESCALED_KL:
                 terms["loss"] *= self.num_timesteps
         elif self.loss_type == LossType.MSE or self.loss_type == LossType.RESCALED_MSE:
-            model_output = model(x_t, t, **model_kwargs)
+            
+            if model_kwargs.get('masked_x', None) is not None and model_kwargs.get('mask', None) is not None:
+                masked_video = model_kwargs.pop('masked_x')
+                mask_of_video = model_kwargs.pop('mask')
+                model_output = model(th.cat([x_t, masked_video, mask_of_video], dim=1), t, **model_kwargs)
+            else:
+                model_output = model(x_t, t, **model_kwargs)
             # try:
             #     model_output = model(x_t, t, **model_kwargs).sample # for tav unet
             # except:

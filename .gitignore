@@ -44,3 +44,5 @@ hw*
 taming*
 221hw*
 65x512x512
+inpaint_65x512x512_1node_bs2_lr2e-5/
+cache/
