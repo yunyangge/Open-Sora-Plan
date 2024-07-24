@@ -19,12 +19,24 @@ from pathlib import Path
 from typing import Optional
 import gc
 import numpy as np
-from einops import rearrange
+from einops import rearrange, repeat
 from tqdm import tqdm
 import itertools
 
 from opensora.models.ae.videobase.modules import attention
 
+from opensora.adaptor.modules import replace_with_fp32_forwards
+
+try:
+    import torch_npu
+    from opensora.npu_config import npu_config
+    from opensora.acceleration.parallel_states import initialize_sequence_parallel_state, \
+        destroy_sequence_parallel_group, get_sequence_parallel_state
+    from opensora.acceleration.communications import prepare_parallel_data, broadcast
+except:
+    torch_npu = None
+    npu_config = None
+    pass
 import time
 from dataclasses import field, dataclass
 from torch.utils.data import DataLoader
@@ -57,6 +69,7 @@ from opensora.models.ae.videobase import CausalVQVAEModelWrapper, CausalVAEModel
 from opensora.models.diffusion.latte.modeling_latte import LatteT2V
 from opensora.models.text_encoder import get_text_enc, get_text_warpper
 from opensora.utils.dataset_utils import VideoIP_Collate as Collate
+from opensora.utils.dataset_utils import LengthGroupedSampler
 from opensora.models.ae import ae_stride_config, ae_channel_config
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
@@ -268,6 +281,7 @@ class VIPNet(ModelMixin, ConfigMixin):
         return model_pred
 
 
+
 @torch.inference_mode()
 def log_validation(
     args,   
@@ -283,11 +297,8 @@ def log_validation(
     global_step, 
     ema=False
 ):
-
-
     validation_dir = args.validation_dir if args.validation_dir is not None else "./validation"
     prompt_file = os.path.join(validation_dir, "i2v_prompt.txt")
-    # prompt_file = os.path.join(validation_dir, "test_prompt.txt")
 
     with open(prompt_file, 'r') as f:
         validation_prompt = f.readlines()
@@ -302,13 +313,21 @@ def log_validation(
             index += 1
         else:
             break
+
     resize_transform = transforms.Compose(
         [CenterCropResizeVideo((args.max_height, args.max_width))]
     )
+    resize = [CenterCropResizeVideo((args.max_height, args.max_width)),]
+    norm_fun = Lambda(lambda x: 2. * x - 1.)
+    transform = transforms.Compose([
+        ToTensorVideo(),
+        *resize, 
+        # RandomHorizontalFlipVideo(p=0.5),  # in case their caption have position decription
+        norm_fun
+    ])
+
     logger.info(f"Running {'normal' if not ema else 'ema'} validation....\n")
-
-    vip = accelerator.unwrap_model(vip)
-
+    model = accelerator.unwrap_model(model)
     model.eval()
     vip.eval()
 
@@ -321,22 +340,29 @@ def log_validation(
         transformer=model
     ).to(device=accelerator.device)
 
-
     pipeline.__call__ = hacked_pipeline_call_for_vip.__get__(pipeline, OpenSoraPipeline)
 
-    # Save the generated videos
-    save_dir = os.path.join(args.output_dir, f"val_{global_step:09d}" if not ema else f"val_ema_{global_step:09d}")
-    os.makedirs(save_dir, exist_ok=True)
+    def preprocess_image_concat(images, ae, num_frames):
+        ae_stride_t, ae_stride_h, ae_stride_w = ae_stride_config[args.ae]
+        t = num_frames // ae_stride_t + 1
+        condition_images = Image.open(images[0]).convert("RGB")
+        condition_images = torch.from_numpy(np.copy(np.array(condition_images)))
+        condition_images = rearrange(condition_images, 'h w c -> c h w').unsqueeze(0)
+        condition_images = transform(condition_images).to(accelerator.device, dtype=weight_dtype).unsqueeze(2)
+        img_cat_cond = ae.encode(condition_images)
+        img_cat_cond = repeat(img_cat_cond, 'b c 1 h w -> b c t h w', t=t) # TODO size
+        return img_cat_cond
 
     videos = []
     gen_img = False
-    # for prompt, images in zip(validation_prompt, validation_images_list):
-    for idx, (prompt, images) in enumerate(zip(validation_prompt, validation_images_list)):
+    for prompt, images in zip(validation_prompt, validation_images_list):
         if 'img' in images[0]:
             continue
         if not isinstance(images, list):
             images = [images]
         logger.info('Processing the ({}) prompt and the images ({})'.format(prompt, images))
+        
+        hidden_states_concat = preprocess_image_concat(images, vae, args.num_frames)
         if args.num_frames != 1:
             if len(images) == 1 and images[0].split('/')[-1].split('_')[0] == 'img': 
                 vip_tokens, vip_cond_mask, negative_vip_tokens, negative_vip_cond_mask = vip.get_image_embeds(
@@ -376,6 +402,7 @@ def log_validation(
             vip_attention_mask=vip_cond_mask,
             negative_vip_tokens=negative_vip_tokens,
             negative_vip_attention_mask=negative_vip_cond_mask,
+            hidden_states_concat=hidden_states_concat,
             num_frames=(1 if gen_img else args.num_frames),
             height=args.max_height,
             width=args.max_width,
@@ -387,14 +414,6 @@ def log_validation(
             max_squence_length=args.model_max_length,
         ).images
         videos.append(video[0])
-        if video[0].shape[0] == 1: # image
-            ext = 'png'
-            Image.fromarray(video[0][0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
-        else: # video
-            ext = 'mp4'
-            imageio.mimwrite(
-                os.path.join(save_dir, f'{idx}.{ext}'), video[0], fps=24, quality=6)  # highest quality is 10, lowest is 0
-
         gen_img = False
     # import ipdb;ipdb.set_trace()
 
@@ -402,15 +421,15 @@ def log_validation(
     save_dir = os.path.join(args.output_dir, f"val_{global_step:09d}" if not ema else f"val_ema_{global_step:09d}")
     os.makedirs(save_dir, exist_ok=True)
 
-    # for idx, video in enumerate(videos):
+    for idx, video in enumerate(videos):
 
-    #     if video.shape[0] == 1: # image
-    #         ext = 'png'
-    #         Image.fromarray(video[0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
-    #     else: # video
-    #         ext = 'mp4'
-    #         imageio.mimwrite(
-    #             os.path.join(save_dir, f'{idx}.{ext}'), video, fps=24, quality=6)  # highest quality is 10, lowest is 0
+        if video.shape[0] == 1: # image
+            ext = 'png'
+            Image.fromarray(video[0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
+        else: # video
+            ext = 'mp4'
+            imageio.mimwrite(
+                os.path.join(save_dir, f'{idx}.{ext}'), video, fps=24, quality=6)  # highest quality is 10, lowest is 0
         
     # import ipdb;ipdb.set_trace()
 
@@ -426,8 +445,8 @@ def log_validation(
         if tracker.name == "wandb":
             import wandb
             logs = {}
-            logs[f"{'ema_' if ema else ''}validation_videos"] = []
             logs[f"{'ema_' if ema else ''}validation_images"] = []
+            logs[f"{'ema_' if ema else ''}validation_videos"] = []
             for i, (video, prompt) in enumerate(zip(videos, validation_prompt)):
                 if video.shape[0] == 1: # image
                     logs[f"{'ema_' if ema else ''}validation_images"].append(wandb.Image(video[0], caption=f"{i}: {prompt}"))
@@ -440,7 +459,7 @@ def log_validation(
     del pipeline
     gc.collect()
     torch.cuda.empty_cache()
-    vip.train()
+
 
 class ProgressInfo:
     def __init__(self, global_step, train_loss=0.0):
@@ -453,9 +472,14 @@ class ProgressInfo:
 #################################################################################
 
 def main(args):
-
     logging_dir = Path(args.output_dir, args.logging_dir)
 
+    # use LayerNorm, GeLu, SiLu always as fp32 mode
+    # if args.enable_stable_fp32:
+    #     replace_with_fp32_forwards()
+    if torch_npu is not None and npu_config is not None:
+        npu_config.print_msg(args)
+        npu_config.seed_everything(args.seed)
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)
 
     accelerator = Accelerator(
@@ -465,6 +489,9 @@ def main(args):
         project_config=accelerator_project_config,
     )
 
+    if npu_config is not None and args.num_frames != 1 and args.use_image_num == 0:
+        initialize_sequence_parallel_state(args.sp_size)
+    
     if accelerator.is_main_process:
         print("--------------------------training args--------------------------")
         print(args)
@@ -539,7 +566,6 @@ def main(args):
         args.latent_size_t = latent_size_t = args.num_frames // ae_stride_t + 1
     else:
         latent_size_t = args.num_frames // ae_stride_t
-    # when training video ip adapter, we use t2v model
     model = Diffusion_models[args.model](
         in_channels=ae_channel_config[args.ae],
         out_channels=ae_channel_config[args.ae] * 2, # 因为要加载预训练权重，所以这里out_channels仍然设置为2倍
@@ -564,6 +590,7 @@ def main(args):
         compress_kv_factor=args.compress_kv_factor,
         use_rope=args.use_rope,
         model_max_length=args.model_max_length,
+        # use_stable_fp32=args.enable_stable_fp32, 
     )
     model.gradient_checkpointing = args.gradient_checkpointing
 
@@ -574,6 +601,21 @@ def main(args):
     # NOTE when using inpaint model
     # if args.pretrained:
     #     model.custom_load_state_dict(args.pretrained)
+
+    if args.image_concat:
+        in_channels=ae_channel_config[args.ae]
+        new_in_channels = ae_channel_config[args.ae] * 2
+        embed_dim = model.num_attention_heads * model.attention_head_dim
+        bias = True
+        new_proj = nn.Conv2d(
+            new_in_channels, embed_dim, kernel_size=(args.patch_size_h, args.patch_size_w), stride=args.patch_size, bias=bias
+        )
+        def zero_module(module):
+            for p in module.parameters():
+                nn.init.zeros_(p)
+            return module
+        zero_module(new_proj),
+        model.pos_embed.proj = new_proj
 
     if args.pretrained:
         model_state_dict = model.state_dict()
@@ -589,7 +631,7 @@ def main(args):
             #     logger.info(f"Resize pos_embed, {checkpoint['pos_embed.proj.weight'].shape} -> {model.pos_embed.proj.weight.shape}")
             #     repeat = model.pos_embed.proj.weight.shape[2]
             #     checkpoint['pos_embed.proj.weight'] = checkpoint['pos_embed.proj.weight'].unsqueeze(2).repeat(1, 1, repeat, 1, 1) / float(repeat)
-                # del checkpoint['proj_out.weight'], checkpoint['proj_out.bias']
+            #     del checkpoint['proj_out.weight'], checkpoint['proj_out.bias']
         else:  # latest stage training weight
             checkpoint = torch.load(args.pretrained, map_location='cpu')
             if 'model' in checkpoint:
@@ -598,10 +640,31 @@ def main(args):
         logger.info(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
         logger.info(f'Successfully load {len(model_state_dict) - len(missing_keys)}/{len(model_state_dict)} keys from {args.pretrained}!')
 
+    if args.image_concat and missing_keys is not None:
+        for name in missing_keys:
+            if "pos_embed.proj.weight" in name:
+                with torch.no_grad():
+                    model.pos_embed.proj.weight[:, :in_channels, :, :] = pretrained_checkpoint[name] if 'safetensors' in args.pretrained else checkpoint[name]
+        
+    # if args.image_concat:
+    #     if args.pretrain_from_ori:
+    #         in_channels=ae_channel_config[args.ae]
+    #         new_in_channels = ae_channel_config[args.ae] * 2
+    #         embed_dim = model.num_attention_heads * model.attention_head_dim
+    #         bias = True
+    #         new_proj = nn.Conv2d(
+    #             new_in_channels, embed_dim, kernel_size=(patch_size, patch_size), stride=patch_size, bias=bias
+    #         )
+    #         with torch.no_grad():
+    #             new_proj.weight[:, :in_channels, :, :] = model.pos_embed.proj.weight
+    #             if model.pos_embed.proj.bias is not None:
+    #                 new_proj.bias = model.pos_embed.proj.bias
+    #         model.pos_embed.proj = new_proj
+
     # Freeze main model
     ae.vae.requires_grad_(False)
     text_enc.requires_grad_(False)
-    model.requires_grad_(False)
+    # model.requires_grad_(False)
 
     # load image encoder
     if args.image_encoder_type == 'clip':
@@ -629,7 +692,7 @@ def main(args):
         image_encoder_type=args.image_encoder_type,
         cross_attention_dim=1152,
         num_tokens=272, # NOTE should be modified 
-        vip_inner_dim=1280 if args.image_encoder_type == 'clip' else 1536,
+        vip_inner_dim=1280,
         num_queries=16,
         depth=4,
         attention_mode=args.attention_mode,
@@ -647,8 +710,6 @@ def main(args):
         logger.info(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
 
 
-    # vip.train()
-
     init_from_original_attn_processor = False if (args.pretrained_vip_adapter_path is not None or args.resume_from_checkpoint is not None) else True
     vip.set_vip_adapter(model, init_from_original_attn_processor=init_from_original_attn_processor)
 
@@ -661,18 +722,19 @@ def main(args):
     noise_scheduler = DDPMScheduler(rescale_betas_zero_snr=args.zero_terminal_snr)
     # Move unet, vae and text_encoder to device and cast to weight_dtype
     # The VAE is in float32 to avoid NaN losses.
-    ae.vae.to(accelerator.device, dtype=torch.float32)
-    # ae.vae.to(accelerator.device, dtype=weight_dtype)
+    # ae.vae.to(accelerator.device, dtype=torch.float32)
+    ae.vae.to(accelerator.device, dtype=weight_dtype)
     text_enc.to(accelerator.device, dtype=weight_dtype)
     model.to(accelerator.device, dtype=weight_dtype)
+    vip.to(accelerator.device, dtype=weight_dtype)
 
     image_encoder.to(accelerator.device, dtype=weight_dtype)
 
     # Create EMA for the unet.
     if args.use_ema:
-        ema_vip = deepcopy(vip)
-        ema_vip = EMAModel(vip.parameters(), update_after_step=args.ema_start_step,
-                             model_cls=VIPNet, model_config=ema_vip.config)
+        ema_model = deepcopy(model)
+        ema_model = EMAModel(ema_model.parameters(), update_after_step=args.ema_start_step,
+                             model_cls=Diffusion_models_class[args.model], model_config=ema_model.config)
 
     # `accelerate` 0.16.0 will have better support for customized saving
     if version.parse(accelerate.__version__) >= version.parse("0.16.0"):
@@ -680,7 +742,7 @@ def main(args):
         def save_model_hook(models, weights, output_dir):
             if accelerator.is_main_process:
                 if args.use_ema:
-                    ema_vip.save_pretrained(os.path.join(output_dir, "model_ema"))
+                    ema_model.save_pretrained(os.path.join(output_dir, "model_ema"))
 
                 for i, model in enumerate(models):
                     model.save_pretrained(os.path.join(output_dir, "model"))
@@ -690,23 +752,17 @@ def main(args):
 
         def load_model_hook(models, input_dir):
             if args.use_ema:
-                load_model = EMAModel.from_pretrained(os.path.join(input_dir, "model_ema"), VIPNet)
-                ema_vip.load_state_dict(load_model.state_dict())
-                ema_vip.to(accelerator.device)
+                load_model = EMAModel.from_pretrained(os.path.join(input_dir, "model_ema"), Diffusion_models_class[args.model])
+                ema_model.load_state_dict(load_model.state_dict())
+                ema_model.to(accelerator.device)
                 del load_model
-                # if os.path.exists(os.path.join(input_dir, "model_ema")):
-                #     print("loading ema model...")
-                #     load_model = EMAModel.from_pretrained(os.path.join(input_dir, "model_ema"), VIPNet)
-                #     ema_vip.load_state_dict(load_model.state_dict())
-                #     ema_vip.to(accelerator.device)
-                #     del load_model
 
             for i in range(len(models)):
                 # pop models so that they are not loaded again
                 model = models.pop()
 
                 # load diffusers style into model
-                load_model = VIPNet.from_pretrained(input_dir, subfolder="model")
+                load_model = Diffusion_models_class[args.model].from_pretrained(input_dir, subfolder="model")
                 model.register_to_config(**load_model.config)
 
                 model.load_state_dict(load_model.state_dict())
@@ -725,7 +781,7 @@ def main(args):
                 args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
         )
 
-    params_to_optimize = vip.parameters()
+    params_to_optimize = model.parameters()
     # Optimizer creation
     if not (args.optimizer.lower() == "prodigy" or args.optimizer.lower() == "adamw"):
         logger.warning(
@@ -785,16 +841,26 @@ def main(args):
             use_bias_correction=args.prodigy_use_bias_correction,
             safeguard_warmup=args.prodigy_safeguard_warmup,
         )
+    logger.info(f"optimizer: {optimizer}")
 
     # Setup data:
     train_dataset = getdataset(args)
+    # sampler = LengthGroupedSampler(
+    #             args.train_batch_size,
+    #             world_size=accelerator.num_processes,
+    #             lengths=train_dataset.lengths, 
+    #             group_frame=args.group_frame, 
+    #             group_resolution=args.group_resolution, 
+    #         ) if args.group_frame or args.group_resolution else None
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
         shuffle=True,
+        # shuffle=sampler is None,
         # pin_memory=True,
         collate_fn=Collate(args),
         batch_size=args.train_batch_size,
         num_workers=args.dataloader_num_workers,
+        # sampler=sampler if args.group_frame or args.group_resolution else None, 
         # prefetch_factor=8
     )
 
@@ -813,11 +879,13 @@ def main(args):
     )
 
     # Prepare everything with our `accelerator`.
-    vip, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
-        vip, optimizer, train_dataloader, lr_scheduler
+    # model.requires_grad_(False)
+    # model.pos_embed.requires_grad_(True)
+    model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
+        model, optimizer, train_dataloader, lr_scheduler
     )
     if args.use_ema:
-        ema_vip.to(accelerator.device)
+        ema_model.to(accelerator.device)
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
@@ -843,14 +911,14 @@ def main(args):
     total_batch_size = args.train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
     logger.info("***** Running training *****")
-    logger.info(f"  Model = {vip}")
+    logger.info(f"  Model = {model}")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
     logger.info(f"  Instantaneous batch size per device = {args.train_batch_size}")
     logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
     logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
     logger.info(f"  Total optimization steps = {args.max_train_steps}")
-    logger.info(f"  Total trainable parameters = {sum(p.numel() for p in vip.parameters() if p.requires_grad) / 1e9} B")
+    logger.info(f"  Total trainable parameters = {sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B")
     global_step = 0
     first_epoch = 0
 
@@ -882,6 +950,8 @@ def main(args):
             initial_global_step = global_step
             first_epoch = global_step // num_update_steps_per_epoch
 
+            if npu_config is not None:
+                train_dataset.n_used_elements = global_step * args.train_batch_size
 
     else:
         initial_global_step = 0
@@ -898,11 +968,16 @@ def main(args):
     def sync_gradients_info(loss):
         # Checks if the accelerator has performed an optimization step behind the scenes
         if args.use_ema:
-            ema_vip.step(vip.parameters())
+            ema_model.step(model.parameters())
         progress_bar.update(1)
         progress_info.global_step += 1
         end_time = time.time()
+        one_step_duration = end_time - start_time
         accelerator.log({"train_loss": progress_info.train_loss}, step=progress_info.global_step)
+        if torch_npu is not None and npu_config is not None:
+            npu_config.print_msg(f"Step: [{progress_info.global_step}], local_loss={loss.detach().item()}, "
+                                 f"train_loss={progress_info.train_loss}, time_cost={one_step_duration}",
+                                 rank=0)
         progress_info.train_loss = 0.0
 
         # DeepSpeed requires saving weights on every device; saving weights only on the main process would cause issues.
@@ -936,7 +1011,7 @@ def main(args):
         progress_bar.set_postfix(**logs)
 
     def run(model_input, model_kwargs, prof):
-        vip.train()
+        vip.eval()
         model.train()
         global start_time
         start_time = time.time()
@@ -950,18 +1025,38 @@ def main(args):
         bsz = model_input.shape[0]
         # Sample a random timestep for each image without bias.
         timesteps = torch.randint(0, noise_scheduler.config.num_train_timesteps, (bsz,), device=model_input.device)
+        if npu_config is not None and get_sequence_parallel_state():
+            broadcast(timesteps)
 
         # Add noise to the model input according to the noise magnitude at each timestep
         # (this is the forward diffusion process)
 
         noisy_model_input = noise_scheduler.add_noise(model_input, noise, timesteps)
-       
-        model_pred = vip(
-            model=model,
-            latent_model_input=noisy_model_input,
-            timestep=timesteps,
-            **model_kwargs,
-        )
+
+        enable_temporal_attentions = True if args.num_frames > 1 else False
+
+        encoder_hidden_states = model_kwargs.pop('encoder_hidden_states', None)
+        encoder_attention_mask = model_kwargs.pop('encoder_attention_mask', None)
+        clip_feature = model_kwargs.pop('clip_feature', None)
+        clip_mask = model_kwargs.pop('clip_mask', None)
+        use_image_num = model_kwargs.pop('use_image_num', 0)
+        assert encoder_hidden_states is not None and encoder_attention_mask is not None and clip_feature is not None, "VIPNet requires encoder_hidden_states, encoder_attention_mask and clip_feature"
+        hidden_states = rearrange(clip_feature, 'b t h w c -> b c t h w')
+
+        vip_out = vip.vip_adapter(hidden_states=hidden_states, use_image_num=use_image_num, clip_mask=clip_mask) # B D T+image_num H W  -> B 1+image_num N D
+        vip_tokens, vip_cond_mask = vip_out.hidden_states, vip_out.vip_cond_mask
+        
+        model_pred = model(
+            hidden_states=noisy_model_input, 
+            timestep=timesteps, 
+            encoder_hidden_states=encoder_hidden_states, 
+            encoder_attention_mask=encoder_attention_mask, 
+            vip_hidden_states=vip_tokens,
+            vip_attention_mask=vip_cond_mask,
+            use_image_num=use_image_num,
+            enable_temporal_attentions=enable_temporal_attentions,
+            **model_kwargs
+        )[0]
 
         model_pred = torch.chunk(model_pred, 2, dim=1)[0]
         
@@ -983,8 +1078,19 @@ def main(args):
         else:
             raise ValueError(f"Unknown prediction type {noise_scheduler.config.prediction_type}")
 
+        mask = model_kwargs.get('attention_mask', None)
+        b, c, _, _, _ = model_pred.shape
+        if mask is not None:
+            mask = mask.unsqueeze(1).repeat(1, c, 1, 1, 1).float()  # b t h w -> b c t h w
+            mask = mask.reshape(b, -1)
         if args.snr_gamma is None:
-            loss = F.mse_loss(model_pred.float(), target.float(), reduction="mean")
+            # model_pred: b c t h w, attention_mask: b t h w
+            loss = F.mse_loss(model_pred.float(), target.float(), reduction="none")
+            loss = loss.reshape(b, -1)
+            if mask is not None:
+                loss = (loss * mask).sum() / mask.sum()  # mean loss on unpad patches
+            else:
+                loss = loss.mean()
         else:
             # Compute loss-weights as per Section 3.4 of https://arxiv.org/abs/2303.09556.
             # Since we predict the noise instead of x_0, the original formulation is slightly changed.
@@ -997,11 +1103,13 @@ def main(args):
                 mse_loss_weights = mse_loss_weights / snr
             elif noise_scheduler.config.prediction_type == "v_prediction":
                 mse_loss_weights = mse_loss_weights / (snr + 1)
-
             loss = F.mse_loss(model_pred.float(), target.float(), reduction="none")
-            loss = loss.mean(dim=list(range(1, len(loss.shape)))) * mse_loss_weights
-            loss = loss.mean()
-
+            loss = loss.reshape(b, -1)
+            mse_loss_weights = mse_loss_weights.reshape(b, 1)
+            if mask is not None:
+                loss = (loss * mask * mse_loss_weights).sum() / mask.sum()  # mean loss on unpad patches
+            else:
+                loss = (loss * mse_loss_weights).mean()
 
         # Gather the losses across all processes for logging (if we use distributed training).
         avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
@@ -1010,7 +1118,7 @@ def main(args):
         # Backpropagate
         accelerator.backward(loss)
         if accelerator.sync_gradients:
-            params_to_clip = vip.parameters()
+            params_to_clip = model.parameters()
             accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
         optimizer.step()
         lr_scheduler.step()
@@ -1022,7 +1130,6 @@ def main(args):
         if accelerator.is_main_process:
 
             if progress_info.global_step % args.checkpointing_steps == 0:
-
                 if args.enable_tracker:
                     log_validation(
                         args=args, 
@@ -1040,8 +1147,8 @@ def main(args):
 
                 if args.use_ema:
                     # Store the UNet parameters temporarily and load the EMA parameters to perform inference.
-                    ema_vip.store(vip.parameters())
-                    ema_vip.copy_to(vip.parameters())
+                    ema_model.store(model.parameters())
+                    ema_model.copy_to(model.parameters())
                     log_validation(
                         args=args, 
                         model=model, 
@@ -1057,7 +1164,7 @@ def main(args):
                         ema=True,
                     )
                     # Switch back to the original UNet parameters.
-                    ema_vip.restore(vip.parameters())
+                    ema_model.restore(model.parameters())
 
         if prof is not None:
             prof.step()
@@ -1075,17 +1182,6 @@ def main(args):
         #             initial_params[name] = param.clone()
         #         else:
         #             print(f"Parameter {name} has not changed!")
-        
-        # # NOTE checking params update
-        # if step_ > 1:
-        #     print("Comparing alpha before and after training step:")
-        #     for name, param in vip.named_parameters():
-        #         if "alpha" in name:
-        #             if not torch.equal(param, initial_params[name]):
-        #                 print(f"Parameter {name} has changed.")
-        #                 initial_params[name] = param.clone()
-        #             else:
-        #                 print(f"Parameter {name} has not changed!")
         
         train_loss = 0.0
         x, attn_mask, input_ids, cond_mask, clip_data, clip_mask = data_item_
@@ -1123,10 +1219,26 @@ def main(args):
             clip_feature_height = clip_feature_width = int(sqrt(clip_feature.shape[1]))
             clip_feature = rearrange(clip_feature, '(b t) (h w) c -> b t h w c', b=B, h=clip_feature_height, w=clip_feature_width) # B T+image_num H W D  
 
+            if args.image_concat:
+                import random
+                cond_frame_index = 0
+                if args.rand_cond_frame:
+                    cond_frame_index = random.randint(0, x.size(2)-args.use_image_num-1) # TODO:replace x.size(2) by args 
+
             # Map input images to latent space + normalize latents
             if args.use_image_num == 0:
+                if args.image_concat:
+                    ## simply repeat the cond_frame to match the seq_len of x
+                    img_cat_cond = x[:,:,cond_frame_index,:,:].unsqueeze(2)
+                    img_cat_cond = ae.encode(img_cat_cond)
+                    img_cat_cond = repeat(img_cat_cond, 'b c 1 h w -> b c t h w', t=17) # TODO size
                 x = ae.encode(x)  # B C T H W
             else:
+                if args.image_concat:
+                    # TODO: does args.use_image_num=0 while training
+                    ## simply repeat the cond_frame to match the seq_len of x
+                    img_cat_cond_v = x[:, :, :-args.use_image_num][:,:,cond_frame_index,:,:].unsqueeze(2)
+                    img_cat_cond_v = ae.encode(img_cat_cond_v)
                 videos, images = x[:, :, :-args.use_image_num], x[:, :, -args.use_image_num:]
                 videos = ae.encode(videos)  # B C T H W
                 images = rearrange(images, 'b c t h w -> (b t) c 1 h w')
@@ -1134,15 +1246,33 @@ def main(args):
                 images = rearrange(images, '(b t) c 1 h w -> b c t h w', t=args.use_image_num)
                 x = torch.cat([videos, images], dim=2)  # b c 17+4, h, w
 
-            assert not torch.any(torch.isnan(x)), 'after vae'
-           
-        with accelerator.accumulate(vip):
-            x = x.to(weight_dtype)
-            assert not torch.any(torch.isnan(x)), 'after vae' 
-            model_kwargs = dict(encoder_hidden_states=cond, attention_mask=attn_mask,
-                                encoder_attention_mask=cond_mask, use_image_num=args.use_image_num,
-                                clip_feature=clip_feature, clip_mask=clip_mask)
-            run(x, model_kwargs, prof_)
+                if args.image_concat:
+                    img_cat_cond_v = repeat(img_cat_cond_v, 'b c 1 h w -> b c t h w', t=x.size(2)-args.use_image_num)
+                    img_cat_cond = torch.cat([img_cat_cond_v, images], dim=2)
+
+
+        if npu_config is not None and get_sequence_parallel_state():
+            x, cond, attn_mask, cond_mask, use_image_num = prepare_parallel_data(x, cond, attn_mask, cond_mask,
+                                                                                 args.use_image_num)
+            for iter in range(args.train_batch_size * args.sp_size // args.train_sp_batch_size):
+                with accelerator.accumulate(model):
+                    st_idx = iter * args.train_sp_batch_size
+                    ed_idx = (iter + 1) * args.train_sp_batch_size
+                    model_kwargs = dict(encoder_hidden_states=cond[st_idx: ed_idx],
+                                        attention_mask=attn_mask[st_idx: ed_idx],
+                                        encoder_attention_mask=cond_mask[st_idx: ed_idx], use_image_num=use_image_num),
+                    run(x[st_idx: ed_idx], model_kwargs, prof_)
+
+        else:
+            with accelerator.accumulate(model):
+                assert not torch.any(torch.isnan(x)), 'after vae' 
+                x = x.to(weight_dtype)
+                model_kwargs = dict(encoder_hidden_states=cond, attention_mask=attn_mask,
+                                    encoder_attention_mask=cond_mask, use_image_num=args.use_image_num,
+                                    clip_feature=clip_feature, clip_mask=clip_mask,
+                                    hidden_states_concat=img_cat_cond if args.image_concat else None,
+                                )
+                run(x, model_kwargs, prof_)
 
         if progress_info.global_step >= args.max_train_steps:
             return True
@@ -1175,9 +1305,34 @@ def main(args):
                 if train_one_step(step, data_item, prof_):
                     break
 
-    train_all_epoch()
+                if step >= 2 and torch_npu is not None and npu_config is not None:
+                    npu_config.free_mm()
+
+    if npu_config is not None and npu_config.on_npu and npu_config.profiling:
+        experimental_config = torch_npu.profiler._ExperimentalConfig(
+            profiler_level=torch_npu.profiler.ProfilerLevel.Level1,
+            aic_metrics=torch_npu.profiler.AiCMetrics.PipeUtilization
+        )
+        profile_output_path = f"/home/image_data/npu_profiling_t2v/{os.getenv('PROJECT_NAME', 'local')}"
+        os.makedirs(profile_output_path, exist_ok=True)
+
+        with torch_npu.profiler.profile(
+                activities=[torch_npu.profiler.ProfilerActivity.NPU, torch_npu.profiler.ProfilerActivity.CPU],
+                with_stack=True,
+                record_shapes=True,
+                profile_memory=True,
+                experimental_config=experimental_config,
+                schedule=torch_npu.profiler.schedule(wait=npu_config.profiling_step, warmup=0, active=1, repeat=1,
+                                                     skip_first=0),
+                on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f"{profile_output_path}/")
+        ) as prof:
+            train_all_epoch(prof)
+    else:
+        train_all_epoch()
     accelerator.wait_for_everyone()
     accelerator.end_training()
+    if npu_config is not None and get_sequence_parallel_state():
+        destroy_sequence_parallel_group()
 
 
 if __name__ == "__main__":
@@ -1219,6 +1374,7 @@ if __name__ == "__main__":
     parser.add_argument("--text_encoder_name", type=str, default='DeepFloyd/t5-v1_1-xxl')
     parser.add_argument("--cache_dir", type=str, default='./cache_dir')
     parser.add_argument("--pretrained", type=str, default=None)
+    # parser.add_argument('--enable_stable_fp32', action='store_true')
     parser.add_argument("--gradient_checkpointing", action="store_true", help="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass.")
 
     # diffusion setting
@@ -1316,6 +1472,9 @@ if __name__ == "__main__":
     parser.add_argument("--clear_video_ratio", type=float, default=0.0)
     parser.add_argument("--use_image_num", type=int, default=0)
 
+    parser.add_argument("--image_concat", action="store_true")
+    parser.add_argument("--rand_cond_frame", action="store_true")
+    parser.add_argument("--pretrain_from_ori", action="store_true")
 
     args = parser.parse_args()
     main(args)

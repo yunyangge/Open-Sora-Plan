@@ -36,6 +36,7 @@ def hacked_pipeline_call_for_vip(
     negative_prompt_attention_mask: Optional[torch.FloatTensor] = None,
     # NOTE add negative vip attention mask
     negative_vip_attention_mask: Optional[torch.FloatTensor] = None,
+    hidden_states_concat: Optional[torch.Tensor] = None,
     output_type: Optional[str] = "pil",
     return_dict: bool = True,
     callback: Optional[Callable[[int, int, torch.FloatTensor], None]] = None,
@@ -170,6 +171,7 @@ def hacked_pipeline_call_for_vip(
                 timestep=current_timestep,
                 added_cond_kwargs=added_cond_kwargs,
                 enable_temporal_attentions=num_frames > 1,
+                hidden_states_concat=hidden_states_concat,
                 return_dict=False,
             )[0]
 

@@ -2,8 +2,8 @@
 import torch
 import torch.nn as nn
 
-from diffusers.models.attention import FeedForward
-from .modules import Attention
+# from diffusers.models.attention import FeedForward
+from .modules import Attention, FeedForward
 
 class BasicQFormerBlock(nn.Module):
     def __init__(
@@ -24,6 +24,7 @@ class BasicQFormerBlock(nn.Module):
         final_dropout=False,
         ff_inner_dim=None,
         ff_bias=False,
+        compress_kv_factor=None,
         only_visual_attention=True,
     ):
         super().__init__()
@@ -43,7 +44,8 @@ class BasicQFormerBlock(nn.Module):
             attention_mode=attention_mode,
             use_rope=use_rope, 
             rope_scaling=rope_scaling, 
-            out_bias=attention_out_bias
+            out_bias=attention_out_bias,
+            compress_kv_factor=compress_kv_factor, 
         )
 
         self.only_visual_attention = only_visual_attention
@@ -62,6 +64,7 @@ class BasicQFormerBlock(nn.Module):
                 upcast_attention=upcast_attention,
                 attention_mode=attention_mode,  
                 use_rope=False,  
+                compress_kv_factor=None,
             ) 
         else:
             self.norm2_latents = None
@@ -74,9 +77,10 @@ class BasicQFormerBlock(nn.Module):
             dropout=dropout,
             activation_fn=activation_fn,
             final_dropout=final_dropout,
-            inner_dim=ff_inner_dim,
-            bias=ff_bias,
+            # inner_dim=ff_inner_dim,
+            # bias=ff_bias,
         )
+
 
     def forward(
         self, 
@@ -179,7 +183,7 @@ class QFormer(nn.Module):
 
         self.layers = nn.ModuleList([])
 
-        for _ in range(block_num):
+        for d in range(block_num):
             self.layers.append(
                 BasicQFormerBlock(
                     dim,
@@ -190,7 +194,7 @@ class QFormer(nn.Module):
                     attention_mode=attention_mode, 
                     use_rope=use_rope, 
                     rope_scaling=rope_scaling, 
-                    compress_kv_factor=(compress_kv_factor, compress_kv_factor) if d >= num_layers // 2 and compress_kv_factor != 1 else None, # follow pixart-sigma, apply in second-half layers
+                    compress_kv_factor=(compress_kv_factor, compress_kv_factor) if d >= block_num // 2 and compress_kv_factor != 1 else None, # follow pixart-sigma, apply in second-half layers
                 )
             )
             

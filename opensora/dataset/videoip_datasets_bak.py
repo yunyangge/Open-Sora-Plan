@@ -155,6 +155,7 @@ class VideoIP_dataset(Dataset):
         drop_results = self.drop(text, clip_video)
         text = drop_results['text']
         clip_video = drop_results['clip_image']
+        clip_mask = inpaint_cond_data['mask']
         
         text_tokens_and_mask = self.tokenizer(
             text,
@@ -169,7 +170,7 @@ class VideoIP_dataset(Dataset):
         cond_mask = text_tokens_and_mask['attention_mask']
 
         # video (C T H W) input_ids (1 N) cond_mask (1 N) clip_video (T C H W)
-        return dict(video=video, input_ids=input_ids, cond_mask=cond_mask, clip_video=clip_video)
+        return dict(video=video, input_ids=input_ids, cond_mask=cond_mask, clip_video=clip_video, clip_mask=clip_mask)
 
     def get_image_from_video(self, video_data):
         select_image_idx = np.linspace(0, self.num_frames - 1, self.use_image_num, dtype=int)
@@ -260,7 +261,8 @@ class VideoIP_dataset(Dataset):
         input_ids = torch.cat(input_ids)  # self.use_image_num, l
         cond_mask = torch.cat(cond_mask)  # self.use_image_num, l
         clip_image = torch.cat(clip_image) # self.use_image_num, C, H, W
-        return dict(image=image, input_ids=input_ids, cond_mask=cond_mask, clip_image=clip_image)
+        clip_mask = 1 - torch.zeros_like(clip_image)
+        return dict(image=image, input_ids=input_ids, cond_mask=cond_mask, clip_image=clip_image, clip_mask=clip_mask)
 
     def decord_read(self, path, frame_idx=None):
         decord_vr = self.v_decoder(path)

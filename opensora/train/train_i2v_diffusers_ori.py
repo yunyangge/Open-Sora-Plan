@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional
 import gc
 import numpy as np
-from einops import rearrange
+from einops import rearrange, repeat
 from tqdm import tqdm
 import itertools
 
@@ -286,7 +286,7 @@ def log_validation(
 
 
     validation_dir = args.validation_dir if args.validation_dir is not None else "./validation"
-    prompt_file = os.path.join(validation_dir, "i2v_prompt.txt")
+    prompt_file = os.path.join(validation_dir, "prompt.txt")
     # prompt_file = os.path.join(validation_dir, "test_prompt.txt")
 
     with open(prompt_file, 'r') as f:
@@ -330,10 +330,7 @@ def log_validation(
 
     videos = []
     gen_img = False
-    # for prompt, images in zip(validation_prompt, validation_images_list):
-    for idx, (prompt, images) in enumerate(zip(validation_prompt, validation_images_list)):
-        if 'img' in images[0]:
-            continue
+    for prompt, images in zip(validation_prompt, validation_images_list):
         if not isinstance(images, list):
             images = [images]
         logger.info('Processing the ({}) prompt and the images ({})'.format(prompt, images))
@@ -387,14 +384,6 @@ def log_validation(
             max_squence_length=args.model_max_length,
         ).images
         videos.append(video[0])
-        if video[0].shape[0] == 1: # image
-            ext = 'png'
-            Image.fromarray(video[0][0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
-        else: # video
-            ext = 'mp4'
-            imageio.mimwrite(
-                os.path.join(save_dir, f'{idx}.{ext}'), video[0], fps=24, quality=6)  # highest quality is 10, lowest is 0
-
         gen_img = False
     # import ipdb;ipdb.set_trace()
 
@@ -402,15 +391,15 @@ def log_validation(
     save_dir = os.path.join(args.output_dir, f"val_{global_step:09d}" if not ema else f"val_ema_{global_step:09d}")
     os.makedirs(save_dir, exist_ok=True)
 
-    # for idx, video in enumerate(videos):
+    for idx, video in enumerate(videos):
 
-    #     if video.shape[0] == 1: # image
-    #         ext = 'png'
-    #         Image.fromarray(video[0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
-    #     else: # video
-    #         ext = 'mp4'
-    #         imageio.mimwrite(
-    #             os.path.join(save_dir, f'{idx}.{ext}'), video, fps=24, quality=6)  # highest quality is 10, lowest is 0
+        if video.shape[0] == 1: # image
+            ext = 'png'
+            Image.fromarray(video[0].cpu().numpy()).save(os.path.join(save_dir, f'{idx}.{ext}'))
+        else: # video
+            ext = 'mp4'
+            imageio.mimwrite(
+                os.path.join(save_dir, f'{idx}.{ext}'), video, fps=24, quality=6)  # highest quality is 10, lowest is 0
         
     # import ipdb;ipdb.set_trace()
 
@@ -598,10 +587,25 @@ def main(args):
         logger.info(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
         logger.info(f'Successfully load {len(model_state_dict) - len(missing_keys)}/{len(model_state_dict)} keys from {args.pretrained}!')
 
+    if args.image_concat:
+        if args.pretrain_from_ori:
+            in_channels=ae_channel_config[args.ae]
+            new_in_channels = ae_channel_config[args.ae] * 2
+            embed_dim = model.num_attention_heads * model.attention_head_dim
+            bias = True
+            new_proj = nn.Conv2d(
+                new_in_channels, embed_dim, kernel_size=(patch_size, patch_size), stride=patch_size, bias=bias
+            )
+            with torch.no_grad():
+                new_proj.weight[:, :in_channels, :, :] = model.pos_embed.proj.weight
+                if model.pos_embed.proj.bias is not None:
+                    new_proj.bias = model.pos_embed.proj.bias
+            model.pos_embed.proj = new_proj
+
     # Freeze main model
     ae.vae.requires_grad_(False)
     text_enc.requires_grad_(False)
-    model.requires_grad_(False)
+    # model.requires_grad_(False)
 
     # load image encoder
     if args.image_encoder_type == 'clip':
@@ -629,7 +633,7 @@ def main(args):
         image_encoder_type=args.image_encoder_type,
         cross_attention_dim=1152,
         num_tokens=272, # NOTE should be modified 
-        vip_inner_dim=1280 if args.image_encoder_type == 'clip' else 1536,
+        vip_inner_dim=1280,
         num_queries=16,
         depth=4,
         attention_mode=args.attention_mode,
@@ -647,8 +651,6 @@ def main(args):
         logger.info(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
 
 
-    # vip.train()
-
     init_from_original_attn_processor = False if (args.pretrained_vip_adapter_path is not None or args.resume_from_checkpoint is not None) else True
     vip.set_vip_adapter(model, init_from_original_attn_processor=init_from_original_attn_processor)
 
@@ -661,8 +663,8 @@ def main(args):
     noise_scheduler = DDPMScheduler(rescale_betas_zero_snr=args.zero_terminal_snr)
     # Move unet, vae and text_encoder to device and cast to weight_dtype
     # The VAE is in float32 to avoid NaN losses.
-    ae.vae.to(accelerator.device, dtype=torch.float32)
-    # ae.vae.to(accelerator.device, dtype=weight_dtype)
+    # ae.vae.to(accelerator.device, dtype=torch.float32)
+    ae.vae.to(accelerator.device, dtype=weight_dtype)
     text_enc.to(accelerator.device, dtype=weight_dtype)
     model.to(accelerator.device, dtype=weight_dtype)
 
@@ -1076,17 +1078,6 @@ def main(args):
         #         else:
         #             print(f"Parameter {name} has not changed!")
         
-        # # NOTE checking params update
-        # if step_ > 1:
-        #     print("Comparing alpha before and after training step:")
-        #     for name, param in vip.named_parameters():
-        #         if "alpha" in name:
-        #             if not torch.equal(param, initial_params[name]):
-        #                 print(f"Parameter {name} has changed.")
-        #                 initial_params[name] = param.clone()
-        #             else:
-        #                 print(f"Parameter {name} has not changed!")
-        
         train_loss = 0.0
         x, attn_mask, input_ids, cond_mask, clip_data, clip_mask = data_item_
         # Sample noise that we'll add to the latents
@@ -1123,8 +1114,19 @@ def main(args):
             clip_feature_height = clip_feature_width = int(sqrt(clip_feature.shape[1]))
             clip_feature = rearrange(clip_feature, '(b t) (h w) c -> b t h w c', b=B, h=clip_feature_height, w=clip_feature_width) # B T+image_num H W D  
 
+            if args.image_concat:
+                import random
+                cond_frame_index = 0
+                if args.rand_cond_frame:
+                    cond_frame_index = random.randint(0, x.size(2)-args.use_image_num-1) # TODO:replace x.size(2) by args 
+
             # Map input images to latent space + normalize latents
             if args.use_image_num == 0:
+                if args.image_concat:
+                    ## simply repeat the cond_frame to match the seq_len of x
+                    img_cat_cond = x[:,:,cond_frame_index,:,:].unsqueeze(2)
+                    img_cat_cond = ae.encode(img_cat_cond)
+                    img_cat_cond = repeat(img_cat_cond, 'b c 1 h w -> b c t h w', t=17) # TODO size
                 x = ae.encode(x)  # B C T H W
             else:
                 videos, images = x[:, :, :-args.use_image_num], x[:, :, -args.use_image_num:]
@@ -1134,6 +1136,14 @@ def main(args):
                 images = rearrange(images, '(b t) c 1 h w -> b c t h w', t=args.use_image_num)
                 x = torch.cat([videos, images], dim=2)  # b c 17+4, h, w
 
+                if args.image_concat:
+                    # TODO: does args.use_image_num=0 while training
+                    ## simply repeat the cond_frame to match the seq_len of x
+                    img_cat_cond_v = videos[:,:,cond_frame_index,:,:].unsqueeze(2)
+                    img_cat_cond_v = ae.encode(img_cat_cond_v)
+                    img_cat_cond_v = repeat(img_cat_cond_v, 'b c 1 h w -> b c t h w', t=x.size(2)-args.use_image_num)
+                    img_cat_cond = torch.cat([img_cat_cond_v, images], dim=2)
+
             assert not torch.any(torch.isnan(x)), 'after vae'
            
         with accelerator.accumulate(vip):
@@ -1141,7 +1151,9 @@ def main(args):
             assert not torch.any(torch.isnan(x)), 'after vae' 
             model_kwargs = dict(encoder_hidden_states=cond, attention_mask=attn_mask,
                                 encoder_attention_mask=cond_mask, use_image_num=args.use_image_num,
-                                clip_feature=clip_feature, clip_mask=clip_mask)
+                                clip_feature=clip_feature, clip_mask=clip_mask,
+                                hidden_states_concat=img_cat_cond if args.image_concat else None,
+                            )
             run(x, model_kwargs, prof_)
 
         if progress_info.global_step >= args.max_train_steps:
@@ -1156,22 +1168,42 @@ def main(args):
                 return True
 
             for step, data_item in enumerate(train_dataloader):
-                if accelerator.is_main_process:
-                    if progress_info.global_step == 0:
-                        print("before training, we need to check the validation mode...")
-                        log_validation(
-                            args=args, 
-                            model=model, 
-                            vip=vip,
-                            vae=ae, 
-                            text_encoder=text_enc.text_enc,
-                            tokenizer=train_dataset.tokenizer, 
-                            image_processor=train_dataset.image_processor,
-                            image_encoder=image_encoder,
-                            accelerator=accelerator,
-                            weight_dtype=weight_dtype, 
-                            global_step=progress_info.global_step,
-                        )
+                # if accelerator.is_main_process:
+                #     if progress_info.global_step == 0:
+                #         print("before training, we need to check the validation mode...")
+                #         log_validation(
+                #             args=args, 
+                #             model=model, 
+                #             vip=vip,
+                #             vae=ae, 
+                #             text_encoder=text_enc.text_enc,
+                #             tokenizer=train_dataset.tokenizer, 
+                #             image_processor=train_dataset.image_processor,
+                #             image_encoder=image_encoder,
+                #             accelerator=accelerator,
+                #             weight_dtype=weight_dtype, 
+                #             global_step=progress_info.global_step,
+                #         )
+                #         if args.use_ema:
+                #             # Store the UNet parameters temporarily and load the EMA parameters to perform inference.
+                #             ema_vip.store(vip.parameters())
+                #             ema_vip.copy_to(vip.parameters())
+                #             log_validation(
+                #                 args=args, 
+                #                 model=model, 
+                #                 vip=vip,
+                #                 vae=ae, 
+                #                 text_encoder=text_enc.text_enc,
+                #                 tokenizer=train_dataset.tokenizer, 
+                #                 image_processor=train_dataset.image_processor,
+                #                 image_encoder=image_encoder,
+                #                 accelerator=accelerator,
+                #                 weight_dtype=weight_dtype, 
+                #                 global_step=progress_info.global_step,
+                #                 ema=True,
+                #             )
+                #             # Switch back to the original UNet parameters.
+                #             ema_vip.restore(vip.parameters())
                 if train_one_step(step, data_item, prof_):
                     break
 
@@ -1316,6 +1348,9 @@ if __name__ == "__main__":
     parser.add_argument("--clear_video_ratio", type=float, default=0.0)
     parser.add_argument("--use_image_num", type=int, default=0)
 
+    parser.add_argument("--image_concat", action="store_true")
+    parser.add_argument("--rand_cond_frame", action="store_true")
+    parser.add_argument("--pretrain_from_ori", action="store_true")
 
     args = parser.parse_args()
     main(args)

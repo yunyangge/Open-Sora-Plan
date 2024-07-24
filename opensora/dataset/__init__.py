@@ -150,8 +150,12 @@ def getdataset(args):
             # RandomHorizontalFlipVideo(p=0.5),  # in case their caption have position decription
             norm_fun
         ])
-        # tokenizer = AutoTokenizer.from_pretrained(args.text_encoder_name, cache_dir=args.cache_dir)
-        tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir)
-        return Inpaint_dataset(args, transform=transform, temporal_sample=temporal_sample, tokenizer=tokenizer, 
-                           transform_topcrop=transform_topcrop)
+        tokenizer = AutoTokenizer.from_pretrained(args.text_encoder_name, cache_dir=args.cache_dir)
+        # tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir)
+        # return VideoIP_dataset(args, transform=transform, temporal_sample=temporal_sample, tokenizer=tokenizer, 
+        #                    transform_topcrop=transform_topcrop)
+
+        resize_transform = transforms.Compose(resize)
+        image_processor = AutoImageProcessor.from_pretrained(args.image_encoder_name, cache_dir=args.cache_dir)
+        return VideoIP_dataset(args, transform=transform, resize_transform=resize_transform, temporal_sample=temporal_sample, tokenizer=tokenizer, image_processor=image_processor)
     raise NotImplementedError(args.dataset)

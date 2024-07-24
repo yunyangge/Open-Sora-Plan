@@ -122,6 +122,7 @@ class VideoIPVideoQFormer(nn.Module):
         self, 
         hidden_states,
         image_mode=False,
+        clip_mask=None,
     ):
         # B C F H W
         input_batch_size, input_frame = hidden_states.shape[0], hidden_states.shape[2]
@@ -139,7 +140,7 @@ class VideoIPVideoQFormer(nn.Module):
         # after conv_in
         frame, height, width = hidden_states.shape[2], hidden_states.shape[3], hidden_states.shape[4]
         # if training image, now batch = input_batch_size * frame; if not, batch remains the same
-        hidden_states = rearrange(hidden_states, "b c f h w -> b (f h w) c")
+        hidden_states = rearrange(hidden_states, "b c f h w -> (b f) (h w) c")
         
         hidden_states = self.qformer(hidden_states)
 
@@ -147,15 +148,34 @@ class VideoIPVideoQFormer(nn.Module):
         if image_mode:
             hidden_states = rearrange(hidden_states, '(b f) n c -> b f n c', f=input_frame)
         else:
-            hidden_states = hidden_states.unsqueeze(1) # B N C -> B 1 N C
+            # hidden_states = hidden_states.unsqueeze(1) # B N C -> B 1 N C
+            hidden_states = rearrange(hidden_states, '(b f) n c -> b 1 (f n) c', f=frame)
 
         batch, num_seq, num_tokens, _ = hidden_states.shape
         hidden_states = F.pad(hidden_states, (0, 0, 0, self.max_num_tokens - num_tokens), value=0.0)
         vip_cond_mask = torch.ones([batch, num_seq, num_tokens], device=hidden_states.device, dtype=hidden_states.dtype)
         vip_cond_mask = F.pad(vip_cond_mask, (0, self.max_num_tokens - num_tokens), value=0.0)
 
+        if clip_mask is not None:
+            clip_mask = self.clip_mask_to_cond(clip_mask)
+            clip_mask = clip_mask.repeat_interleave(16, dim=2)
+            vip_cond_mask = vip_cond_mask * clip_mask
+
         # hidden_states: B 1 N D(video) B image_num N D(image), vip_cond_mask: B 1 N(video) B image_num N(image), N = max_num_tokens
         return hidden_states, vip_cond_mask
+
+    def clip_mask_to_cond(self, clip_mask):
+        dtype = clip_mask.dtype
+        b, t, c, h, w = clip_mask.shape
+        clip_mask = clip_mask[:,:,0,0,0]
+        image_clip_mask = clip_mask[:, 0:1].repeat(1, self.vae_scale_factor_t)
+        clip_mask = torch.cat([image_clip_mask, clip_mask[:, 1:]], dim=1)
+        clip_mask = 1 - clip_mask
+
+        clip_mask = F.max_pool1d(clip_mask.to(torch.float32), kernel_size=self.vae_scale_factor_t, stride=self.vae_scale_factor_t)
+        clip_mask = clip_mask.unsqueeze(1)
+        clip_mask = clip_mask.bool().to(dtype)
+        return clip_mask
 
 class VideoIPAdapter(nn.Module):
     def __init__(
@@ -192,6 +212,7 @@ class VideoIPAdapter(nn.Module):
         self, 
         hidden_states,
         use_image_num=0,
+        clip_mask=None,
         return_dict=True,
     ):
 
@@ -204,9 +225,9 @@ class VideoIPAdapter(nn.Module):
 
         one_image_video = True if frame == 1 else False
         if self.training and self.gradient_checkpointing:
-            video_hidden_states, video_cond_mask = torch.utils.checkpoint.checkpoint(self.encoder, video_hidden_states, one_image_video, use_reentrant=False,)
+            video_hidden_states, video_cond_mask = torch.utils.checkpoint.checkpoint(self.encoder, video_hidden_states, one_image_video, clip_mask, use_reentrant=False,)
         else:
-            video_hidden_states, video_cond_mask = self.encoder(video_hidden_states, image_mode=one_image_video)
+            video_hidden_states, video_cond_mask = self.encoder(video_hidden_states, image_mode=one_image_video, clip_mask=clip_mask)
 
         if use_image_num:
             image_hidden_states = hidden_states[:, :, frame:]
@@ -276,6 +297,9 @@ class VideoIPAttnProcessor(nn.Module):
         
         self.num_vip_tokens = num_vip_tokens
         self.vip_scale = vip_scale
+
+        self.scale_learnable = True # False, Trur
+        self.alpha = nn.Parameter(torch.tensor(0.))
 
     def _init_rope(self):
         if self.rope_scaling is None:
@@ -452,7 +476,10 @@ class VideoIPAttnProcessor(nn.Module):
         # dropout
         vip_hidden_states = self.to_out_vip[1](vip_hidden_states)
 
-        hidden_states = hidden_states + self.vip_scale * vip_hidden_states
+        if self.scale_learnable:
+            hidden_states = hidden_states + self.vip_scale * vip_hidden_states * (torch.tanh(self.alpha)+1)
+        else:
+            hidden_states = hidden_states + self.vip_scale * vip_hidden_states
 
         if input_ndim == 4:
             hidden_states = hidden_states.transpose(-1, -2).reshape(batch_size, channel, height, width)
