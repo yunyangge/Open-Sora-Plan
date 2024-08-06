@@ -25,13 +25,14 @@ from transformers import T5EncoderModel, MT5EncoderModel, UMT5EncoderModel, Auto
 
 from opensora.models.diffusion.opensora.modeling_opensora import OpenSoraT2V
 
+from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
 from opensora.models.ae import ae_stride_config, getae, getae_wrapper
 from opensora.models.ae.videobase import CausalVQVAEModelWrapper, CausalVAEModelWrapper
-from opensora.models.diffusion.opensora.modeling_inpaint import OpenSoraInpaint, VIPNet, hacked_model
+from opensora.models.diffusion.opensora.modeling_inpaint import OpenSoraInpaint, VIPNet
 from opensora.models.diffusion.opensora.modeling_inpaint import STR_TO_TYPE, TYPE_TO_STR, ModelType
 import timm
 
@@ -55,16 +56,16 @@ import gc
 import time
 
 # we use timm styled model
-def get_clip_feature(clip_data, image_encoder):
+def get_clip_features(clip_data, image_encoder):
     batch_size = clip_data.shape[0]
     clip_data = rearrange(clip_data, 'b t c h w -> (b t) c h w') # B T+image_num C H W -> B * (T+image_num) C H W
     # NOTE using last layer of DINO as clip feature
-    clip_feature = image_encoder.forward_features(clip_data)
-    clip_feature = clip_feature[:, 5:] # drop cls token and reg tokens
-    clip_feature_height = 518 // 14 # 37, dino height
-    clip_feature = rearrange(clip_feature, '(b t) (h w) c -> b c t h w', b=batch_size, h=clip_feature_height) # B T+image_num H W D  
+    clip_features = image_encoder.forward_features(clip_data)
+    clip_features = clip_features[:, 5:] # drop cls token and reg tokens
+    clip_features_height = 518 // 14 # 37, dino height
+    clip_features = rearrange(clip_features, '(b t) (h w) c -> b c t h w', b=batch_size, h=clip_features_height) # B T+image_num H W D  
     
-    return clip_feature
+    return clip_features
 
 @torch.inference_mode()
 def validation(args):
@@ -133,24 +134,21 @@ def validation(args):
     text_encoder = MT5EncoderModel.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir, low_cpu_mem_usage=True, torch_dtype=weight_dtype)
     tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir)
     
-    if os.path.exists(os.path.join(args.model_path, "transformer_model")):
-        transformer_model_path = os.path.join(args.model_path, "transformer_model")
+    if os.path.exists(args.model_path):
+        transformer_model_path = args.model_path
     else:
         transformer_model_path = args.pretrained_transformer_model_path
 
     if args.rank == 0:
         print(transformer_model_path)
     
-    if model_type == ModelType.VIP_ONLY:
-        transformer_model = OpenSoraT2V.from_pretrained(transformer_model_path, torch_dtype=weight_dtype)
-        model_cls = OpenSoraT2V
-    else:
-        transformer_model = OpenSoraInpaint.from_pretrained(transformer_model_path,  torch_dtype=weight_dtype)
-        model_cls = OpenSoraInpaint
+    transformer_model = OpenSoraInpaint.from_pretrained(transformer_model_path, torch_dtype=weight_dtype)
 
-    hacked_model(transformer_model, model_type, model_cls)
-
-    transformer_model.custom_load_state_dict(transformer_model_path)
+    if transformer_model_path != args.model_path:
+        pretrained_path = dict(transformer=args.pretrained_transformer_model_path)
+        if model_type != ModelType.INPAINT_ONLY:
+            pretrained_path.update(dict(vip=args.pretrained_vipnet_path))
+        transformer_model.custom_load_state_dict(pretrained_path)
     transformer_model.to(dtype=weight_dtype)
 
     transformer_model = transformer_model.to(device)
@@ -173,62 +171,7 @@ def validation(args):
         else:
             raise NotImplementedError
 
-        if os.path.exists(os.path.join(args.model_path, "vip")):
-            vipnet_path = os.path.join(args.model_path, "vip")
-        else:
-            vipnet_path = args.pretrained_vipnet_path
-
-        if args.rank == 0:
-            print(vipnet_path)
-
-        attn_proc_type_dict = {}        
-        for name, attn_processor in transformer_model.attn_processors.items():
-            # replace all attn2.processor with VideoIPAttnProcessor
-            if name.endswith('.attn2.processor'):
-                attn_proc_type_dict[name] = 'VideoIPAttnProcessor'
-            else:
-                attn_proc_type_dict[name] = attn_processor.__class__.__name__
-
-        if args.width / args.height == 16 / 9:
-            pooled_token_output_size = (16, 28) # 720p or 1080p
-        elif args.width / args.height == 4 / 3:
-            pooled_token_output_size = (12, 16) # 480p
-        else:
-            raise NotImplementedError
-
-        if args.num_frames % 2 == 1:
-            args.latent_size_t = latent_size_t = (args.num_frames - 1) // 4 + 1
-        else:
-            latent_size_t = args.num_frames // 4
-
-        num_tokens = pooled_token_output_size[0] // 4 * pooled_token_output_size[1] // 4 * latent_size_t
-
-        if args.rank == 0:
-            print(f"initialize VIPNet, num_tokens: {num_tokens}, pooled_token_output_size: {pooled_token_output_size}")
-
-        vip = VIPNet(
-            image_encoder_out_channels=1536,
-            cross_attention_dim=2304,
-            num_tokens=num_tokens, # NOTE should be modified 
-            pooled_token_output_size=pooled_token_output_size, # NOTE should be modified, (h, w). when 480p, (12, 16); when 720p or 1080p, (16, 28)
-            vip_num_attention_heads=16, # for dinov2
-            vip_attention_head_dim=72,
-            vip_num_attention_layers=[1, 3],
-            attention_mode='xformers',
-            gradient_checkpointing=False,
-            vae_scale_factor_t=4,
-            num_frames=args.num_frames,
-            use_rope=True,
-            attn_proc_type_dict=attn_proc_type_dict,
-        )
-        # vip = VIPNet.from_pretrained(args.pretrained_vipnet_path, torch_dtype=weight_dtype)
-        vip.custom_load_state_dict(args.pretrained_vipnet_path)
-        vip.set_vip_adapter(transformer_model, init_from_original_attn_processor=False)
-
-        vip.register_get_clip_feature_func(get_clip_feature)
-        vip = vip.to(device=device, dtype=weight_dtype)
-        vip.eval()
-
+        transformer_model.vip.register_get_clip_features_func(get_clip_features)
 
     if args.sample_method == 'DDIM':  #########
         scheduler = DDIMScheduler(clip_sample=False)
@@ -319,7 +262,7 @@ def validation(args):
 
         condition_images, condition_images_indices= None, None
 
-        vip_tokens, vip_cond_mask, negative_vip_tokens, negative_vip_cond_mask = None, None, None, None
+        clip_features, negative_clip_features = None, None
 
         if model_type != ModelType.VIP_ONLY:
             pre_results = preprocess_images(images)
@@ -328,7 +271,7 @@ def validation(args):
 
         if model_type != ModelType.INPAINT_ONLY:
             if args.num_frames != 1:
-                vip_tokens, vip_cond_mask, negative_vip_tokens, negative_vip_cond_mask = vip.get_video_embeds(
+                clip_features, negative_clip_features = transformer_model.vip.get_video_embeds(
                     condition_images=images,
                     num_frames=args.num_frames,
                     image_processor=image_processor,
@@ -345,10 +288,8 @@ def validation(args):
             condition_images=condition_images,
             condition_images_indices=condition_images_indices,
             negative_prompt=negative_prompt,
-            vip_tokens=vip_tokens,
-            vip_attention_mask=vip_cond_mask,
-            negative_vip_tokens=negative_vip_tokens,
-            negative_vip_attention_mask=negative_vip_cond_mask,
+            clip_features=clip_features,
+            negative_clip_features=negative_clip_features,
             num_frames=args.num_frames,
             height=args.height,
             width=args.width,
@@ -406,20 +347,35 @@ def main(args):
         dirs = sorted(dirs, key=lambda x: int(x.split("-")[1]))
         path = dirs[-1] if len(dirs) > 0 else None
         dist.barrier()
+        # path = "checkpoint-200"
         if path != lask_ckpt:
             print("====================================================")
             print(f"sample {path}...")
             args.model_path = os.path.join(root_model_path, path, "model")
-            if os.path.exists(args.model_path):
-                args.save_img_path = os.path.join(root_save_path, f"{path}_normal")
-                validation(args)
+            args.save_img_path = os.path.join(root_save_path, f"{path}_normal")
+            print(f"model path: {args.model_path}, save img path: {args.save_img_path}")
+            while True:
+                if os.path.exists(args.model_path):
+                    validation(args)
+                    break
+                else:
+                    time.sleep(5)
+                    continue
             print("====================================================")
             print(f"sample ema {path}...")
             args.model_path = os.path.join(root_model_path, path, "model_ema")
-            if os.path.exists(args.model_path):
-                args.save_img_path = os.path.join(root_save_path, f"{path}_ema")
-                validation(args)
+            args.save_img_path = os.path.join(root_save_path, f"{path}_ema")
+            print(f"model path: {args.model_path}, save img path: {args.save_img_path}")
+            while True:
+                if os.path.exists(args.model_path):
+                    validation(args)
+                    break
+                else:
+                    time.sleep(5)
+                    continue
+                
             lask_ckpt = path
+            
         else:
             print("no new ckpt, sleeping...")
         time.sleep(60)

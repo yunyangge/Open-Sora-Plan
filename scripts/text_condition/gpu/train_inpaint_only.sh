@@ -1,5 +1,5 @@
 # PROJECT="video_test"
-PROJECT="inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_dino518_ema0_999"
+PROJECT="inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999"
 export WANDB_API_KEY="720d886d8c437c2142c88056a1eab8ef78d64a1f"
 export WANDB_MODE="online"
 export ENTITY="yunyangge"
@@ -23,7 +23,7 @@ export MKL_NUM_THREADS=1
 export PDSH_RCMD_TYPE=ssh
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/multi_node_example1.yaml \
+    --config_file scripts/accelerate_configs/multi_node_example.yaml \
     opensora/train/train_inpaint_all_in_one.py \
     --model OpenSoraInpaint-ROPE-L/122 \
     --text_encoder_name google/mt5-xxl \
@@ -33,8 +33,8 @@ accelerate launch \
     --dataset inpaint \
     --model_type inpaint_only \
     --ae CausalVAEModel_4x8x8 \
-    --ae_path "/storage/CausalVAEModel_4x8x8" \
-    --data "scripts/train_data/video_data.txt" \
+    --ae_path "/storage/dataset/test140k" \
+    --data "scripts/train_data/video_data_sucai.txt" \
     --sample_rate 1 \
     --num_frames 93 \
     --use_image_num 0 \
@@ -48,14 +48,14 @@ accelerate launch \
     --dataloader_num_workers 10 \
     --gradient_accumulation_steps=1 \
     --gradient_checkpointing \
-    --max_train_steps=500000 \
+    --max_train_steps=1000000 \
     --learning_rate=1e-5 \
     --lr_scheduler="constant" \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
     --report_to="wandb" \
     --enable_tracker \
-    --checkpointing_steps=500 \
+    --checkpointing_steps=200 \
     --output_dir runs/$PROJECT \
     --allow_tf32 \
     --model_max_length 512 \
@@ -70,16 +70,19 @@ accelerate launch \
     --i2v_ratio 0.4 \
     --transition_ratio 0.4 \
     --v2v_ratio 0.1 \
-    --clear_video_ratio 0.05 \
+    --clear_video_ratio 0.0 \
     --default_text_ratio 0.5 \
     --seed 42 \
     --snr_gamma 5.0 \
     --noise_offset 0.02 \
-    --vip_num_attention_heads 16 \
     --ema_decay 0.999 \
     --use_rope \
-    --pretrained_transformer_model_path "/storage/ongoing/new/Open-Sora-Plan-bak/7.14bak/bs16x8x1_93x480p_lr1e-4_snr5_ema999_opensora122_rope_mt5xxl_high_pandamovie_speed1.0/checkpoint-3500/model_ema" \
+    --group_frame \
+    --resume_from_checkpoint "latest" \
+    # --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999_old_script/checkpoint-25800/model_ema" \
+    # --pretrained_vip_adapter_path "/storage/gyy/hw/Open-Sora-Plan/pretrained_models/pretrained_vip_9000.pth"
     # --speed_factor 1.5 \
-    # --resume_from_checkpoint "latest" \
+    # --vip_num_attention_heads 16 \
+    # --train_vip \
     # --zero_terminal_snr \
     # 基模型权重没有参与训练所以一定要加载
