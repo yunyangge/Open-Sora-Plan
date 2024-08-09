@@ -30,19 +30,6 @@ import glob
 
 from .modeling_opensora import OpenSoraT2V
 
-class ModelType(Enum):
-    VIP_ONLY = auto()
-    INPAINT_ONLY = auto()
-    VIP_INPAINT = auto()
-
-TYPE_TO_STR = {
-    ModelType.VIP_ONLY: "vip_only",
-    ModelType.INPAINT_ONLY: "inpaint_only",
-    ModelType.VIP_INPAINT: "vip_inpaint",
-}
-
-STR_TO_TYPE = {v: k for k, v in TYPE_TO_STR.items()}
-
 def zero_module(module):
     for p in module.parameters():
         nn.init.zeros_(p)
@@ -131,14 +118,14 @@ class OpenSora4D(OpenSoraT2V):
             use_stable_fp32=use_stable_fp32,
         )
 
-        self._init_patched_inputs_for_inpainting()
+        self._init_patched_inputs_for_4d()
 
-    def _init_patched_inputs_for_inpainting(self):
+    def _init_patched_inputs_for_4d(self):
 
         assert self.config.sample_size_t is not None, "OpenSora4D over patched input must provide sample_size_t"
         assert self.config.sample_size is not None, "OpenSora4D over patched input must provide sample_size"
         #assert not (self.config.sample_size_t == 1 and self.config.patch_size_t == 2), "Image do not need patchfy in t-dim"
-
+ 
         self.num_frames = self.config.sample_size_t
         self.config.sample_size = to_2tuple(self.config.sample_size)
         self.height = self.config.sample_size[0]
