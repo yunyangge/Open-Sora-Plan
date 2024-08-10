@@ -1,6 +1,6 @@
 export MASTER_ADDR='localhost'
 export TOKENIZERS_PARALLELISM=false
-MODEL_PATH=/storage/gyy/hw/Open-Sora-Plan/runs/inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-34000/model
+MODEL_PATH=/storage/gyy/hw/Open-Sora-Plan/runs/inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-34000/model_ema
 # export HF_DATASETS_OFFLINE=1 
 # export TRANSFORMERS_OFFLINE=1
 

@@ -206,6 +206,8 @@ def main(args):
 
     latent_size_t = args.num_frames
 
+    model_kwargs = {'vae_scale_factor_t': ae_stride_t}
+
     model = Diffusion_models[args.model](
         in_channels=ae_channel_config[args.ae],
         out_channels=ae_channel_config[args.ae],
@@ -234,6 +236,7 @@ def main(args):
         use_rope=args.use_rope,
         # model_max_length=args.model_max_length,
         use_stable_fp32=args.enable_stable_fp32,
+        **model_kwargs,
     )
     model.gradient_checkpointing = args.gradient_checkpointing
 
