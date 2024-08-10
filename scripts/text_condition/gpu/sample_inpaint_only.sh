@@ -4,7 +4,7 @@ MODEL_PATH=inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0
 # export HF_DATASETS_OFFLINE=1 
 # export TRANSFORMERS_OFFLINE=1
 
-torchrun --nproc_per_node=8 --master_port=29501 opensora/sample/sample_inpaint_all_in_one.py \
+torchrun --nproc_per_node=8 --master_port=29503 opensora/sample/sample_inpaint_all_in_one.py \
     --model_path /storage/gyy/hw/Open-Sora-Plan/runs/$MODEL_PATH \
     --model_type 'inpaint_only' \
     --num_frames 93 \

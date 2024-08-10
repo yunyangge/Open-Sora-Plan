@@ -136,6 +136,90 @@ class Collate:
 
         return pad_batch_tubes, attention_mask
 
+class FourD_Collate:
+    def __init__(self, args):
+        self.batch_size = args.train_batch_size
+        self.group_frame = args.group_frame
+        self.group_resolution = args.group_resolution
+
+        self.max_height = args.max_height
+        self.max_width = args.max_width
+        self.ae_stride = args.ae_stride
+
+        self.ae_stride_t = 1
+        self.ae_stride_thw = (self.ae_stride_t, self.ae_stride, self.ae_stride)
+
+        self.patch_size = args.patch_size
+        self.patch_size_t = args.patch_size_t
+
+        self.num_frames = args.num_frames
+        self.use_image_num = args.use_image_num
+        self.max_thw = (self.num_frames, self.max_height, self.max_width)
+
+    def package(self, batch):
+        batch_tubes = [i['pixel_values'] for i in batch]  # b [c t h w]
+        input_ids = torch.stack([i['input_ids'] for i in batch])  # b 1 l
+        cond_mask = torch.stack([i['cond_mask'] for i in batch])  # b 1 l
+        return batch_tubes, input_ids, cond_mask
+
+    def __call__(self, batch):
+        batch_tubes, input_ids, cond_mask = self.package(batch)
+
+        ds_stride = self.ae_stride * self.patch_size
+        t_ds_stride = self.ae_stride_t * self.patch_size_t
+        
+        pad_batch_tubes, attention_mask = self.process(batch_tubes, t_ds_stride, ds_stride, self.max_thw, self.ae_stride_thw)
+        assert not torch.any(torch.isnan(pad_batch_tubes)), 'after pad_batch_tubes'
+        return pad_batch_tubes, attention_mask, input_ids, cond_mask
+
+    def process(self, batch_tubes, t_ds_stride, ds_stride, max_thw, ae_stride_thw):
+        # pad to max multiple of ds_stride
+        batch_input_size = [i.shape for i in batch_tubes]  # [(c t h w), (c t h w)]
+        assert len(batch_input_size) == self.batch_size
+        if self.group_frame:
+            max_t = max([i[1] for i in batch_input_size])
+            max_h = max([i[2] for i in batch_input_size])
+            max_w = max([i[3] for i in batch_input_size])
+        else:
+            max_t, max_h, max_w = max_thw
+        pad_max_t, pad_max_h, pad_max_w = pad_to_multiple(max_t, t_ds_stride), \
+                                          pad_to_multiple(max_h, ds_stride), \
+                                          pad_to_multiple(max_w, ds_stride)
+        each_pad_t_h_w = [
+            [
+                pad_max_t - i.shape[1],
+                pad_max_h - i.shape[2],
+                pad_max_w - i.shape[3]
+                ] for i in batch_tubes
+                ]
+        pad_batch_tubes = [
+            F.pad(im, (0, pad_w, 0, pad_h, 0, pad_t), value=0) 
+            for (pad_t, pad_h, pad_w), im in zip(each_pad_t_h_w, batch_tubes)
+            ]
+        pad_batch_tubes = torch.stack(pad_batch_tubes, dim=0)
+
+        max_tube_size = [pad_max_t, pad_max_h, pad_max_w]
+        max_latent_size = [
+            max_tube_size[0] // ae_stride_thw[0],
+            max_tube_size[1] // ae_stride_thw[1],
+            max_tube_size[2] // ae_stride_thw[2]
+            ]
+        valid_latent_size = [
+            [
+                int(math.ceil(i[1] / ae_stride_thw[0])),
+                int(math.ceil(i[2] / ae_stride_thw[1])),
+                int(math.ceil(i[3] / ae_stride_thw[2]))
+                ] for i in batch_input_size]
+        attention_mask = [
+            F.pad(torch.ones(i, dtype=pad_batch_tubes.dtype), (0, max_latent_size[2] - i[2], 
+                                                               0, max_latent_size[1] - i[1],
+                                                               0, max_latent_size[0] - i[0]), value=0) for i in valid_latent_size]
+        attention_mask = torch.stack(attention_mask)  # b t h w
+        if self.batch_size == 1 or self.group_frame:
+            assert torch.all(attention_mask.bool())
+
+        return pad_batch_tubes, attention_mask
+
 class Inpaint_Collate(Collate):
     def __init__(self, args):
         super().__init__(args)
