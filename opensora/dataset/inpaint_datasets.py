@@ -67,11 +67,12 @@ class Meta_dataset(T2V_dataset):
         if self.num_frames != 1:
             # inpaint
             # The proportion of executing the i2v task.
+            self.t2v_ratio = args.t2v_ratio
             self.i2v_ratio = args.i2v_ratio
             self.transition_ratio = args.transition_ratio
             self.v2v_ratio = args.v2v_ratio
             self.clear_video_ratio = args.clear_video_ratio
-            assert self.i2v_ratio + self.transition_ratio + self.v2v_ratio + self.clear_video_ratio < 1, 'The sum of i2v_ratio, transition_ratio, v2v_ratio and clear video ratio should be less than 1.'
+            assert self.t2v_ratio + self.i2v_ratio + self.transition_ratio + self.v2v_ratio + self.clear_video_ratio < 1, 'The sum of t2v_ratio, i2v_ratio, transition_ratio, v2v_ratio and clear video ratio should be less than 1.'
         
         self.default_text_ratio = args.default_text_ratio
         self.default_text = f"The {'video' if self.num_frames != 1 else 'image'} showcases a scene with coherent and clear visuals."
@@ -83,19 +84,21 @@ class Meta_dataset(T2V_dataset):
         mask = torch.ones_like(video, device=video.device, dtype=video.dtype)
         
         rand_num = random.random()
+        if rand_num < self.t2v_ratio:
+            mask[:] = 1
         # i2v
-        if rand_num < self.i2v_ratio:
+        elif rand_num < self.t2v_ratio + self.i2v_ratio:
             mask[0] = 0
         # transition
-        elif rand_num < self.i2v_ratio + self.transition_ratio:
+        elif rand_num < self.t2v_ratio + self.i2v_ratio + self.transition_ratio:
             mask[0] = 0
             mask[-1] = 0
         # video continuation
-        elif rand_num < self.i2v_ratio + self.transition_ratio + self.v2v_ratio:
+        elif rand_num < self.t2v_ratio + self.i2v_ratio + self.transition_ratio + self.v2v_ratio:
             end_idx = random.randint(1, t)
             mask[:end_idx] = 0
         # clear video
-        elif rand_num < self.i2v_ratio + self.transition_ratio + self.v2v_ratio + self.clear_video_ratio:
+        elif rand_num < self.t2v_ratio + self.i2v_ratio + self.transition_ratio + self.v2v_ratio + self.clear_video_ratio:
             mask[:] = 0
         # random mask
         else:

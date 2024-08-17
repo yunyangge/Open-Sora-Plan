@@ -100,14 +100,19 @@ class DataSetProg(metaclass=SingletonMeta):
 dataset_prog = DataSetProg()
 
 def find_closest_y(x, vae_stride_t=4, model_ds_t=4):
-    if x < 29:
-        return -1  
-    for y in range(x, 12, -1):
-        if (y - 1) % vae_stride_t == 0 and ((y - 1) // vae_stride_t + 1) % model_ds_t == 0:
-            # 4, 8: y in [29, 61, 93, 125, 157, 189, 221, 253, 285, 317, 349, 381, 413, 445, 477, 509, ...]
-            # 4, 4: y in [29, 45, 61, 77, 93, 109, 125, 141, 157, 173, 189, 205, 221, 237, 253, 269, 285, 301, 317, 333, 349, 365, 381, 397, 413, 429, 445, 461, 477, 493, 509, ...]
-            return y
-    return -1 
+    if x < 24:
+        return -1
+    return 24 
+
+# def find_closest_y(x, vae_stride_t=4, model_ds_t=4):
+#     if x < 29:
+#         return -1  
+#     for y in range(x, 12, -1):
+#         if (y - 1) % vae_stride_t == 0 and ((y - 1) // vae_stride_t + 1) % model_ds_t == 0:
+#             # 4, 8: y in [29, 61, 93, 125, 157, 189, 221, 253, 285, 317, 349, 381, 413, 445, 477, 509, ...]
+#             # 4, 4: y in [29, 45, 61, 77, 93, 109, 125, 141, 157, 173, 189, 205, 221, 237, 253, 269, 285, 301, 317, 333, 349, 365, 381, 397, 413, 429, 445, 461, 477, 493, 509, ...]
+#             return y
+#     return -1 
 
 def filter_resolution(h, w, max_h_div_w_ratio=17/16, min_h_div_w_ratio=8 / 16):
     if h / w <= max_h_div_w_ratio and h / w >= min_h_div_w_ratio:

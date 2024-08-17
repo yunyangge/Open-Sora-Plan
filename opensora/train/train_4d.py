@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional
 import gc
 import numpy as np
-from einops import rearrange
+from einops import rearrange, repeat
 from tqdm import tqdm
 
 from opensora.adaptor.modules import replace_with_fp32_forwards
@@ -206,7 +206,7 @@ def main(args):
 
     latent_size_t = args.num_frames
 
-    model_kwargs = {'vae_scale_factor_t': ae_stride_t}
+    model_kwargs = {"vae_scale_factor_t": ae_stride_t}
 
     model = Diffusion_models[args.model](
         in_channels=ae_channel_config[args.ae],
@@ -240,38 +240,12 @@ def main(args):
     )
     model.gradient_checkpointing = args.gradient_checkpointing
 
-    # # use pretrained model?
-    if args.pretrained:
-        model_state_dict = model.state_dict()
-        if "safetensors" in args.pretrained:  # pixart series
-            from safetensors.torch import load_file as safe_load
-
-            # import ipdb;ipdb.set_trace()
-            pretrained_checkpoint = safe_load(args.pretrained, device="cpu")
-            pretrained_keys = set(list(pretrained_checkpoint.keys()))
-            model_keys = set(list(model_state_dict.keys()))
-            common_keys = list(pretrained_keys & model_keys)
-            checkpoint = {
-                k: pretrained_checkpoint[k]
-                for k in common_keys
-                if model_state_dict[k].numel() == pretrained_checkpoint[k].numel()
-            }
-            # if checkpoint['pos_embed.proj.weight'].shape != model.pos_embed.proj.weight.shape and checkpoint['pos_embed.proj.weight'].ndim == 4:
-            #     logger.info(f"Resize pos_embed, {checkpoint['pos_embed.proj.weight'].shape} -> {model.pos_embed.proj.weight.shape}")
-            #     repeat = model.pos_embed.proj.weight.shape[2]
-            #     checkpoint['pos_embed.proj.weight'] = checkpoint['pos_embed.proj.weight'].unsqueeze(2).repeat(1, 1, repeat, 1, 1) / float(repeat)
-            # del checkpoint['proj_out.weight'], checkpoint['proj_out.bias']
-        else:  # latest stage training weight
-            checkpoint = torch.load(args.pretrained, map_location="cpu")
-            if "model" in checkpoint:
-                checkpoint = checkpoint["model"]
-        missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
-        logger.info(
-            f"missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}"
-        )
-        logger.info(
-            f"Successfully load {len(model_state_dict) - len(missing_keys)}/{len(model_state_dict)} keys from {args.pretrained}!"
-        )
+    pretrained_transformer_model_path = args.pretrained_transformer_model_path
+    pretrained_model_path = dict(
+        transformer_model=pretrained_transformer_model_path, vip=None
+    )
+    if pretrained_transformer_model_path is not None:
+        model.custom_load_state_dict(pretrained_model_path)
 
     # Freeze vae and text encoders.
     ae.vae.requires_grad_(False)
@@ -416,6 +390,7 @@ def main(args):
 
     # Setup data:
     train_dataset = getdataset(args)
+    logger.info(f"train_dataset: {train_dataset.__class__.__name__}")
     sampler = (
         LengthGroupedSampler(
             args.train_batch_size,
@@ -456,14 +431,10 @@ def main(args):
         num_training_steps=args.max_train_steps * args.gradient_accumulation_steps,
     )
 
-    # Prepare everything with our `accelerator`.
-    # model.requires_grad_(False)
-    # model.pos_embed.requires_grad_(True)
-    logger.info(f"before accelerator.prepare")
     model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
         model, optimizer, train_dataloader, lr_scheduler
     )
-    logger.info(f"after accelerator.prepare")
+
     if args.use_ema:
         ema_model.to(accelerator.device)
 
@@ -478,8 +449,19 @@ def main(args):
 
     # We need to initialize the trackers we use, and also store our configuration.
     # The trackers initializes automatically on the main process.
+    # NOTE wandb
     if accelerator.is_main_process:
-        accelerator.init_trackers(os.path.basename(args.output_dir), config=vars(args))
+        logger.info("init trackers...")
+        project_name = os.getenv("PROJECT", os.path.basename(args.output_dir))
+        entity = os.getenv("ENTITY", None)
+        run_name = os.getenv("WANDB_NAME", None)
+        init_kwargs = {
+            "entity": entity,
+            "run_name": run_name,
+        }
+        accelerator.init_trackers(
+            project_name=project_name, config=vars(args), init_kwargs=init_kwargs
+        )
 
     # Train!
     total_batch_size = (
@@ -613,6 +595,16 @@ def main(args):
         global start_time
         start_time = time.time()
 
+        try:
+            in_channels = ae_channel_config[args.ae]
+            model_input, masked_x, video_mask = (
+                model_input[:, 0:in_channels],
+                model_input[:, in_channels : 2 * in_channels],
+                model_input[:, 2 * in_channels :],
+            )
+        except:
+            raise ValueError("masked_x and video_mask is None!")
+
         noise = torch.randn_like(model_input)
         if args.noise_offset:
             # https://www.crosslabs.org//blog/diffusion-with-offset-noise
@@ -640,7 +632,12 @@ def main(args):
 
         noisy_model_input = noise_scheduler.add_noise(model_input, noise, timesteps)
 
-        model_pred = model(noisy_model_input, timesteps, **model_kwargs)[0]
+        model_pred = model(
+            torch.cat([noisy_model_input, masked_x, video_mask], dim=1),
+            timesteps,
+            **model_kwargs,
+        )[0]
+
         # Get the target for loss depending on the prediction type
         if args.prediction_type is not None:
             # set prediction_type of scheduler if defined
@@ -754,14 +751,39 @@ def main(args):
             cond_mask_ = cond_mask.reshape(-1, L)
             cond = text_enc(input_ids_, cond_mask_)  # B 1+num_images L D
             cond = cond.reshape(B, N, L, -1)
-            # Map input images to latent space + normalize latents
 
-            # image_styled_vae
-            x = x.repeat_interleave(ae_stride_t, dim=2)  # B C T H W -> B C 4T H W
-            dummy_frame = torch.zeros_like(x[:, :, :1])
-            x = torch.cat([dummy_frame, x], dim=2)  # B C 4T+1 H W
-            x = ae.encode(x)  # B C T H W
-            x = x[:, :, 1:]  # B C T H W
+            def process_with_image_styled_vae(x):
+                # image_styled_vae
+                batch_size = x.shape[0]
+                x = rearrange(x, "b c t h w -> (b t) c 1 h w")
+                x = ae.encode(x)  # B C T H W
+                x = rearrange(
+                    x, "(b t) c 1 h w -> b c t h w", b=batch_size
+                ).contiguous()
+                return x
+
+            def preprocess_x_for_inpaint(x):
+
+                x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
+
+                x = process_with_image_styled_vae(x)
+                masked_x = process_with_image_styled_vae(masked_x)
+
+                batch_size, channels, frame, height, width = mask.shape
+                mask = rearrange(mask, "b c t h w -> (b c t) 1 h w")
+                mask = F.interpolate(mask, size=latent_size, mode="bilinear")
+                mask = rearrange(
+                    mask, "(b c t) 1 h w -> b c t h w", t=frame, b=batch_size
+                )
+                mask = repeat(mask, "b c t h w -> b (k c) t h w", k=ae_stride_t)
+
+                return x, masked_x, mask
+
+            # Map input images to latent space + normalize latents
+            x, masked_x, mask = preprocess_x_for_inpaint(
+                x
+            )  # B 3*C T H W -> (B C T H W) * 3
+            x = torch.cat([x, masked_x, mask], dim=1)  # (B C T H W) * 3 -> B 3*C T H W
 
         current_step_frame = x.shape[2]
         current_step_sp_state = get_sequence_parallel_state()
@@ -1151,6 +1173,41 @@ if __name__ == "__main__":
         default=1,
         help="Batch size for sequence parallel training",
     )
+
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        default="inpaint_only",
+        choices=["inpaint_only", "vip_only", "vip_inpaint"],
+    )
+    parser.add_argument("--train_vip", action="store_true")
+    # inpaint
+    parser.add_argument("--t2v_ratio", type=float, default=0.0)
+    parser.add_argument("--i2v_ratio", type=float, default=0.5)  # for inpainting mode
+    parser.add_argument(
+        "--transition_ratio", type=float, default=0.4
+    )  # for inpainting mode
+    parser.add_argument("--v2v_ratio", type=float, default=0.1)  # for inpainting mode
+    parser.add_argument("--clear_video_ratio", type=float, default=0.0)
+    parser.add_argument("--default_text_ratio", type=float, default=0.1)
+    parser.add_argument(
+        "--validation_dir",
+        type=str,
+        default=None,
+        help="Path to the validation dataset.",
+    )
+    parser.add_argument(
+        "--image_encoder_name",
+        type=str,
+        default="laion/CLIP-ViT-H-14-laion2B-s32B-b79K",
+    )
+    parser.add_argument("--image_encoder_path", type=str, default=None)
+    parser.add_argument("--use_clip_mask", action="store_true")
+    parser.add_argument("--clip_loss_lambda", type=float, default=0.9)
+    parser.add_argument("--pretrained_transformer_model_path", type=str, default=None)
+    parser.add_argument("--pretrained_vip_adapter_path", type=str, default=None)
+    parser.add_argument("--vip_num_attention_heads", type=int, default=8)
+    parser.add_argument("--use_vae_preprocessed_mask", action="store_true")
 
     args = parser.parse_args()
     main(args)
