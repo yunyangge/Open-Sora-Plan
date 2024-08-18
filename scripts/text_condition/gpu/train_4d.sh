@@ -1,5 +1,5 @@
 # PROJECT="video_test"
-PROJECT="4d_480p_f24_bs1x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999"
+PROJECT="4d_256_f24_bs1x8x4_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999"
 export WANDB_API_KEY="720d886d8c437c2142c88056a1eab8ef78d64a1f"
 export WANDB_MODE="online"
 export ENTITY="yunyangge"
@@ -38,13 +38,13 @@ accelerate launch \
     --sample_rate 1 \
     --num_frames 24 \
     --use_image_num 0 \
-    --max_height 480 \
-    --max_width 640 \
+    --max_height 256 \
+    --max_width 256 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
     --interpolation_scale_w 1.0 \
     --attention_mode xformers \
-    --train_batch_size=1 \
+    --train_batch_size=4 \
     --dataloader_num_workers 10 \
     --gradient_accumulation_steps=1 \
     --gradient_checkpointing \
@@ -79,7 +79,7 @@ accelerate launch \
     --ema_decay 0.999 \
     --use_rope \
     --group_frame \
-    --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/inpaint_only_480p_f93_bs4x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-35000/model" \
+    --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/4d_480p_f24_bs1x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-23000/model_ema" \
     # --resume_from_checkpoint "latest" \
     # --pretrained_vip_adapter_path "/storage/gyy/hw/Open-Sora-Plan/pretrained_models/pretrained_vip_9000.pth"
     # --speed_factor 1.5 \
