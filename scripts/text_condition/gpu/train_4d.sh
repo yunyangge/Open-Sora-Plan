@@ -79,8 +79,8 @@ accelerate launch \
     --ema_decay 0.999 \
     --use_rope \
     --group_frame \
-    --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/4d_480p_f24_bs1x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-23000/model_ema" \
-    # --resume_from_checkpoint "latest" \
+    --resume_from_checkpoint "latest" \
+    # --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/4d_480p_f24_bs1x8x1_lr1e-5_snrgamma5_0_noiseoffset0_02_ema0_999/checkpoint-23000/model_ema" \
     # --pretrained_vip_adapter_path "/storage/gyy/hw/Open-Sora-Plan/pretrained_models/pretrained_vip_9000.pth"
     # --speed_factor 1.5 \
     # --vip_num_attention_heads 16 \
