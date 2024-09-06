@@ -65,6 +65,9 @@ def load_t2v_checkpoint(model_path):
         transformer=transformer_model
     ).to(device)
 
+    if args.compile:
+        # 4%
+        pipeline.transformer = torch.compile(pipeline.transformer)
     return pipeline
 
 
@@ -102,7 +105,7 @@ def run_model_and_save_images(pipeline, model_path):
 
     pipeline.register_image_transforms(transform)
 
-    def preprocess_pixel_values(pixel_values_path, frame_interval=1, min_clear_ratio=0.8):
+    def preprocess_pixel_values(pixel_values_path, frame_interval=1, min_clear_ratio=0.02):
         if isinstance(pixel_values_path, list) and is_image_file(pixel_values_path[0]):
             if len(pixel_values_path) == 1:
                 conditional_images_indices = [0]
@@ -241,8 +244,13 @@ if __name__ == "__main__":
     parser.add_argument("--text_prompt", nargs='+')
     parser.add_argument('--tile_overlap_factor', type=float, default=0.25)
     parser.add_argument('--enable_tiling', action='store_true')
+    parser.add_argument("--num_samples_per_prompt", type=int, default=1)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument('--model_type', type=str, default="dit", choices=['sparsedit', 'dit', 'udit', 'latte'])
+    parser.add_argument('--compile', action='store_true')
     parser.add_argument('--motion_score', type=float, default=None)
+    parser.add_argument("--prediction_type", type=str, default='epsilon', help="The prediction_type that shall be used for training. Choose between 'epsilon' or 'v_prediction' or leave `None`. If left to `None` the default prediction type of the scheduler: `noise_scheduler.config.prediciton_type` is chosen.")
+    parser.add_argument('--rescale_betas_zero_snr', action='store_true')
 
     parser.add_argument('--conditional_images_path', nargs='+')
     parser.add_argument('--force_resolution', action='store_true')
@@ -259,7 +267,7 @@ if __name__ == "__main__":
         torch_npu.npu.set_device(local_rank)
     dist.init_process_group(backend='hccl', init_method='env://', world_size=world_size, rank=local_rank)
 
-    # torch.manual_seed(args.seed)
+    torch.manual_seed(args.seed)
     weight_dtype = torch.float16
     device = torch.cuda.current_device()
 
@@ -290,21 +298,21 @@ if __name__ == "__main__":
     text_encoder.eval()
 
     if args.sample_method == 'DDIM':  #########
-        scheduler = DDIMScheduler()
+        scheduler = DDIMScheduler(clip_sample=False, prediction_type=args.prediction_type, rescale_betas_zero_snr=args.rescale_betas_zero_snr, timestep_spacing="trailing")
     elif args.sample_method == 'EulerDiscrete':
         scheduler = EulerDiscreteScheduler()
     elif args.sample_method == 'DDPM':  #############
-        scheduler = DDPMScheduler()
+        scheduler = DDPMScheduler(clip_sample=False)
     elif args.sample_method == 'DPMSolverMultistep':
         scheduler = DPMSolverMultistepScheduler()
     elif args.sample_method == 'DPMSolverSinglestep':
         scheduler = DPMSolverSinglestepScheduler()
     elif args.sample_method == 'PNDM':
-        scheduler = PNDMScheduler()
+        scheduler = PNDMScheduler(prediction_type=args.prediction_type, rescale_betas_zero_snr=args.rescale_betas_zero_snr, timestep_spacing="trailing")
     elif args.sample_method == 'HeunDiscrete':  ########
         scheduler = HeunDiscreteScheduler()
     elif args.sample_method == 'EulerAncestralDiscrete':
-        scheduler = EulerAncestralDiscreteScheduler()
+        scheduler = EulerAncestralDiscreteScheduler(prediction_type=args.prediction_type, rescale_betas_zero_snr=args.rescale_betas_zero_snr, timestep_spacing="trailing")
     elif args.sample_method == 'DEISMultistep':
         scheduler = DEISMultistepScheduler()
     elif args.sample_method == 'KDPM2AncestralDiscrete':  #########

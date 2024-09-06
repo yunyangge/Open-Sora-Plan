@@ -1,10 +1,10 @@
 export TASK_QUEUE_ENABLE=0
 torchrun --nnodes=1 --nproc_per_node=2 --master_port 29502 \
     -m opensora.sample.sample_inpaint_ddp_on_npu  \
-    --model_path /home/image_data/gyy/Open-Sora-Plan/test_sparse_inpaint/checkpoint-10000/model \
+    --model_path /home/save_dir/runs/inpaint_93x320x320_stage1/checkpoint-46000/model \
     --num_frames 93 \
-    --height 320 \
-    --width 160 \
+    --height 160 \
+    --width 320 \
     --cache_dir "../cache_dir" \
     --text_encoder_name /home/image_data/mt5-xxl \
     --text_prompt /home/image_data/test_prompt.txt \
@@ -15,5 +15,9 @@ torchrun --nnodes=1 --nproc_per_node=2 --master_port 29502 \
     --fps 18 \
     --guidance_scale 7.5 \
     --num_sampling_steps 50 \
-    --sample_method PNDM \
+    --sample_method EulerAncestralDiscrete \
     --motion_score 0.9 \
+    --seed 1234 \
+    --num_samples_per_prompt 1 \
+    --prediction_type "v_prediction" \
+    --rescale_betas_zero_snr 

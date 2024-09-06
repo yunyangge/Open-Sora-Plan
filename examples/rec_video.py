@@ -13,6 +13,14 @@ from torch.nn import functional as F
 from pytorchvideo.transforms import ShortSideScale
 from torchvision.transforms import Lambda, Compose
 import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+sys.path.append(parent_dir)
+
+
 from opensora.models.causalvideovae import ae_wrapper
 from opensora.dataset.transform import ToTensorVideo, CenterCropResizeVideo
 

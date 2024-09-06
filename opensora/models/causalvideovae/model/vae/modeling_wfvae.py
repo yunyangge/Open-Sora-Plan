@@ -272,7 +272,14 @@ class Decoder(VideoBaseAE):
         h = self.conv_in(z)
         h = self.mid(h)
         l3_coeffs = self.connect_l3(h[:, -self.energy_flow_hidden_size :])
-        l3 = self.inverse_wavelet_tranform_3d(l3_coeffs)
+        if torch_npu is not None:
+            dtype = l3_coeffs.dtype
+            l3_coeffs = l3_coeffs.to(torch.float16)
+            self.inverse_wavelet_tranform_3d = self.inverse_wavelet_tranform_3d.to(l3_coeffs.device, dtype=torch.float16)
+            l3 = self.inverse_wavelet_tranform_3d(l3_coeffs)
+            l3 = l3.to(dtype)
+        else:
+            l3 = self.inverse_wavelet_tranform_3d(l3_coeffs)
         h = self.up2(h[:, : -self.energy_flow_hidden_size])
         l2_coeffs = h[:, -self.energy_flow_hidden_size :]
         l2_coeffs = self.connect_l2(l2_coeffs)

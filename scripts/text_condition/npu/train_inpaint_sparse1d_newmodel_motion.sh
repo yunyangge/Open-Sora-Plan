@@ -66,9 +66,9 @@ accelerate launch \
     --t2v_ratio 0.1 \
     --i2v_ratio 0.0 \
     --transition_ratio 0.0 \
-    --v2v_ratio 0.4 \
-    --clear_video_ratio 0.1 \
-    --min_clear_ratio 0.25 \
+    --v2v_ratio 0.25 \
+    --clear_video_ratio 0.05 \
+    --min_clear_ratio 0.125 \
     --default_text_ratio 0.5 \
     --output_dir /home/save_dir/runs/$PROJECT \
     --resume_from_checkpoint="latest" 
