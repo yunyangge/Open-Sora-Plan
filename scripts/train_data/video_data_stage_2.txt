@@ -1,0 +1,4 @@
+/storage/dataset,/storage/ongoing/new/7.19anyres/Open-Sora-Plan/stage2_sucai_aes5.0_2931953.json
+/storage/dataset/movie,/storage/ongoing/new/7.19anyres/Open-Sora-Plan/stage2_movie_aes4.5_4473379.json
+/storage/dataset,/storage/ongoing/new/7.19anyres/Open-Sora-Plan/stage2_vidal_morethanm0.85_lowthan0.9_877682.json
+/storage/dataset/panda70m,/storage/ongoing/new/7.19anyres/Open-Sora-Plan/stage2_panda_m0.8_aes4.75_2018995.json

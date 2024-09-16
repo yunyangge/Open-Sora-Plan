@@ -1,7 +1,8 @@
 export WANDB_KEY="720d886d8c437c2142c88056a1eab8ef78d64a1f"
 export WANDB_MODE="online"
 export ENTITY="yunyang"
-export PROJECT="test_sparse_inpaint"
+export PROJECT="inpaint_93x1280x1280_stage3_gpu"
+# export PROJECT="test"
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 export PDSH_RCMD_TYPE=ssh
@@ -21,19 +22,19 @@ export NCCL_IB_RETRY_CNT=32
 # export NCCL_ALGO=Tree
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+    --config_file scripts/accelerate_configs/multi_node_example.yaml \
     opensora/train/train_inpaint.py \
     --model OpenSoraInpaint-L/122 \
     --text_encoder_name google/mt5-xxl \
     --cache_dir "../../cache_dir/" \
     --dataset inpaint \
-    --data "scripts/train_data/merge_data_debug.txt" \
+    --data "scripts/train_data/video_data_high_aes_720p.txt" \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/storage/lcm/Causal-Video-VAE/results/WFVAE_DISTILL_FORMAL" \
     --sample_rate 1 \
     --num_frames 93 \
-    --max_height 320 \
-    --max_width 320 \
+    --max_height 1280 \
+    --max_width 1280 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
     --interpolation_scale_w 1.0 \
@@ -48,7 +49,7 @@ accelerate launch \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=1000 \
+    --checkpointing_steps=100 \
     --allow_tf32 \
     --model_max_length 512 \
     --use_image_num 0 \
@@ -56,7 +57,7 @@ accelerate launch \
     --use_ema \
     --ema_start_step 0 \
     --cfg 0.1 \
-    --noise_offset 0.02 \
+    --noise_offset 0.0 \
     --use_rope \
     --skip_low_resolution \
     --speed_factor 1.0 \
@@ -67,14 +68,18 @@ accelerate launch \
     --use_motion \
     --train_fps 16 \
     --seed 1234 \
+    --trained_data_global_step 0 \
     --group_data \
-    --t2v_ratio 0.1 \
-    --i2v_ratio 0.0 \
-    --transition_ratio 0.0 \
-    --v2v_ratio 0.0 \
+    --use_decord \
+    --prediction_type "v_prediction" \
+    --rescale_betas_zero_snr \
+    --t2v_ratio 0.05 \
+    --i2v_ratio 0.5 \
+    --transition_ratio 0.3 \
+    --v2v_ratio 0.05 \
     --clear_video_ratio 0.0 \
-    --min_clear_ratio 0.5 \
+    --min_clear_ratio 0 \
     --default_text_ratio 0.5 \
-    --pretrained_transformer_model_path "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x1_anyx93x320x320_fps16_lr1e-5_snr5_noioff0.02_ema9999_sparse1d4_dit_l_mt5xxl_alldata100m/checkpoint-526000/model_ema" \
-    --output_dir="test_sparse_inpaint"  > training_log_new.txt
+    --pretrained_transformer_model_path "/storage/gyy/hw/Open-Sora-Plan/runs/inpaint_93x640x640_stage3_gpu/checkpoint-14777/model_ema" \
+    --output_dir runs/$PROJECT 2>&1 | tee training_log_new.txt
     # --resume_from_checkpoint="latest" \

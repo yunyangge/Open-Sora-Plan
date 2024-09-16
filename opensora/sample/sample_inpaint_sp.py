@@ -29,7 +29,7 @@ from opensora.models.text_encoder import get_text_enc
 from opensora.utils.utils import save_video_grid
 
 from opensora.models.diffusion.opensora2.modeling_inpaint import OpenSoraInpaint
-from opensora.sample.pipeline_inpaint import OpenSoraInpaintPipeline
+from opensora.sample.pipeline_inpaint_sp import OpenSoraInpaintPipeline
 from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, RandomHorizontalFlipVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
 from opensora.utils.dataset_utils import DecordInit
 
@@ -44,13 +44,14 @@ from einops import rearrange
 try:
     import torch_npu
     from opensora.npu_config import npu_config
+    from opensora.acceleration.parallel_states import initialize_sequence_parallel_state, hccl_info
 except:
     torch_npu = None
     npu_config = None
+    from opensora.utils.parallel_states import initialize_sequence_parallel_state, nccl_info
     pass
 import time
-
-
+import time
 
 def load_t2v_checkpoint(model_path):
     transformer_model = OpenSoraInpaint.from_pretrained(model_path, cache_dir=args.cache_dir,
@@ -69,7 +70,6 @@ def load_t2v_checkpoint(model_path):
 
     return pipeline
 
-
 def get_latest_path():
     # Get the most recent checkpoint
     dirs = os.listdir(args.model_path)
@@ -78,7 +78,6 @@ def get_latest_path():
     path = dirs[-1] if len(dirs) > 0 else None
 
     return path
-
 
 def is_image_file(filepath):
     print(filepath)
@@ -144,12 +143,10 @@ def run_model_and_save_images(pipeline, model_path):
         temp = open(args.conditional_images_path[0], 'r').readlines()
         conditional_images = [i.strip().split(',') for i in temp]
 
-    assert len(text_prompt) % world_size == 0, "The sample num must be a multiple of the world size; otherwise, it may cause an all_gather error."
-
     checkpoint_name = f"{os.path.basename(model_path)}"
 
     positive_prompt = """
-    masterpiece, high quality, ultra-detailed, 
+    (masterpiece), (best quality), (ultra-detailed), (unwatermarked), 
     {}. 
     emotional, harmonious, vignette, 4k epic detailed, shot on kodak, 35mm photo, 
     sharp focus, high budget, cinemascope, moody, epic, gorgeous
@@ -159,35 +156,18 @@ def run_model_and_save_images(pipeline, model_path):
     nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, 
     low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry.
     """
-    
 
     video_grids = []
     for index, (prompt, images) in enumerate(zip(text_prompt, conditional_images)):
-        if index % world_size != local_rank:
-            continue
 
         pre_results = preprocess_pixel_values(images)
         cond_imgs = pre_results['conditional_images']
         cond_imgs_indices = pre_results['conditional_images_indices']
 
-        if args.refine_caption:
-            q = f'Translate this brief generation prompt into a detailed caption: {prompt}'
-            query = f'[UNUSED_TOKEN_146]user\n{q}[UNUSED_TOKEN_145]\n[UNUSED_TOKEN_146]assistant\n'
-            # print(query)
-            with torch.cuda.amp.autocast(): 
-                refine_prompt = model_gen(refiner, query, None)
-            refine_prompt = refine_prompt.replace('<|im_end|>', '').replace('</s>', '')
-            input_prompt = positive_prompt.format(refine_prompt)
-            print(f'Processing the origin prompt({prompt})\n  '
-                  f'refine_prompt ({refine_prompt})\n  input_prompt ({input_prompt})\n  device ({device})')
-        else:
-            input_prompt = positive_prompt.format(prompt)
-            print(f'Processing the origin prompt({prompt})\n  '
-                  f'input_prompt ({input_prompt})\n device ({device})')
         videos = pipeline(
             conditional_images=cond_imgs,
             conditional_images_indices=cond_imgs_indices,
-            prompt=input_prompt, 
+            prompt=prompt, 
             negative_prompt=negative_prompt, 
             num_frames=args.num_frames,
             height=args.height,
@@ -200,43 +180,34 @@ def run_model_and_save_images(pipeline, model_path):
             device=args.device,
             max_sequence_length=args.max_sequence_length,
             ).images
-        print('videos.shape', videos.shape)
-        try:
-            if args.num_frames == 1:
-                videos = videos[:, 0].permute(0, 3, 1, 2)  # b t h w c -> b c h w
-                save_image(videos / 255.0, os.path.join(args.save_img_path,
-                                                        f'{model_path}', f'{args.sample_method}_{index}_{checkpoint_name}_gs{args.guidance_scale}_s{args.num_sampling_steps}_m{args.motion_score}.{ext}'),
-                           nrow=1, normalize=True, value_range=(0, 1))  # t c h w
-                print('save done...')
+        print(videos.shape)
+        
+        if nccl_info.rank <= 0:
+            try:
+                if args.num_frames == 1:
+                    videos = videos[:, 0].permute(0, 3, 1, 2)  # b t h w c -> b c h w
+                    save_image(videos / 255.0, os.path.join(args.save_img_path,
+                                                            f'{args.sample_method}_{index}_{checkpoint_name}_gs{args.guidance_scale}_s{args.num_sampling_steps}.{ext}'),
+                            nrow=1, normalize=True, value_range=(0, 1))  # t c h w
 
-            else:
-                imageio.mimwrite(
-                    os.path.join(
-                        args.save_img_path,
-                        f'{model_path}', f'{args.sample_method}_{index}_{checkpoint_name}_gs{args.guidance_scale}_s{args.num_sampling_steps}_m{args.motion_score}.{ext}'
-                    ), videos[0],
-                    fps=args.fps, quality=6)  # highest quality is 10, lowest is 0
-                print('save done...')
-        except:
-            print('Error when saving {}'.format(prompt))
-        video_grids.append(videos)
-    dist.barrier()
-    video_grids = torch.cat(video_grids, dim=0).cuda()
-    shape = list(video_grids.shape)
-    shape[0] *= world_size
-    gathered_tensor = torch.zeros(shape, dtype=video_grids.dtype, device=device)
-    dist.all_gather_into_tensor(gathered_tensor, video_grids.contiguous())
-    video_grids = gathered_tensor.cpu()
+                else:
+                    imageio.mimwrite(
+                        os.path.join(
+                            args.save_img_path,
+                            f'{args.sample_method}_{index}_{checkpoint_name}__gs{args.guidance_scale}_s{args.num_sampling_steps}.{ext}'
+                        ), videos[0],
+                        fps=args.fps, quality=6, codec='libx264',
+                        output_params=['-threads', '20'])  # highest quality is 10, lowest is 0
+            except:
+                print('Error when saving {}'.format(prompt))
+            video_grids.append(videos)
+    if nccl_info.rank <= 0:
+        video_grids = torch.cat(video_grids, dim=0)
 
-    # video_grids = video_grids.repeat(world_size, 1, 1, 1)
-    # output = torch.zeros(video_grids.shape, dtype=video_grids.dtype, device=device)
-    # dist.all_to_all_single(output, video_grids)
-    # video_grids = output.cpu()
-    def get_file_name():
-        return os.path.join(args.save_img_path,
-                            f'{args.sample_method}_gs{args.guidance_scale}_s{args.num_sampling_steps}_m{args.motion_score}_{checkpoint_name}.{ext}')
-    
-    if local_rank == 0:
+        def get_file_name():
+            return os.path.join(args.save_img_path,
+                                f'{args.sample_method}_gs{args.guidance_scale}_s{args.num_sampling_steps}_{checkpoint_name}.{ext}')
+
         if args.num_frames == 1:
             save_image(video_grids / 255.0, get_file_name(),
                     nrow=math.ceil(math.sqrt(len(video_grids))), normalize=True, value_range=(0, 1))
@@ -244,7 +215,7 @@ def run_model_and_save_images(pipeline, model_path):
             video_grids = save_video_grid(video_grids)
             imageio.mimwrite(get_file_name(), video_grids, fps=args.fps, quality=6)
 
-    print('save path {}'.format(args.save_img_path))
+        print('save path {}'.format(args.save_img_path))
 
 
 if __name__ == "__main__":
@@ -280,7 +251,6 @@ if __name__ == "__main__":
     parser.add_argument('--conditional_images_path', nargs='+')
     parser.add_argument('--force_resolution', action='store_true')
     
-
     args = parser.parse_args()
 
     if torch_npu is not None:
@@ -295,10 +265,12 @@ if __name__ == "__main__":
     else:
         torch.cuda.set_device(local_rank)
     dist.init_process_group(backend='nccl', init_method='env://', world_size=world_size, rank=local_rank)
-
-    torch.manual_seed(args.seed)
+    initialize_sequence_parallel_state(world_size)
+    # torch.manual_seed(args.seed)
     weight_dtype = torch.bfloat16
     device = torch.cuda.current_device()
+    # print(11111111111111111111, local_rank, device)
+    # vae = getae_wrapper(args.ae)(args.model_path, subfolder="vae", cache_dir=args.cache_dir)
     vae = ae_wrapper[args.ae](args.ae_path)
     print(args.ae)
     vae.vae = vae.vae.to(device=device, dtype=weight_dtype)
@@ -314,26 +286,20 @@ if __name__ == "__main__":
             vae.vae.tile_latent_min_size = 32
             vae.vae.tile_sample_min_size_t = 29
             vae.vae.tile_latent_min_size_t = 8
+
     vae.vae_scale_factor = ae_stride_config[args.ae]
 
-    text_encoder = MT5EncoderModel.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", 
-                                                   cache_dir=args.cache_dir, low_cpu_mem_usage=True, 
-                                                   torch_dtype=weight_dtype).to(device)
-    tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", 
-                                              cache_dir=args.cache_dir)
-    # text_encoder = T5EncoderModel.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/models--DeepFloyd--t5-v1_1-xxl/snapshots/c9c625d2ec93667ec579ede125fd3811d1f81d37", cache_dir=args.cache_dir, low_cpu_mem_usage=True, torch_dtype=weight_dtype)
-    # tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/models--DeepFloyd--t5-v1_1-xxl/snapshots/c9c625d2ec93667ec579ede125fd3811d1f81d37", cache_dir=args.cache_dir)
+    # text_encoder = MT5EncoderModel.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", 
+    #                                                cache_dir=args.cache_dir, low_cpu_mem_usage=True, 
+    #                                                torch_dtype=weight_dtype).to(device)
+    # tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", 
+    #                                           cache_dir=args.cache_dir)
+    text_encoder = T5EncoderModel.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir, low_cpu_mem_usage=True, torch_dtype=weight_dtype)
+    tokenizer = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir)
     
     # text_encoder = T5EncoderModel.from_pretrained(args.text_encoder_name, cache_dir=args.cache_dir,
     #                                               low_cpu_mem_usage=True, torch_dtype=weight_dtype).to(device)
     # tokenizer = T5Tokenizer.from_pretrained(args.text_encoder_name, cache_dir=args.cache_dir)
-    if args.refine_caption:
-        from transformers import AutoModel, AutoTokenizer
-        new_path = '/storage/zhubin/ShareGPT4Video/sharegpt4video/sharecaptioner_v1'
-        refiner_tokenizer = AutoTokenizer.from_pretrained(new_path, trust_remote_code=True)
-        refiner = AutoModel.from_pretrained(new_path, torch_dtype=weight_dtype, trust_remote_code=True).eval()
-        refiner.to(device)
-        refiner.tokenizer = refiner_tokenizer
 
     # set eval mode
     vae.eval()

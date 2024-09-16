@@ -422,11 +422,14 @@ class T2V_dataset(Dataset):
 
                     # resample in case high fps, such as 50/60/90/144 -> train_fps(e.g, 24)
                     frame_interval = fps / self.train_fps 
-                    movie_names = ['20240704-02-bbc-01', '20240704-03-bbc-0203', '20240704-04-bbc-0405']
-                    if any(name in i['path'] for name in movie_names):
-                        start_frame_idx = 10 
+                    if torch_npu is not None:
+                        movie_names = ['20240704-02-bbc-01', '20240704-03-bbc-0203', '20240704-04-bbc-0405']
+                        if any(name in path for name in movie_names):
+                            start_frame_idx = 10 
+                        else:
+                            start_frame_idx = 0
                     else:
-                        start_frame_idx = 0
+                        start_frame_idx = 10 if '/storage/dataset/movie' in path else 0  # special video
                     frame_indices = np.arange(start_frame_idx, i['num_frames'], frame_interval).astype(int)
                     frame_indices = frame_indices[frame_indices < i['num_frames']]
 
@@ -447,8 +450,12 @@ class T2V_dataset(Dataset):
                         continue
                     frame_indices = frame_indices[:end_frame_idx]
 
-                    if any(name in i['path'] for name in movie_names):
-                        cnt_movie += 1
+                    if torch_npu is not None:
+                        if any(name in i['path'] for name in movie_names):
+                            cnt_movie += 1
+                    else:
+                        if '/storage/dataset/movie' in path:
+                            cnt_movie += 1
                         
                     i['sample_frame_index'] = frame_indices.tolist()
                     i['motion_score'] = i.get('motion_average', None) or i.get('motion')
@@ -536,11 +543,15 @@ class T2V_dataset(Dataset):
     def get_actual_frame(self, fps, total_frames, path, predefine_num_frames, predefine_frame_indice):
         # resample in case high fps, such as 50/60/90/144 -> train_fps(e.g, 24)
         frame_interval = 1.0 if abs(fps - self.train_fps) < 0.1 else fps / self.train_fps
-        movie_names = ['20240704-02-bbc-01', '20240704-03-bbc-0203', '20240704-04-bbc-0405']
-        if any(name in path for name in movie_names):
-            start_frame_idx = 10 
+        if torch_npu is not None:
+            movie_names = ['20240704-02-bbc-01', '20240704-03-bbc-0203', '20240704-04-bbc-0405']
+            if any(name in path for name in movie_names):
+                start_frame_idx = 10 
+            else:
+                start_frame_idx = 0
         else:
-            start_frame_idx = 0
+            start_frame_idx = 10 if '/storage/dataset/movie' in path else 0  # special video
+            
         frame_indices = np.arange(start_frame_idx, total_frames, frame_interval).astype(int)
         frame_indices = frame_indices[frame_indices < total_frames]
         
