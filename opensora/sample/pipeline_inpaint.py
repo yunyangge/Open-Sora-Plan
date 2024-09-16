@@ -559,6 +559,8 @@ class OpenSoraInpaintPipeline(DiffusionPipeline):
         batch_size,
         height,
         width,
+        do_classifier_free_guidance,
+        weight_dtype,
         num_images_per_prompt=1, 
         use_vae_preprocessed_mask=False, 
         device="cuda"
@@ -612,6 +614,12 @@ class OpenSoraInpaintPipeline(DiffusionPipeline):
             masked_video = self.vae.encode(masked_video).to(device)
 
             mask = self.vae.encode(mask).to(device)
+
+        masked_video = torch.cat([masked_video] * 2) if do_classifier_free_guidance else masked_video
+        mask = torch.cat([mask] * 2) if do_classifier_free_guidance else mask
+
+        masked_video = masked_video.to(weight_dtype)
+        mask = mask.to(weight_dtype)
         
         return mask, masked_video
 
@@ -812,6 +820,8 @@ class OpenSoraInpaintPipeline(DiffusionPipeline):
             batch_size,
             height,
             width,
+            do_classifier_free_guidance,
+            latents.dtype,
             num_images_per_prompt, 
             use_vae_preprocessed_mask,
             device=latents.device,
@@ -819,9 +829,10 @@ class OpenSoraInpaintPipeline(DiffusionPipeline):
 
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-                latent_model_input = torch.cat([latents, masked_video, mask], dim=1)
-                latent_model_input = torch.cat([latent_model_input] * 2) if do_classifier_free_guidance else latents
+                latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
                 latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+                # inpaint
+                latent_model_input = torch.cat([latent_model_input, masked_video, mask], dim=1)
 
                 current_timestep = t
                 if not torch.is_tensor(current_timestep):
