@@ -18,6 +18,7 @@ wandb/
 *.gif
 *.pth
 *.pt
+*.txt
 cache_dir/
 wandb/
 test*
