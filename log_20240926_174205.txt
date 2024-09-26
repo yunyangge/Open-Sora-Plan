@@ -1,0 +1,2199 @@
+[2024-09-26 17:42:13,193] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 17:42:13,609] torch.distributed.run: [WARNING] 
+[2024-09-26 17:42:13,609] torch.distributed.run: [WARNING] *****************************************
+[2024-09-26 17:42:13,609] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+[2024-09-26 17:42:13,609] torch.distributed.run: [WARNING] *****************************************
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:209: ImportWarning: 
+    *************************************************************************************************************
+    The torch.Tensor.cuda and torch.nn.Module.cuda are replaced with torch.Tensor.npu and torch.nn.Module.npu now..
+    The torch.cuda.DoubleTensor is replaced with torch.npu.FloatTensor cause the double type is not supported now..
+    The backend in torch.distributed.init_process_group set to hccl now..
+    The torch.cuda.* and torch.cuda.amp.* are replaced with torch.npu.* and torch.npu.amp.* now..
+    The device parameters have been replaced with npu in the function below:
+    torch.logspace, torch.randint, torch.hann_window, torch.rand, torch.full_like, torch.ones_like, torch.rand_like, torch.randperm, torch.arange, torch.frombuffer, torch.normal, torch._empty_per_channel_affine_quantized, torch.empty_strided, torch.empty_like, torch.scalar_tensor, torch.tril_indices, torch.bartlett_window, torch.ones, torch.sparse_coo_tensor, torch.randn, torch.kaiser_window, torch.tensor, torch.triu_indices, torch.as_tensor, torch.zeros, torch.randint_like, torch.full, torch.eye, torch._sparse_csr_tensor_unsafe, torch.empty, torch._sparse_coo_tensor_unsafe, torch.blackman_window, torch.zeros_like, torch.range, torch.sparse_csr_tensor, torch.randn_like, torch.from_file, torch._cudnn_init_dropout_state, torch._empty_affine_quantized, torch.linspace, torch.hamming_window, torch.empty_quantized, torch._pin_memory, torch.autocast, torch.load, torch.Generator, torch.Tensor.new_empty, torch.Tensor.new_empty_strided, torch.Tensor.new_full, torch.Tensor.new_ones, torch.Tensor.new_tensor, torch.Tensor.new_zeros, torch.Tensor.to, torch.nn.Module.to, torch.nn.Module.to_empty
+    *************************************************************************************************************
+    
+  warnings.warn(msg, ImportWarning)
+[2024-09-26 17:42:19,781] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 17:42:19,820] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 17:42:19,942] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 17:42:19,943] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 17:42:20,001] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 17:42:20,002] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 17:42:20,030] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 17:42:20,046] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+The npu_config.on_npu is True
+pid 854955's current affinity list: 0-191
+pid 854955's new affinity list: 0-23
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+pid 854960's current affinity list: 0-191
+pid 854960's new affinity list: 120-143
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+pid 854958's current affinity list: 0-191
+pid 854958's new affinity list: 72-95
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+pid 854962's current affinity list: 0-191
+pid 854962's new affinity list: 168-191
+pid 854956's current affinity list: 0-191
+pid 854956's new affinity list: 24-47
+pid 854961's current affinity list: 0-191
+pid 854961's new affinity list: 144-167
+pid 854959's current affinity list: 0-191
+pid 854959's new affinity list: 96-119
+pid 854957's current affinity list: 0-191
+pid 854957's new affinity list: 48-71
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+[RANK-0]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:35,729] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:35,729] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-09-26 17:42:35,729] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend hccl
+Detected kernel version 4.19.90, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+09/26/2024 17:42:35 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 0
+Local process index: 0
+Device: npu:0
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-5]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:36,486] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:36,486] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:36 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 5
+Local process index: 5
+Device: npu:5
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-3]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:36,892] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:36,893] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:36 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 3
+Local process index: 3
+Device: npu:3
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-7]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:37,137] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:37,137] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:37 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 7
+Local process index: 7
+Device: npu:7
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+[RANK-2]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+[RANK-6]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:37,362] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:37,362] [INFO] [comm.py:637:init_distributed] cdb=None
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:37,363] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:37,363] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:37 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 2
+Local process index: 2
+Device: npu:2
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+09/26/2024 17:42:37 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 6
+Local process index: 6
+Device: npu:6
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+You are using a model of type mt5 to instantiate a model of type t5. This is not supported for all configurations of models and can yield errors.
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+[RANK-4]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:37,535] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:37,535] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:37 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 4
+Local process index: 4
+Device: npu:4
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-1]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 17:42:37,613] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 17:42:37,614] [INFO] [comm.py:637:init_distributed] cdb=None
+09/26/2024 17:42:37 - INFO - __main__ - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 1
+Local process index: 1
+Device: npu:1
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+09/26/2024 17:46:50 - INFO - __main__ - optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-15
+    foreach: False
+    fused: None
+    lr: 1e-05
+    maximize: False
+    weight_decay: 0.01
+)
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]09/26/2024 17:46:59 - INFO - opensora.dataset.t2v_datasets - Building /home/image_data/captions/TV01_clips_final_478625_llavanext_217405_aes478625.json...
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+  1%|          | 3107/478625 [00:00<00:15, 31061.51it/s][A
+  1%|▏         | 6296/478625 [00:00<00:14, 31544.97it/s][A
+  2%|▏         | 9451/478625 [00:00<00:15, 30622.80it/s][A
+  3%|▎         | 12517/478625 [00:00<00:15, 30034.28it/s][A
+  3%|▎         | 15670/478625 [00:00<00:15, 30559.63it/s][A
+  4%|▍         | 18729/478625 [00:00<00:15, 29901.20it/s][A
+  5%|▍         | 21769/478625 [00:00<00:15, 30057.06it/s][A
+  5%|▌         | 24872/478625 [00:00<00:14, 30359.29it/s][A
+  6%|▌         | 27911/478625 [00:00<00:15, 29657.26it/s][A
+  7%|▋         | 31115/478625 [00:01<00:14, 30371.59it/s][A
+  7%|▋         | 34291/478625 [00:01<00:14, 30786.60it/s][A
+  8%|▊         | 37374/478625 [00:01<00:14, 30120.54it/s][A
+  8%|▊         | 40437/478625 [00:01<00:14, 30255.06it/s][A
+  9%|▉         | 43467/478625 [00:01<00:14, 29557.53it/s][A
+ 10%|▉         | 46641/478625 [00:01<00:14, 30195.14it/s][A
+ 10%|█         | 49746/478625 [00:01<00:14, 30445.90it/s][A
+ 11%|█         | 52795/478625 [00:01<00:14, 29653.27it/s][A
+ 12%|█▏        | 55929/478625 [00:01<00:14, 30143.78it/s][A
+ 12%|█▏        | 59122/478625 [00:01<00:13, 30666.14it/s][A
+ 13%|█▎        | 62194/478625 [00:02<00:13, 30189.79it/s][A
+ 14%|█▎        | 65376/478625 [00:02<00:13, 30667.82it/s][A
+ 14%|█▍        | 68448/478625 [00:02<00:13, 30453.97it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+ 15%|█▍        | 71497/478625 [00:02<00:13, 29901.26it/s][A
+  1%|          | 3129/478625 [00:00<00:15, 31284.51it/s][A
+ 16%|█▌        | 74491/478625 [00:02<00:13, 29852.44it/s][A
+  1%|▏         | 6357/478625 [00:00<00:14, 31866.63it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+ 16%|█▌        | 77479/478625 [00:02<00:13, 29138.13it/s][A
+  2%|▏         | 9576/478625 [00:00<00:14, 32009.90it/s][A
+ 17%|█▋        | 80588/478625 [00:02<00:13, 29703.13it/s][A
+  3%|▎         | 12777/478625 [00:00<00:14, 31118.74it/s][A
+ 18%|█▊        | 83808/478625 [00:02<00:12, 30435.37it/s][A
+  3%|▎         | 15920/478625 [00:00<00:14, 31224.85it/s][A
+ 18%|█▊        | 86857/478625 [00:02<00:13, 29994.67it/s][A
+  4%|▍         | 19046/478625 [00:00<00:15, 30603.86it/s][A
+ 19%|█▉        | 89938/478625 [00:02<00:12, 30232.93it/s][A
+  5%|▍         | 22224/478625 [00:00<00:14, 30977.62it/s][A
+ 19%|█▉        | 92965/478625 [00:03<00:12, 29886.14it/s][A
+  5%|▌         | 25434/478625 [00:00<00:14, 31328.02it/s][A
+ 20%|██        | 95957/478625 [00:03<00:13, 29432.47it/s][A
+  6%|▌         | 28570/478625 [00:00<00:14, 30701.48it/s][A
+ 21%|██        | 99035/478625 [00:03<00:12, 29825.22it/s][A
+  7%|▋         | 31683/478625 [00:01<00:14, 30829.37it/s][A
+ 21%|██▏       | 102128/478625 [00:03<00:12, 30148.38it/s][A
+  7%|▋         | 34840/478625 [00:01<00:14, 31051.69it/s][A
+ 22%|██▏       | 105146/478625 [00:03<00:12, 29832.59it/s][A
+  8%|▊         | 37948/478625 [00:01<00:14, 30533.57it/s][A
+ 23%|██▎       | 108352/478625 [00:03<00:12, 30488.27it/s][A
+  9%|▊         | 41051/478625 [00:01<00:14, 30680.37it/s][A
+ 23%|██▎       | 111404/478625 [00:03<00:12, 30073.42it/s][A
+  9%|▉         | 44122/478625 [00:01<00:14, 30320.10it/s][A
+ 24%|██▍       | 114456/478625 [00:03<00:12, 30203.06it/s][A
+ 10%|▉         | 47362/478625 [00:01<00:13, 30934.25it/s][A
+ 25%|██▍       | 117555/478625 [00:03<00:11, 30434.32it/s][A
+ 11%|█         | 50533/478625 [00:01<00:13, 31163.46it/s][A
+ 25%|██▌       | 120601/478625 [00:04<00:12, 29798.74it/s][A
+ 11%|█         | 53652/478625 [00:01<00:13, 30415.28it/s][A
+ 26%|██▌       | 123585/478625 [00:04<00:11, 29690.18it/s][A
+ 12%|█▏        | 56767/478625 [00:01<00:13, 30630.10it/s][A
+ 26%|██▋       | 126664/478625 [00:04<00:11, 30012.70it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+ 13%|█▎        | 59957/478625 [00:01<00:13, 31003.45it/s][A
+ 27%|██▋       | 129668/478625 [00:04<00:11, 29281.93it/s][A
+ 13%|█▎        | 63061/478625 [00:02<00:13, 30465.16it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+ 28%|██▊       | 132839/478625 [00:04<00:11, 29989.35it/s][A
+ 14%|█▍        | 66157/478625 [00:02<00:13, 30608.34it/s][A
+ 28%|██▊       | 136035/478625 [00:04<00:11, 30568.63it/s][A
+ 14%|█▍        | 69272/478625 [00:02<00:13, 30351.96it/s][A
+ 29%|██▉       | 139097/478625 [00:04<00:11, 29849.29it/s][A
+ 15%|█▌        | 72428/478625 [00:02<00:13, 30705.29it/s][A
+ 30%|██▉       | 142228/478625 [00:04<00:11, 30272.76it/s][A
+ 16%|█▌        | 75595/478625 [00:02<00:13, 30990.40it/s][A
+ 30%|███       | 145261/478625 [00:04<00:11, 29676.87it/s][A
+ 16%|█▋        | 78697/478625 [00:02<00:13, 30463.37it/s][A
+ 31%|███       | 148356/478625 [00:04<00:10, 30046.68it/s][A
+ 17%|█▋        | 81891/478625 [00:02<00:12, 30897.46it/s][A
+ 32%|███▏      | 151508/478625 [00:05<00:10, 30478.04it/s][A
+ 18%|█▊        | 85120/478625 [00:02<00:12, 31305.68it/s][A
+ 32%|███▏      | 154561/478625 [00:05<00:10, 30024.82it/s][A
+ 18%|█▊        | 88254/478625 [00:02<00:12, 30802.40it/s][A
+ 33%|███▎      | 157777/478625 [00:05<00:10, 30650.17it/s][A
+ 19%|█▉        | 91465/478625 [00:02<00:12, 31185.15it/s][A
+ 34%|███▎      | 160896/478625 [00:05<00:10, 30808.16it/s][A
+ 20%|█▉        | 94598/478625 [00:03<00:12, 30566.54it/s][A
+ 34%|███▍      | 163980/478625 [00:05<00:10, 30141.60it/s][A
+ 20%|██        | 97723/478625 [00:03<00:12, 30765.43it/s][A
+ 35%|███▍      | 167031/478625 [00:05<00:10, 30247.49it/s][A
+ 21%|██        | 100928/478625 [00:03<00:12, 31139.81it/s][A
+ 36%|███▌      | 170060/478625 [00:05<00:10, 29807.63it/s][A
+ 22%|██▏       | 104046/478625 [00:03<00:12, 30414.19it/s][A
+ 36%|███▌      | 173126/478625 [00:05<00:10, 30057.06it/s][A
+ 22%|██▏       | 107167/478625 [00:03<00:12, 30645.02it/s][A
+ 37%|███▋      | 176292/478625 [00:05<00:09, 30528.83it/s][A
+ 23%|██▎       | 110236/478625 [00:03<00:12, 30335.25it/s][A
+ 37%|███▋      | 179348/478625 [00:05<00:10, 29378.25it/s][A
+ 24%|██▎       | 113273/478625 [00:03<00:12, 30020.71it/s][A
+ 38%|███▊      | 182423/478625 [00:06<00:09, 29772.98it/s][A
+ 24%|██▍       | 116426/478625 [00:03<00:11, 30463.38it/s][A
+ 39%|███▊      | 185409/478625 [00:06<00:09, 29621.10it/s][A
+ 25%|██▍       | 119583/478625 [00:03<00:11, 30788.78it/s][A
+ 39%|███▉      | 188377/478625 [00:06<00:09, 29327.81it/s][A
+ 26%|██▌       | 122665/478625 [00:03<00:11, 30221.97it/s][A
+ 40%|████      | 191453/478625 [00:06<00:09, 29745.31it/s][A
+ 26%|██▋       | 125770/478625 [00:04<00:11, 30463.80it/s][A
+ 41%|████      | 194516/478625 [00:06<00:09, 30004.24it/s][A
+ 27%|██▋       | 128820/478625 [00:04<00:11, 29882.88it/s][A
+ 41%|████▏     | 197520/478625 [00:06<00:09, 29638.32it/s][A
+ 28%|██▊       | 131929/478625 [00:04<00:11, 30234.00it/s][A
+ 42%|████▏     | 200709/478625 [00:06<00:09, 30298.55it/s][A
+ 28%|██▊       | 135093/478625 [00:04<00:11, 30645.11it/s][A
+ 43%|████▎     | 203742/478625 [00:06<00:09, 29731.66it/s][A
+ 29%|██▉       | 138161/478625 [00:04<00:11, 30208.64it/s][A
+ 43%|████▎     | 206762/478625 [00:06<00:09, 29866.38it/s][A
+ 30%|██▉       | 141357/478625 [00:04<00:10, 30723.26it/s][A
+ 44%|████▍     | 209917/478625 [00:06<00:08, 30333.95it/s][A
+ 30%|███       | 144486/478625 [00:04<00:10, 30889.52it/s][A
+ 44%|████▍     | 212954/478625 [00:07<00:08, 29619.36it/s][A
+ 31%|███       | 147578/478625 [00:04<00:11, 29867.69it/s][A
+ 45%|████▌     | 215974/478625 [00:07<00:08, 29787.31it/s][A
+ 31%|███▏      | 150708/478625 [00:04<00:10, 30283.52it/s][A
+ 46%|████▌     | 219148/478625 [00:07<00:08, 30361.92it/s][A
+ 32%|███▏      | 153744/478625 [00:05<00:10, 29792.89it/s][A
+ 46%|████▋     | 222188/478625 [00:07<00:08, 29892.62it/s][A
+ 33%|███▎      | 156861/478625 [00:05<00:10, 30192.65it/s][A
+ 47%|████▋     | 225305/478625 [00:07<00:08, 30265.93it/s][A
+ 33%|███▎      | 160066/478625 [00:05<00:10, 30738.15it/s][A
+ 48%|████▊     | 228335/478625 [00:07<00:08, 30163.44it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+ 34%|███▍      | 163145/478625 [00:05<00:10, 30229.69it/s][A
+ 48%|████▊     | 231354/478625 [00:07<00:08, 29315.62it/s][A
+ 35%|███▍      | 166337/478625 [00:05<00:10, 30724.20it/s][A
+ 49%|████▉     | 234390/478625 [00:07<00:08, 29617.50it/s][A
+ 35%|███▌      | 169520/478625 [00:05<00:09, 31050.61it/s][A
+ 50%|████▉     | 237357/478625 [00:07<00:08, 29327.22it/s][A
+ 36%|███▌      | 172629/478625 [00:05<00:10, 30388.90it/s][A
+ 50%|█████     | 240477/478625 [00:08<00:07, 29875.21it/s][A
+ 37%|███▋      | 175769/478625 [00:05<00:09, 30682.41it/s][A
+ 51%|█████     | 243618/478625 [00:08<00:07, 30328.29it/s][A
+ 37%|███▋      | 178931/478625 [00:05<00:09, 30957.45it/s][A
+ 52%|█████▏    | 246655/478625 [00:08<00:07, 29357.70it/s][A
+ 38%|███▊      | 182031/478625 [00:05<00:09, 30177.01it/s][A
+ 52%|█████▏    | 249805/478625 [00:08<00:07, 29979.50it/s][A
+ 39%|███▊      | 185204/478625 [00:06<00:09, 30629.75it/s][A
+ 53%|█████▎    | 252968/478625 [00:08<00:07, 30463.49it/s][A
+ 39%|███▉      | 188273/478625 [00:06<00:09, 30149.11it/s][A
+ 53%|█████▎    | 256021/478625 [00:08<00:07, 29992.24it/s][A
+ 40%|███▉      | 191426/478625 [00:06<00:09, 30551.13it/s][A
+ 54%|█████▍    | 259095/478625 [00:08<00:07, 30211.29it/s][A
+ 41%|████      | 194624/478625 [00:06<00:09, 30972.03it/s][A
+ 55%|█████▍    | 262284/478625 [00:08<00:07, 30704.80it/s][A
+ 41%|████▏     | 197725/478625 [00:06<00:09, 30374.09it/s][A
+ 55%|█████▌    | 265359/478625 [00:08<00:07, 30150.71it/s][A
+ 42%|████▏     | 200879/478625 [00:06<00:09, 30714.32it/s][A
+ 56%|█████▌    | 268472/478625 [00:08<00:06, 30435.45it/s][A
+ 43%|████▎     | 203995/478625 [00:06<00:08, 30845.35it/s][A
+ 57%|█████▋    | 271520/478625 [00:09<00:06, 29979.86it/s][A
+ 43%|████▎     | 207083/478625 [00:06<00:09, 30093.94it/s][A
+ 57%|█████▋    | 274558/478625 [00:09<00:06, 30096.15it/s][A
+ 44%|████▍     | 210269/478625 [00:06<00:08, 30607.69it/s][A
+ 58%|█████▊    | 277714/478625 [00:09<00:06, 30528.09it/s][A
+ 45%|████▍     | 213335/478625 [00:06<00:08, 30211.23it/s][A
+ 59%|█████▊    | 280770/478625 [00:09<00:06, 30131.49it/s][A
+ 45%|████▌     | 216513/478625 [00:07<00:08, 30670.51it/s][A
+ 59%|█████▉    | 283892/478625 [00:09<00:06, 30451.80it/s][A
+ 46%|████▌     | 219655/478625 [00:07<00:08, 30890.81it/s][A
+ 60%|█████▉    | 287038/478625 [00:09<00:06, 30748.01it/s][A
+ 47%|████▋     | 222748/478625 [00:07<00:08, 30247.69it/s][A
+ 61%|██████    | 290115/478625 [00:09<00:06, 30096.92it/s][A
+ 47%|████▋     | 225955/478625 [00:07<00:08, 30781.42it/s][A
+ 61%|██████    | 293129/478625 [00:09<00:06, 29695.06it/s][A
+ 48%|████▊     | 229038/478625 [00:07<00:08, 30676.94it/s][A
+ 62%|██████▏   | 296281/478625 [00:09<00:06, 30228.40it/s][A
+ 48%|████▊     | 232109/478625 [00:07<00:08, 29584.28it/s][A
+ 63%|██████▎   | 299308/478625 [00:09<00:06, 29570.99it/s][A
+ 49%|████▉     | 235186/478625 [00:07<00:08, 29927.22it/s][A
+ 63%|██████▎   | 302398/478625 [00:10<00:05, 29954.22it/s][A
+ 50%|████▉     | 238187/478625 [00:07<00:08, 29701.16it/s][A
+ 64%|██████▍   | 305398/478625 [00:10<00:05, 29713.71it/s][A
+ 50%|█████     | 241377/478625 [00:07<00:07, 30343.07it/s][A
+ 64%|██████▍   | 308563/478625 [00:10<00:05, 30281.31it/s][A
+ 51%|█████     | 244552/478625 [00:07<00:07, 30757.38it/s][A
+ 65%|██████▌   | 311765/478625 [00:10<00:05, 30795.12it/s][A
+ 52%|█████▏    | 247633/478625 [00:08<00:07, 30417.81it/s][A
+ 66%|██████▌   | 314848/478625 [00:10<00:05, 30069.58it/s][A
+ 52%|█████▏    | 250731/478625 [00:08<00:07, 30545.20it/s][A
+ 66%|██████▋   | 318058/478625 [00:10<00:05, 30662.88it/s][A
+ 53%|█████▎    | 253883/478625 [00:08<00:07, 30832.25it/s][A
+ 67%|██████▋   | 321184/478625 [00:10<00:05, 30836.72it/s][A
+ 54%|█████▎    | 256969/478625 [00:08<00:07, 30038.23it/s][A
+ 68%|██████▊   | 324272/478625 [00:10<00:05, 30286.82it/s][A
+ 54%|█████▍    | 259979/478625 [00:08<00:07, 29902.16it/s][A
+ 68%|██████▊   | 327401/478625 [00:10<00:04, 30579.67it/s][A
+ 55%|█████▍    | 263052/478625 [00:08<00:07, 30144.04it/s][A
+ 69%|██████▉   | 330463/478625 [00:10<00:04, 29769.61it/s][A
+ 56%|█████▌    | 266070/478625 [00:08<00:07, 29802.81it/s][A
+ 70%|██████▉   | 333463/478625 [00:11<00:04, 29834.45it/s][A
+ 56%|█████▌    | 269224/478625 [00:08<00:06, 30313.23it/s][A
+ 70%|███████   | 336452/478625 [00:11<00:04, 29186.43it/s][A
+ 57%|█████▋    | 272259/478625 [00:08<00:06, 29953.95it/s][A
+ 71%|███████   | 339376/478625 [00:11<00:04, 29080.93it/s][A
+ 58%|█████▊    | 275398/478625 [00:09<00:06, 30376.56it/s][A
+ 72%|███████▏  | 342510/478625 [00:11<00:04, 29740.18it/s][A
+ 58%|█████▊    | 278586/478625 [00:09<00:06, 30819.83it/s][A
+ 72%|███████▏  | 345668/478625 [00:11<00:04, 30282.33it/s][A
+ 59%|█████▉    | 281671/478625 [00:09<00:06, 30099.24it/s][A
+ 73%|███████▎  | 348700/478625 [00:11<00:04, 29873.36it/s][A
+ 60%|█████▉    | 284823/478625 [00:09<00:06, 30515.27it/s][A
+ 74%|███████▎  | 351878/478625 [00:11<00:04, 30434.20it/s][A
+ 60%|██████    | 287901/478625 [00:09<00:06, 30590.43it/s][A
+ 74%|███████▍  | 355063/478625 [00:11<00:04, 30852.45it/s][A
+ 61%|██████    | 290964/478625 [00:09<00:06, 30186.07it/s][A
+ 75%|███████▍  | 358152/478625 [00:11<00:03, 30314.33it/s][A
+ 61%|██████▏   | 293986/478625 [00:09<00:06, 30183.88it/s][A
+ 75%|███████▌  | 361346/478625 [00:12<00:03, 30791.89it/s][A
+ 62%|██████▏   | 297134/478625 [00:09<00:05, 30564.98it/s][A
+ 76%|███████▌  | 364429/478625 [00:12<00:03, 30269.19it/s][A
+ 63%|██████▎   | 300193/478625 [00:09<00:05, 30133.00it/s][A
+ 77%|███████▋  | 367593/478625 [00:12<00:03, 30670.27it/s][A
+ 63%|██████▎   | 303297/478625 [00:09<00:05, 30399.98it/s][A
+ 77%|███████▋  | 370664/478625 [00:12<00:03, 30579.24it/s][A
+ 64%|██████▍   | 306340/478625 [00:10<00:05, 30132.15it/s][A
+ 78%|███████▊  | 373725/478625 [00:12<00:03, 29597.70it/s][A
+ 65%|██████▍   | 309462/478625 [00:10<00:05, 30452.25it/s][A
+ 79%|███████▊  | 376830/478625 [00:12<00:03, 30018.51it/s][A
+ 65%|██████▌   | 312644/478625 [00:10<00:05, 30836.90it/s][A
+ 79%|███████▉  | 379940/478625 [00:12<00:03, 30332.72it/s][A
+ 66%|██████▌   | 315730/478625 [00:10<00:05, 30270.88it/s][A
+ 80%|████████  | 382979/478625 [00:12<00:03, 29832.87it/s][A
+ 67%|██████▋   | 318966/478625 [00:10<00:05, 30884.47it/s][A
+ 81%|████████  | 386144/478625 [00:12<00:03, 30364.51it/s][A
+ 67%|██████▋   | 322146/478625 [00:10<00:05, 31154.34it/s][A
+ 81%|████████▏ | 389202/478625 [00:12<00:02, 30426.16it/s][A
+ 68%|██████▊   | 325265/478625 [00:10<00:05, 30061.30it/s][A
+ 82%|████████▏ | 392249/478625 [00:13<00:02, 30005.64it/s][A
+ 69%|██████▊   | 328281/478625 [00:10<00:05, 30036.67it/s][A
+ 83%|████████▎ | 395253/478625 [00:13<00:02, 29939.38it/s][A
+ 69%|██████▉   | 331292/478625 [00:10<00:04, 29612.31it/s][Amissing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+
+ 83%|████████▎ | 398250/478625 [00:13<00:02, 29555.11it/s][ASuccessfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+
+ 70%|██████▉   | 334363/478625 [00:10<00:04, 29931.73it/s][A
+ 84%|████████▍ | 401387/478625 [00:13<00:02, 30085.20it/s][A
+ 71%|███████   | 337503/478625 [00:11<00:04, 30362.57it/s][A
+ 85%|████████▍ | 404539/478625 [00:13<00:02, 30508.30it/s][A
+ 71%|███████   | 340544/478625 [00:11<00:04, 29785.20it/s][A
+ 85%|████████▌ | 407593/478625 [00:13<00:02, 29942.80it/s][A
+ 72%|███████▏  | 343717/478625 [00:11<00:04, 30352.43it/s][A
+ 86%|████████▌ | 410716/478625 [00:13<00:02, 30318.67it/s][A
+ 72%|███████▏  | 346941/478625 [00:11<00:04, 30907.74it/s][A
+ 86%|████████▋ | 413849/478625 [00:13<00:02, 30577.23it/s][A
+ 73%|███████▎  | 350036/478625 [00:11<00:04, 30422.97it/s][A
+ 87%|████████▋ | 416910/478625 [00:13<00:02, 29783.27it/s][A
+ 74%|███████▍  | 353254/478625 [00:11<00:04, 30939.18it/s][A
+ 88%|████████▊ | 420097/478625 [00:13<00:01, 30390.38it/s][A
+ 74%|███████▍  | 356352/478625 [00:11<00:04, 30080.88it/s][A
+ 88%|████████▊ | 423142/478625 [00:14<00:01, 29436.78it/s][A
+ 75%|███████▌  | 359514/478625 [00:11<00:03, 30526.42it/s][A
+ 89%|████████▉ | 426295/478625 [00:14<00:01, 30041.49it/s][A
+ 76%|███████▌  | 362671/478625 [00:11<00:03, 30831.72it/s][A
+ 90%|████████▉ | 429438/478625 [00:14<00:01, 30445.98it/s][A
+ 76%|███████▋  | 365760/478625 [00:11<00:03, 30354.04it/s][A
+ 90%|█████████ | 432490/478625 [00:14<00:01, 29759.42it/s][A
+ 77%|███████▋  | 368800/478625 [00:12<00:03, 29286.14it/s][A
+ 91%|█████████ | 435619/478625 [00:14<00:01, 30203.60it/s][A
+ 78%|███████▊  | 371839/478625 [00:12<00:03, 29601.33it/s][A
+ 92%|█████████▏| 438724/478625 [00:14<00:01, 30450.87it/s][A
+ 78%|███████▊  | 374808/478625 [00:12<00:03, 28371.94it/s][A
+ 92%|█████████▏| 441775/478625 [00:14<00:01, 30036.93it/s][A
+ 79%|███████▉  | 377875/478625 [00:12<00:03, 29025.79it/s][A
+ 93%|█████████▎| 444856/478625 [00:14<00:01, 30263.14it/s][A
+ 80%|███████▉  | 380791/478625 [00:12<00:03, 28952.03it/s][A
+ 94%|█████████▎| 448054/478625 [00:14<00:00, 30770.27it/s][Amissing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+
+ 80%|████████  | 383696/478625 [00:12<00:03, 28635.28it/s][A
+ 94%|█████████▍| 451135/478625 [00:14<00:00, 30017.94it/s][A
+ 81%|████████  | 386856/478625 [00:12<00:03, 29499.25it/s][Amissing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+
+ 95%|█████████▍| 454143/478625 [00:15<00:00, 29975.04it/s][A
+ 81%|████████▏ | 389987/478625 [00:12<00:03, 29320.74it/s][A
+ 96%|█████████▌| 457145/478625 [00:15<00:00, 29465.62it/s][A
+ 82%|████████▏ | 393102/478625 [00:12<00:02, 29851.49it/s][A
+ 96%|█████████▌| 460265/478625 [00:15<00:00, 29970.01it/s][A
+ 83%|████████▎ | 396240/478625 [00:13<00:02, 30296.58it/s][A
+ 97%|█████████▋| 463266/478625 [00:15<00:00, 29723.81it/s][A
+ 83%|████████▎ | 399275/478625 [00:13<00:02, 30035.19it/s][A
+ 97%|█████████▋| 466242/478625 [00:15<00:00, 29223.02it/s][A
+ 84%|████████▍ | 402504/478625 [00:13<00:02, 30696.86it/s][A
+ 98%|█████████▊| 469299/478625 [00:15<00:00, 29615.55it/s][A
+ 85%|████████▍ | 405672/478625 [00:13<00:02, 30987.46it/s][A
+ 99%|█████████▊| 472264/478625 [00:15<00:00, 29547.35it/s][A
+ 85%|████████▌ | 408774/478625 [00:13<00:02, 30388.26it/s][A
+ 99%|█████████▉| 475221/478625 [00:15<00:00, 29296.49it/s][A
+ 86%|████████▌ | 411901/478625 [00:13<00:02, 30645.98it/s][A
+100%|█████████▉| 478349/478625 [00:15<00:00, 29880.26it/s][A100%|██████████| 478625/478625 [00:15<00:00, 30064.17it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.22s/it]100%|██████████| 1/1 [00:22<00:00, 22.22s/it]
+
+ 87%|████████▋ | 414984/478625 [00:13<00:02, 30697.11it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+09/26/2024 17:47:21 - INFO - opensora.dataset.t2v_datasets - no_cap: 0, too_long: 3711, too_short: 2, no_resolution: 0, resolution_mismatch: 0, cnt_resolution_too_small: 0, Counter(sample_size): Counter({'93x288x512': 68721, '29x288x512': 61849, '45x288x512': 57045, '61x288x512': 37067, '77x288x512': 31558, '93x256x512': 19157, '93x384x512': 17300, '93x192x512': 16891, '29x192x512': 15972, '45x192x512': 14064, '29x256x512': 13007, '45x256x512': 12885, '93x320x512': 11981, '61x192x512': 9355, '29x384x512': 9017, '45x384x512': 8888, '61x256x512': 8682, '77x256x512': 8043, '77x192x512': 7391, '61x384x512': 6530, '29x320x512': 6488, '45x320x512': 6324, '77x384x512': 6028, '61x320x512': 4560, '77x320x512': 4098, '93x352x512': 1264, '29x224x512': 1076, '93x224x512': 1060, '93x416x512': 975, '45x224x512': 847, '29x416x512': 605, '45x416x512': 568, '61x224x512': 531, '45x352x512': 508, '29x352x512': 447, '77x352x512': 443, '61x416x512': 441, '77x224x512': 419, '77x416x512': 405, '29x256x480': 385, '61x352x512': 378, '45x256x480': 350, '93x256x480': 330, '61x256x480': 252, '77x256x480': 199, '93x160x512': 136, '45x160x512': 77, '61x160x512': 72, '29x160x512': 69, '77x160x512': 68, '93x352x448': 28, '29x352x448': 26, '45x352x448': 23, '61x352x448': 14, '77x352x448': 2}), cnt_vid: 474899, cnt_img: 0, before filter: 478625, after filter: 474899
+
+ 87%|████████▋ | 418057/478625 [00:13<00:01, 30288.87it/s][A
+ 88%|████████▊ | 421252/478625 [00:13<00:01, 30777.71it/s][A
+ 89%|████████▊ | 424333/478625 [00:13<00:01, 29971.36it/s][A09/26/2024 17:47:21 - INFO - opensora.dataset.t2v_datasets - before filter: 478625, after filter: 474899 | motion_score: 474899, cnt_no_motion: 13 | 192077 > 0.95, 0.7 > 65730 Mean: 0.8593367888417824, Var: 0.03075349223473551, Std: 0.17536673639757203, Min: -0.0717548280954361, Max: 1.0
+
+ 89%|████████▉ | 427502/478625 [00:14<00:01, 30471.50it/s][A
+ 90%|████████▉ | 430653/478625 [00:14<00:01, 30774.77it/s][A09/26/2024 17:47:21 - INFO - opensora.dataset.t2v_datasets - before filter: 478625, after filter: 474899 | aesthetic_score: 478625, cnt_no_aesthetic: 0 | 14374 > 5.75, 4.5 > 113830 Mean: 4.846693657797633, Var: 0.24147353645946146, Std: 0.4913995690468821, Min: 2.685077953338623, Max: 6.742257436116536
+
+ 91%|█████████ | 433735/478625 [00:14<00:01, 30333.40it/s][A09/26/2024 17:47:21 - INFO - opensora.dataset.t2v_datasets - Build data time: 22.896981954574585
+n_elements: 474899
+09/26/2024 17:47:21 - INFO - opensora.dataset.t2v_datasets - Data length: 474899
+09/26/2024 17:47:21 - INFO - __main__ - after train_dataloader
+09/26/2024 17:47:21 - INFO - __main__ - before accelerator.prepare
+[2024-09-26 17:47:21,936] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed info: version=0.12.6, git-hash=unknown, git-branch=unknown
+
+ 91%|█████████▏| 436791/478625 [00:14<00:01, 30399.62it/s][A
+ 92%|█████████▏| 439957/478625 [00:14<00:01, 30771.07it/s][A
+ 93%|█████████▎| 443037/478625 [00:14<00:01, 30265.48it/s][A
+ 93%|█████████▎| 446222/478625 [00:14<00:01, 30730.48it/s][A
+ 94%|█████████▍| 449299/478625 [00:14<00:00, 30422.56it/s][A
+ 95%|█████████▍| 452509/478625 [00:14<00:00, 30914.40it/s][A
+ 95%|█████████▌| 455693/478625 [00:14<00:00, 31188.41it/s][A
+ 96%|█████████▌| 458814/478625 [00:15<00:00, 30341.02it/s][A
+ 97%|█████████▋| 461939/478625 [00:15<00:00, 30604.71it/s][A
+ 97%|█████████▋| 465078/478625 [00:15<00:00, 30835.49it/s][A
+ 98%|█████████▊| 468166/478625 [00:15<00:00, 29731.23it/s][A
+ 98%|█████████▊| 471162/478625 [00:15<00:00, 29797.06it/s][A
+ 99%|█████████▉| 474275/478625 [00:15<00:00, 30184.88it/s][A
+100%|█████████▉| 477300/478625 [00:15<00:00, 29875.14it/s][A100%|██████████| 478625/478625 [00:15<00:00, 30411.04it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.09s/it]100%|██████████| 1/1 [00:22<00:00, 22.09s/it]
+n_elements: 474899
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+  1%|          | 3145/478625 [00:00<00:15, 31439.91it/s][A
+  1%|▏         | 6438/478625 [00:00<00:14, 32310.49it/s][A
+  2%|▏         | 9670/478625 [00:00<00:15, 31175.41it/s][A
+  3%|▎         | 12949/478625 [00:00<00:14, 31796.26it/s][A
+  3%|▎         | 16177/478625 [00:00<00:14, 31965.39it/s][A
+  4%|▍         | 19377/478625 [00:00<00:14, 31331.26it/s][A
+  5%|▍         | 22628/478625 [00:00<00:14, 31707.38it/s][A/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+
+  5%|▌         | 25803/478625 [00:00<00:14, 31200.81it/s][A
+  6%|▌         | 29083/478625 [00:00<00:14, 31688.50it/s][A
+  7%|▋         | 32361/478625 [00:01<00:13, 32019.84it/s][A
+  7%|▋         | 35566/478625 [00:01<00:14, 31371.57it/s][A
+  8%|▊         | 38724/478625 [00:01<00:13, 31433.19it/s][Amissing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+
+  9%|▊         | 41871/478625 [00:01<00:13, 31283.34it/s][A
+  9%|▉         | 45002/478625 [00:01<00:14, 30611.27it/s][A
+ 10%|█         | 48254/478625 [00:01<00:13, 31171.53it/s][A
+ 11%|█         | 51376/478625 [00:01<00:13, 30777.13it/s][A
+ 11%|█▏        | 54622/478625 [00:01<00:13, 31270.18it/s][A
+ 12%|█▏        | 57914/478625 [00:01<00:13, 31754.95it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+
+  1%|          | 3165/478625 [00:00<00:15, 31639.02it/s][A 13%|█▎        | 61093/478625 [00:01<00:13, 31184.48it/s][A
+
+  1%|▏         | 6405/478625 [00:00<00:14, 32083.14it/s][A 13%|█▎        | 64378/478625 [00:02<00:13, 31671.53it/s][A
+ 14%|█▍        | 67654/478625 [00:02<00:12, 31992.47it/s][A
+  2%|▏         | 9614/478625 [00:00<00:15, 31043.25it/s][A
+ 15%|█▍        | 70857/478625 [00:02<00:12, 31428.76it/s][A
+  3%|▎         | 12866/478625 [00:00<00:14, 31613.84it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+ 15%|█▌        | 74125/478625 [00:02<00:12, 31793.72it/s][A
+  3%|▎         | 16084/478625 [00:00<00:14, 31812.52it/s][A
+  1%|          | 3116/478625 [00:00<00:15, 31154.24it/s][A
+ 16%|█▌        | 77308/478625 [00:02<00:12, 31252.85it/s][A
+  4%|▍         | 19268/478625 [00:00<00:14, 31143.35it/s][A
+  1%|▏         | 6319/478625 [00:00<00:14, 31667.99it/s][A
+ 17%|█▋        | 80539/478625 [00:02<00:12, 31561.23it/s][A
+  5%|▍         | 22480/478625 [00:00<00:14, 31453.05it/s][A
+  2%|▏         | 9486/478625 [00:00<00:15, 30663.93it/s][A
+ 17%|█▋        | 83739/478625 [00:02<00:12, 31688.54it/s][A
+  5%|▌         | 25629/478625 [00:00<00:14, 30937.93it/s][A
+  3%|▎         | 12688/478625 [00:00<00:14, 31188.06it/s][A
+  6%|▌         | 28845/478625 [00:00<00:14, 31308.89it/s][A
+ 18%|█▊        | 86911/478625 [00:02<00:12, 31013.97it/s][A
+  3%|▎         | 15871/478625 [00:00<00:14, 31414.04it/s][A
+  7%|▋         | 32040/478625 [00:01<00:14, 31501.55it/s][A
+ 19%|█▉        | 90186/478625 [00:02<00:12, 31521.16it/s][A
+  4%|▍         | 19015/478625 [00:00<00:14, 30665.48it/s][A
+  7%|▋         | 35193/478625 [00:01<00:14, 30972.05it/s][A
+ 20%|█▉        | 93343/478625 [00:02<00:12, 31029.15it/s][A
+  5%|▍         | 22203/478625 [00:00<00:14, 31052.24it/s][A
+  8%|▊         | 38404/478625 [00:01<00:14, 31311.15it/s][A
+ 20%|██        | 96618/478625 [00:03<00:12, 31532.21it/s][A
+  5%|▌         | 25313/478625 [00:00<00:14, 30565.48it/s][A
+  9%|▊         | 41629/478625 [00:01<00:13, 31590.29it/s][A
+ 21%|██        | 99897/478625 [00:03<00:11, 31902.72it/s][A
+  6%|▌         | 28505/478625 [00:00<00:14, 30978.85it/s][A
+  9%|▉         | 44791/478625 [00:01<00:13, 31010.06it/s][A
+ 22%|██▏       | 103091/478625 [00:03<00:12, 31252.58it/s][A
+  7%|▋         | 31711/478625 [00:01<00:14, 31306.38it/s][A
+ 10%|█         | 48033/478625 [00:01<00:13, 31424.88it/s][A
+ 22%|██▏       | 106366/478625 [00:03<00:11, 31690.95it/s][A
+  7%|▋         | 34845/478625 [00:01<00:14, 30728.31it/s][A
+ 23%|██▎       | 109620/478625 [00:03<00:11, 31939.90it/s][A
+ 11%|█         | 51179/478625 [00:01<00:13, 30881.67it/s][A
+  8%|▊         | 37999/478625 [00:01<00:14, 30967.67it/s][A
+ 11%|█▏        | 54409/478625 [00:01<00:13, 31297.95it/s][A
+ 24%|██▎       | 112818/478625 [00:03<00:11, 31412.08it/s][A
+  9%|▊         | 41182/478625 [00:01<00:14, 31222.93it/s][A
+ 12%|█▏        | 57628/478625 [00:01<00:13, 31559.73it/s][A
+ 24%|██▍       | 115991/478625 [00:03<00:11, 31504.16it/s][A
+  9%|▉         | 44307/478625 [00:01<00:14, 30628.77it/s][A
+
+ 13%|█▎        | 60787/478625 [00:01<00:13, 31063.47it/s] 25%|██▍       | 119145/478625 [00:03<00:11, 31075.31it/s][A[A
+ 10%|▉         | 47499/478625 [00:01<00:13, 31009.02it/s][A
+
+ 13%|█▎        | 63999/478625 [00:02<00:13, 31373.92it/s][A 26%|██▌       | 122402/478625 [00:03<00:11, 31512.37it/s][A
+ 11%|█         | 50604/478625 [00:01<00:14, 30456.35it/s][A
+ 26%|██▌       | 125634/478625 [00:03<00:11, 31748.98it/s][A
+ 14%|█▍        | 67151/478625 [00:02<00:13, 30826.41it/s][A
+ 11%|█         | 53796/478625 [00:01<00:13, 30865.23it/s][A
+ 27%|██▋       | 128812/478625 [00:04<00:11, 31235.53it/s][A
+ 15%|█▍        | 70387/478625 [00:02<00:13, 31273.77it/s][A
+ 12%|█▏        | 56991/478625 [00:01<00:13, 31182.11it/s][A
+ 28%|██▊       | 132088/478625 [00:04<00:10, 31682.99it/s][A
+ 15%|█▌        | 73591/478625 [00:02<00:12, 31497.52it/s][A
+ 13%|█▎        | 60113/478625 [00:01<00:13, 30637.22it/s][A
+ 16%|█▌        | 76744/478625 [00:02<00:12, 31002.25it/s][A
+ 28%|██▊       | 135345/478625 [00:04<00:10, 31290.99it/s][A
+ 13%|█▎        | 63314/478625 [00:02<00:13, 31039.23it/s][A
+ 17%|█▋        | 79941/478625 [00:02<00:12, 31285.44it/s][A
+ 29%|██▉       | 138610/478625 [00:04<00:10, 31688.49it/s][A
+ 14%|█▍        | 66513/478625 [00:02<00:13, 31317.69it/s][A
+ 17%|█▋        | 83171/478625 [00:02<00:12, 31584.33it/s][A
+ 30%|██▉       | 141832/478625 [00:04<00:10, 31844.19it/s][A
+ 15%|█▍        | 69648/478625 [00:02<00:13, 30751.26it/s][A
+ 18%|█▊        | 86332/478625 [00:02<00:12, 30977.62it/s][A
+ 30%|███       | 145020/478625 [00:04<00:10, 31047.88it/s][A
+ 15%|█▌        | 72819/478625 [00:02<00:13, 31030.19it/s][A
+ 19%|█▊        | 89566/478625 [00:02<00:12, 31376.56it/s][A
+ 31%|███       | 148175/478625 [00:04<00:10, 31193.15it/s][A
+ 16%|█▌        | 75926/478625 [00:02<00:13, 30567.51it/s][A
+ 32%|███▏      | 151422/478625 [00:04<00:10, 31566.46it/s][A
+ 19%|█▉        | 92708/478625 [00:02<00:12, 30747.20it/s][A
+ 17%|█▋        | 79118/478625 [00:02<00:12, 30964.11it/s][A
+ 20%|██        | 95921/478625 [00:03<00:12, 31150.26it/s][A
+ 32%|███▏      | 154583/478625 [00:04<00:10, 31148.27it/s][A
+ 17%|█▋        | 82320/478625 [00:02<00:12, 31275.50it/s][A
+ 21%|██        | 99109/478625 [00:03<00:12, 31362.53it/s][A
+ 33%|███▎      | 157845/478625 [00:05<00:10, 31579.25it/s][A
+ 18%|█▊        | 85451/478625 [00:02<00:12, 30688.74it/s][A
+ 21%|██▏       | 102249/478625 [00:03<00:12, 30831.98it/s][A
+ 34%|███▎      | 161007/478625 [00:05<00:10, 30811.87it/s][A
+ 19%|█▊        | 88713/478625 [00:02<00:12, 31254.34it/s][A
+ 22%|██▏       | 105437/478625 [00:03<00:11, 31136.55it/s][A
+ 34%|███▍      | 164220/478625 [00:05<00:10, 31195.39it/s][A
+ 19%|█▉        | 91938/478625 [00:02<00:12, 31546.08it/s][A
+ 23%|██▎       | 108651/478625 [00:03<00:11, 31431.84it/s][A
+ 35%|███▍      | 167514/478625 [00:05<00:09, 31707.17it/s][A
+ 20%|█▉        | 95096/478625 [00:03<00:12, 31002.18it/s][A
+ 23%|██▎       | 111797/478625 [00:03<00:11, 30945.86it/s][A
+ 36%|███▌      | 170690/478625 [00:05<00:09, 31093.59it/s][A
+ 21%|██        | 98333/478625 [00:03<00:12, 31402.66it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+ 24%|██▍       | 114983/478625 [00:03<00:11, 31214.55it/s][A
+ 36%|███▋      | 173983/478625 [00:05<00:09, 31629.02it/s][A
+ 21%|██        | 101477/478625 [00:03<00:12, 30836.74it/s][A
+  1%|          | 3096/478625 [00:00<00:15, 30956.19it/s][A
+ 37%|███▋      | 177256/478625 [00:05<00:09, 31951.40it/s][A
+ 25%|██▍       | 118108/478625 [00:03<00:11, 30760.28it/s][A
+ 22%|██▏       | 104698/478625 [00:03<00:11, 31237.06it/s][A
+  1%|▏         | 6192/478625 [00:00<00:15, 30746.09it/s][A
+ 25%|██▌       | 121316/478625 [00:03<00:11, 31146.72it/s][A
+ 38%|███▊      | 180456/478625 [00:05<00:09, 31284.97it/s][A
+ 23%|██▎       | 107946/478625 [00:03<00:11, 31602.60it/s][A
+  2%|▏         | 9267/478625 [00:00<00:15, 30123.09it/s][A
+ 26%|██▌       | 124532/478625 [00:03<00:11, 31443.81it/s][A
+ 38%|███▊      | 183694/478625 [00:05<00:09, 31605.11it/s][A
+ 23%|██▎       | 111110/478625 [00:03<00:11, 31148.44it/s][A
+  3%|▎         | 12420/478625 [00:00<00:15, 30668.20it/s][A
+ 27%|██▋       | 127679/478625 [00:04<00:11, 30865.51it/s][A
+ 39%|███▉      | 186859/478625 [00:05<00:09, 31127.32it/s][A
+ 24%|██▍       | 114333/478625 [00:03<00:11, 31464.63it/s][A
+  3%|▎         | 15573/478625 [00:00<00:14, 30974.66it/s][A
+ 27%|██▋       | 130877/478625 [00:04<00:11, 31190.27it/s][A
+ 40%|███▉      | 190175/478625 [00:06<00:09, 31720.15it/s][A
+ 25%|██▍       | 117601/478625 [00:03<00:11, 31821.77it/s][A
+  4%|▍         | 18672/478625 [00:00<00:15, 30314.42it/s][A
+ 28%|██▊       | 134089/478625 [00:04<00:10, 31462.54it/s][A
+ 40%|████      | 193444/478625 [00:06<00:08, 32005.60it/s][A
+ 25%|██▌       | 120786/478625 [00:03<00:11, 31137.03it/s][A
+  5%|▍         | 21796/478625 [00:00<00:14, 30610.33it/s][A
+ 29%|██▊       | 137238/478625 [00:04<00:11, 30956.34it/s][A
+ 41%|████      | 196648/478625 [00:06<00:08, 31360.60it/s][A
+ 26%|██▌       | 124043/478625 [00:03<00:11, 31556.99it/s][A
+  5%|▌         | 24956/478625 [00:00<00:15, 30169.24it/s][A
+ 29%|██▉       | 140453/478625 [00:04<00:10, 31304.57it/s][A
+ 42%|████▏     | 199919/478625 [00:06<00:08, 31754.61it/s][A
+ 27%|██▋       | 127203/478625 [00:04<00:11, 30998.43it/s][A
+  6%|▌         | 28109/478625 [00:00<00:14, 30582.46it/s][A
+ 30%|██▉       | 143587/478625 [00:04<00:10, 30794.65it/s][A
+ 42%|████▏     | 203099/478625 [00:06<00:08, 31137.02it/s][A
+ 27%|██▋       | 130438/478625 [00:04<00:11, 31393.23it/s][A
+  7%|▋         | 31278/478625 [00:01<00:14, 30916.72it/s][A
+ 31%|███       | 146774/478625 [00:04<00:10, 31109.29it/s][A
+ 43%|████▎     | 206337/478625 [00:06<00:08, 31497.91it/s][A
+ 28%|██▊       | 133700/478625 [00:04<00:10, 31754.27it/s][A/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+
+  7%|▋         | 34373/478625 [00:01<00:14, 30360.72it/s][A
+ 31%|███▏      | 149994/478625 [00:04<00:10, 31431.15it/s][A
+ 44%|████▍     | 209544/478625 [00:06<00:08, 31664.07it/s][A
+ 29%|██▊       | 136879/478625 [00:04<00:10, 31129.70it/s][A
+  8%|▊         | 37497/478625 [00:01<00:14, 30620.47it/s][A
+ 32%|███▏      | 153140/478625 [00:04<00:10, 30867.73it/s][A
+ 44%|████▍     | 212714/478625 [00:06<00:08, 31221.29it/s][A
+ 29%|██▉       | 140144/478625 [00:04<00:10, 31572.08it/s][A
+  8%|▊         | 40640/478625 [00:01<00:14, 30859.63it/s][A
+ 33%|███▎      | 156374/478625 [00:05<00:10, 31298.74it/s][A
+ 45%|████▌     | 215980/478625 [00:06<00:08, 31642.02it/s][A
+ 30%|██▉       | 143306/478625 [00:04<00:10, 30978.20it/s][A
+  9%|▉         | 43729/478625 [00:01<00:14, 30307.68it/s][A
+ 33%|███▎      | 159586/478625 [00:05<00:10, 31539.38it/s][A
+ 46%|████▌     | 219237/478625 [00:06<00:08, 31913.77it/s][A
+ 31%|███       | 146517/478625 [00:04<00:10, 31308.07it/s][A
+ 10%|▉         | 46876/478625 [00:01<00:14, 30650.20it/s][A
+ 34%|███▍      | 162743/478625 [00:05<00:10, 30824.88it/s][A
+ 46%|████▋     | 222431/478625 [00:07<00:08, 31367.20it/s][A
+ 31%|███▏      | 149767/478625 [00:04<00:10, 31658.73it/s][A
+ 10%|█         | 50035/478625 [00:01<00:13, 30926.58it/s][A
+ 35%|███▍      | 165943/478625 [00:05<00:10, 31167.64it/s][A
+ 47%|████▋     | 225694/478625 [00:07<00:07, 31737.71it/s][A
+ 32%|███▏      | 152937/478625 [00:04<00:10, 30990.18it/s][A
+ 11%|█         | 53131/478625 [00:01<00:14, 30276.40it/s][A
+ 35%|███▌      | 169064/478625 [00:05<00:10, 30719.50it/s][A
+ 48%|████▊     | 228871/478625 [00:07<00:08, 31127.42it/s][A
+ 33%|███▎      | 156205/478625 [00:05<00:10, 31481.19it/s][A
+ 12%|█▏        | 56274/478625 [00:01<00:13, 30612.02it/s][A
+ 36%|███▌      | 172256/478625 [00:05<00:09, 31069.87it/s][A
+ 48%|████▊     | 232073/478625 [00:07<00:07, 31388.04it/s][A
+ 33%|███▎      | 159465/478625 [00:05<00:10, 31810.10it/s][A
+ 12%|█▏        | 59339/478625 [00:01<00:13, 30197.85it/s][A
+ 37%|███▋      | 175458/478625 [00:05<00:09, 31336.62it/s][A
+ 49%|████▉     | 235323/478625 [00:07<00:07, 31714.55it/s][A
+ 34%|███▍      | 162650/478625 [00:05<00:10, 31118.26it/s][A
+ 13%|█▎        | 62490/478625 [00:02<00:13, 30581.52it/s][A
+ 37%|███▋      | 178595/478625 [00:05<00:09, 30851.10it/s][A
+ 50%|████▉     | 238498/478625 [00:07<00:07, 31301.85it/s][A
+ 35%|███▍      | 165894/478625 [00:05<00:09, 31502.82it/s][A
+ 14%|█▎        | 65642/478625 [00:02<00:13, 30857.36it/s][A
+ 38%|███▊      | 181792/478625 [00:05<00:09, 31171.47it/s][A
+ 51%|█████     | 241711/478625 [00:07<00:07, 31543.75it/s][A
+ 35%|███▌      | 169049/478625 [00:05<00:09, 30979.27it/s][A
+ 14%|█▍        | 68731/478625 [00:02<00:13, 30234.49it/s][A
+ 39%|███▊      | 184969/478625 [00:05<00:09, 31346.67it/s][A
+ 51%|█████     | 244952/478625 [00:07<00:07, 31799.35it/s][A
+ 36%|███▌      | 172279/478625 [00:05<00:09, 31364.85it/s][A
+ 15%|█▌        | 71872/478625 [00:02<00:13, 30577.45it/s][A
+ 39%|███▉      | 188106/478625 [00:06<00:09, 30841.53it/s][A
+ 52%|█████▏    | 248134/478625 [00:07<00:07, 31308.18it/s][A
+ 37%|███▋      | 175525/478625 [00:05<00:09, 31686.02it/s][A
+ 16%|█▌        | 75007/478625 [00:02<00:13, 30803.08it/s][A
+ 40%|███▉      | 191330/478625 [00:06<00:09, 31251.62it/s][A
+ 53%|█████▎    | 251367/478625 [00:07<00:07, 31608.94it/s][A
+ 37%|███▋      | 178697/478625 [00:05<00:09, 31165.38it/s][A
+ 16%|█▋        | 78091/478625 [00:02<00:13, 30312.12it/s][A
+ 41%|████      | 194458/478625 [00:06<00:09, 30731.33it/s][A
+ 53%|█████▎    | 254531/478625 [00:08<00:07, 31108.44it/s][A  0%|          | 0/1 [00:00<?, ?it/s]
+ 38%|███▊      | 181878/478625 [00:05<00:09, 31349.43it/s][A
+ 17%|█▋        | 81230/478625 [00:02<00:12, 30626.98it/s][A
+ 41%|████▏     | 197650/478625 [00:06<00:09, 31078.81it/s][A
+ 54%|█████▍    | 257752/478625 [00:08<00:07, 31418.99it/s][A
+ 39%|███▊      | 185131/478625 [00:05<00:09, 31696.02it/s][A
+ 18%|█▊        | 84296/478625 [00:02<00:13, 30164.50it/s][A
+ 42%|████▏     | 200854/478625 [00:06<00:08, 31361.52it/s][A
+ 55%|█████▍    | 260956/478625 [00:08<00:06, 31601.50it/s][A
+ 39%|███▉      | 188304/478625 [00:06<00:09, 31074.90it/s][A
+ 18%|█▊        | 87413/478625 [00:02<00:12, 30457.90it/s][A
+ 43%|████▎     | 203993/478625 [00:06<00:08, 30777.17it/s][A
+ 55%|█████▌    | 264119/478625 [00:08<00:06, 31060.25it/s][A
+ 40%|████      | 191583/478625 [00:06<00:09, 31574.86it/s][A
+ 19%|█▉        | 90552/478625 [00:02<00:12, 30732.82it/s][A
+ 43%|████▎     | 207131/478625 [00:06<00:08, 30953.94it/s][A
+ 56%|█████▌    | 267402/478625 [00:08<00:06, 31580.22it/s][A
+ 41%|████      | 194745/478625 [00:06<00:09, 31031.25it/s][A
+ 20%|█▉        | 93628/478625 [00:03<00:12, 30195.54it/s][A
+ 44%|████▍     | 210359/478625 [00:06<00:08, 31344.71it/s][A
+ 57%|█████▋    | 270564/478625 [00:08<00:06, 31112.76it/s][A
+ 41%|████▏     | 197972/478625 [00:06<00:08, 31393.53it/s][A
+ 20%|██        | 96752/478625 [00:03<00:12, 30501.43it/s][A
+ 45%|████▍     | 213497/478625 [00:06<00:08, 30787.21it/s][A
+ 57%|█████▋    | 273839/478625 [00:08<00:06, 31591.13it/s][A
+ 42%|████▏     | 201215/478625 [00:06<00:08, 31696.40it/s][A
+ 21%|██        | 99915/478625 [00:03<00:12, 30834.71it/s][A
+ 45%|████▌     | 216714/478625 [00:06<00:08, 31191.17it/s][A
+ 58%|█████▊    | 277083/478625 [00:08<00:06, 31839.75it/s][A
+ 43%|████▎     | 204388/478625 [00:06<00:08, 30971.87it/s][A
+ 22%|██▏       | 103001/478625 [00:03<00:12, 30130.96it/s][A
+ 46%|████▌     | 219837/478625 [00:07<00:08, 30708.48it/s][A
+ 59%|█████▊    | 280270/478625 [00:08<00:06, 31135.32it/s][A
+ 43%|████▎     | 207602/478625 [00:06<00:08, 31311.13it/s][A
+ 22%|██▏       | 106140/478625 [00:03<00:12, 30496.97it/s][A
+ 47%|████▋     | 223066/478625 [00:07<00:08, 31172.42it/s][A
+ 59%|█████▉    | 283459/478625 [00:09<00:06, 31354.14it/s][A
+ 44%|████▍     | 210738/478625 [00:06<00:08, 30786.70it/s][A
+ 23%|██▎       | 109303/478625 [00:03<00:11, 30830.62it/s][A
+ 47%|████▋     | 226280/478625 [00:07<00:08, 31457.95it/s][A
+ 60%|█████▉    | 286705/478625 [00:09<00:06, 31679.09it/s][A
+ 45%|████▍     | 213997/478625 [00:06<00:08, 31313.46it/s][A
+ 23%|██▎       | 112390/478625 [00:03<00:12, 30285.64it/s][A
+ 48%|████▊     | 229429/478625 [00:07<00:08, 30765.93it/s][A
+ 61%|██████    | 289877/478625 [00:09<00:06, 31183.69it/s][A
+ 45%|████▌     | 217244/478625 [00:06<00:08, 31654.04it/s][A
+ 24%|██▍       | 115525/478625 [00:03<00:11, 30596.48it/s][A
+ 49%|████▊     | 232557/478625 [00:07<00:07, 30914.16it/s][A
+ 61%|██████    | 293046/478625 [00:09<00:05, 31329.82it/s][A
+ 46%|████▌     | 220414/478625 [00:07<00:08, 31068.09it/s][A
+ 25%|██▍       | 118589/478625 [00:03<00:11, 30033.24it/s][A
+ 49%|████▉     | 235774/478625 [00:07<00:07, 31283.33it/s][A
+ 62%|██████▏   | 296182/478625 [00:09<00:05, 30953.71it/s][A
+ 47%|████▋     | 223675/478625 [00:07<00:08, 31519.36it/s][A
+ 25%|██▌       | 121752/478625 [00:03<00:11, 30499.17it/s][A
+ 50%|████▉     | 238906/478625 [00:07<00:07, 30748.70it/s][A
+ 63%|██████▎   | 299455/478625 [00:09<00:05, 31474.36it/s][A
+ 47%|████▋     | 226932/478625 [00:07<00:07, 31827.77it/s][A
+ 26%|██▌       | 124876/478625 [00:04<00:11, 30715.89it/s][A
+ 51%|█████     | 242123/478625 [00:07<00:07, 31164.78it/s][A
+ 63%|██████▎   | 302737/478625 [00:09<00:05, 31871.92it/s][A
+ 48%|████▊     | 230119/478625 [00:07<00:07, 31235.67it/s][A
+ 27%|██▋       | 127951/478625 [00:04<00:11, 30166.98it/s][A
+ 51%|█████     | 245243/478625 [00:07<00:07, 30639.42it/s][A
+ 64%|██████▍   | 305927/478625 [00:09<00:05, 31288.32it/s][A
+ 49%|████▊     | 233291/478625 [00:07<00:07, 31374.38it/s][A
+ 27%|██▋       | 131123/478625 [00:04<00:11, 30620.39it/s][A
+ 52%|█████▏    | 248447/478625 [00:07<00:07, 31047.40it/s][A
+ 65%|██████▍   | 309194/478625 [00:09<00:05, 31692.03it/s][A
+ 49%|████▉     | 236432/478625 [00:07<00:07, 30917.92it/s][A
+ 28%|██▊       | 134255/478625 [00:04<00:11, 30824.95it/s][A
+ 53%|█████▎    | 251641/478625 [00:08<00:07, 31310.32it/s][A
+ 65%|██████▌   | 312465/478625 [00:09<00:05, 31989.60it/s][A
+ 50%|█████     | 239659/478625 [00:07<00:07, 31312.35it/s][A
+ 29%|██▊       | 137341/478625 [00:04<00:11, 30286.93it/s][A
+ 53%|█████▎    | 254775/478625 [00:08<00:07, 30813.29it/s][A
+ 66%|██████▌   | 315667/478625 [00:10<00:05, 31354.62it/s][A
+ 51%|█████     | 242922/478625 [00:07<00:07, 31699.85it/s][A
+ 29%|██▉       | 140483/478625 [00:04<00:11, 30619.20it/s][A
+ 54%|█████▍    | 257946/478625 [00:08<00:07, 31076.50it/s][A
+ 67%|██████▋   | 318942/478625 [00:10<00:05, 31763.01it/s][A
+ 51%|█████▏    | 246095/478625 [00:07<00:07, 31166.30it/s][A
+ 30%|██▉       | 143549/478625 [00:04<00:11, 30142.88it/s][A
+ 55%|█████▍    | 261068/478625 [00:08<00:06, 31118.63it/s][A
+ 67%|██████▋   | 322123/478625 [00:10<00:05, 31206.66it/s][A
+ 52%|█████▏    | 249335/478625 [00:07<00:07, 31526.17it/s][A
+ 31%|███       | 146659/478625 [00:04<00:10, 30423.13it/s][A
+ 55%|█████▌    | 264182/478625 [00:08<00:07, 30626.67it/s][A
+ 68%|██████▊   | 325368/478625 [00:10<00:04, 31568.03it/s][A
+ 53%|█████▎    | 252605/478625 [00:08<00:07, 31869.90it/s][A
+ 31%|███▏      | 149795/478625 [00:04<00:10, 30698.27it/s][A
+ 56%|█████▌    | 267385/478625 [00:08<00:06, 31037.35it/s][A
+ 69%|██████▊   | 328570/478625 [00:10<00:04, 31698.97it/s][A
+ 53%|█████▎    | 255795/478625 [00:08<00:07, 31265.26it/s][A
+ 32%|███▏      | 152868/478625 [00:05<00:10, 30212.97it/s][A
+ 57%|█████▋    | 270492/478625 [00:08<00:06, 30524.84it/s][A
+ 69%|██████▉   | 331743/478625 [00:10<00:04, 30841.32it/s][A
+ 54%|█████▍    | 258972/478625 [00:08<00:06, 31412.23it/s][A
+ 33%|███▎      | 156016/478625 [00:05<00:10, 30585.22it/s][A
+ 57%|█████▋    | 273706/478625 [00:08<00:06, 30996.38it/s][A
+ 70%|██████▉   | 335031/478625 [00:10<00:04, 31434.68it/s][A
+ 55%|█████▍    | 262117/478625 [00:08<00:07, 30928.27it/s][A
+ 33%|███▎      | 159193/478625 [00:05<00:10, 30933.83it/s][A
+ 58%|█████▊    | 276895/478625 [00:08<00:06, 31258.99it/s][A
+ 71%|███████   | 338181/478625 [00:10<00:04, 30945.48it/s][A
+ 55%|█████▌    | 265384/478625 [00:08<00:06, 31434.72it/s][A
+ 34%|███▍      | 162289/478625 [00:05<00:10, 30254.52it/s][A
+ 59%|█████▊    | 280024/478625 [00:09<00:06, 30753.05it/s][A
+ 71%|███████▏  | 341456/478625 [00:10<00:04, 31453.80it/s][A
+ 56%|█████▌    | 268627/478625 [00:08<00:06, 31727.95it/s][A
+ 35%|███▍      | 165455/478625 [00:05<00:10, 30665.12it/s][A
+ 59%|█████▉    | 283213/478625 [00:09<00:06, 31086.58it/s][A
+ 72%|███████▏  | 344692/478625 [00:10<00:04, 31720.01it/s][A
+ 57%|█████▋    | 271803/478625 [00:08<00:06, 31177.57it/s][A
+ 35%|███▌      | 168526/478625 [00:05<00:10, 30110.13it/s][A
+ 60%|█████▉    | 286427/478625 [00:09<00:06, 31396.46it/s][A
+ 73%|███████▎  | 347868/478625 [00:11<00:04, 31249.71it/s][A
+ 57%|█████▋    | 275053/478625 [00:08<00:06, 31564.15it/s][A
+ 36%|███▌      | 171667/478625 [00:05<00:10, 30490.13it/s][A
+ 61%|██████    | 289570/478625 [00:09<00:06, 30794.09it/s][A
+ 73%|███████▎  | 351122/478625 [00:11<00:04, 31626.45it/s][A
+ 58%|█████▊    | 278213/478625 [00:08<00:06, 31037.69it/s][A
+ 37%|███▋      | 174813/478625 [00:05<00:09, 30773.28it/s][A
+ 61%|██████    | 292714/478625 [00:09<00:06, 30980.65it/s][A
+ 74%|███████▍  | 354362/478625 [00:11<00:03, 31852.67it/s][A
+ 59%|█████▉    | 281478/478625 [00:09<00:06, 31510.30it/s][A
+ 37%|███▋      | 177894/478625 [00:05<00:09, 30333.00it/s][A
+ 62%|██████▏   | 295816/478625 [00:09<00:05, 30491.29it/s][A
+ 75%|███████▍  | 357550/478625 [00:11<00:03, 31363.74it/s][A
+ 59%|█████▉    | 284741/478625 [00:09<00:06, 31840.40it/s][A
+ 38%|███▊      | 181034/478625 [00:05<00:09, 30643.68it/s][A
+ 62%|██████▏   | 299043/478625 [00:09<00:05, 31013.05it/s][A
+ 75%|███████▌  | 360780/478625 [00:11<00:03, 31637.18it/s][A
+ 60%|██████    | 287929/478625 [00:09<00:06, 31255.07it/s][A
+ 38%|███▊      | 184119/478625 [00:06<00:09, 30703.03it/s][A
+ 63%|██████▎   | 302237/478625 [00:09<00:05, 31284.79it/s][A
+ 76%|███████▌  | 363947/478625 [00:11<00:03, 31246.57it/s][A
+ 61%|██████    | 291192/478625 [00:09<00:05, 31657.22it/s][A
+ 39%|███▉      | 187192/478625 [00:06<00:09, 30261.92it/s][A
+ 64%|██████▍   | 305369/478625 [00:09<00:05, 30790.52it/s][A
+ 77%|███████▋  | 367172/478625 [00:11<00:03, 31539.98it/s][A
+ 62%|██████▏   | 294374/478625 [00:09<00:05, 31704.08it/s][A
+ 40%|███▉      | 190358/478625 [00:06<00:09, 30672.85it/s][A
+ 64%|██████▍   | 308559/478625 [00:09<00:05, 31115.51it/s][A
+ 77%|███████▋  | 370329/478625 [00:11<00:03, 31445.94it/s][A
+ 62%|██████▏   | 297548/478625 [00:09<00:05, 31162.41it/s][A
+ 40%|████      | 193510/478625 [00:06<00:09, 30921.00it/s][A
+ 65%|██████▌   | 311779/478625 [00:10<00:05, 31433.62it/s][A
+ 78%|███████▊  | 373476/478625 [00:11<00:03, 31088.31it/s][A
+ 63%|██████▎   | 300799/478625 [00:09<00:05, 31557.82it/s][A
+ 41%|████      | 196605/478625 [00:06<00:09, 30311.91it/s][A
+ 66%|██████▌   | 314925/478625 [00:10<00:05, 30816.34it/s][A
+ 79%|███████▊  | 376737/478625 [00:11<00:03, 31533.83it/s][A
+ 64%|██████▎   | 303958/478625 [00:09<00:05, 31038.02it/s][A
+ 42%|████▏     | 199756/478625 [00:06<00:09, 30661.33it/s][A
+ 66%|██████▋   | 318137/478625 [00:10<00:05, 31196.71it/s][A
+ 79%|███████▉  | 380019/478625 [00:12<00:03, 31912.42it/s][A
+ 64%|██████▍   | 307205/478625 [00:09<00:05, 31457.23it/s][A
+ 42%|████▏     | 202826/478625 [00:06<00:09, 30206.41it/s][A
+ 67%|██████▋   | 321261/478625 [00:10<00:05, 30665.16it/s][A
+ 80%|████████  | 383212/478625 [00:12<00:03, 31384.14it/s][A
+ 65%|██████▍   | 310478/478625 [00:09<00:05, 31830.64it/s][A
+ 43%|████▎     | 205905/478625 [00:06<00:08, 30377.11it/s][A
+ 68%|██████▊   | 324492/478625 [00:10<00:04, 31145.00it/s][A
+ 81%|████████  | 386471/478625 [00:12<00:02, 31736.83it/s][A
+ 66%|██████▌   | 313664/478625 [00:10<00:05, 31256.77it/s][A
+ 44%|████▎     | 209073/478625 [00:06<00:08, 30761.16it/s][A
+ 68%|██████▊   | 327635/478625 [00:10<00:04, 31228.38it/s][A
+ 81%|████████▏ | 389648/478625 [00:12<00:02, 31300.85it/s][A
+ 66%|██████▌   | 316920/478625 [00:10<00:05, 31637.88it/s][A
+ 44%|████▍     | 212152/478625 [00:06<00:08, 30235.96it/s][A
+ 69%|██████▉   | 330761/478625 [00:10<00:04, 30513.97it/s][A
+ 82%|████████▏ | 392925/478625 [00:12<00:02, 31731.08it/s][A
+ 67%|██████▋   | 320172/478625 [00:10<00:04, 31898.21it/s][A
+ 45%|████▍     | 215280/478625 [00:07<00:08, 30541.18it/s][A
+ 70%|██████▉   | 333979/478625 [00:10<00:04, 31001.20it/s][A
+ 83%|████████▎ | 396197/478625 [00:12<00:02, 32021.12it/s][A
+ 68%|██████▊   | 323365/478625 [00:10<00:04, 31185.48it/s][A
+ 46%|████▌     | 218459/478625 [00:07<00:08, 30909.56it/s][A
+ 70%|███████   | 337190/478625 [00:10<00:04, 31325.68it/s][A
+ 83%|████████▎ | 399402/478625 [00:12<00:02, 31436.93it/s][A
+ 68%|██████▊   | 326613/478625 [00:10<00:04, 31562.38it/s][A
+ 46%|████▋     | 221553/478625 [00:07<00:08, 30525.35it/s][A
+ 71%|███████   | 340327/478625 [00:10<00:04, 30850.75it/s][A
+ 84%|████████▍ | 402644/478625 [00:12<00:02, 31684.66it/s][A
+ 69%|██████▉   | 329774/478625 [00:10<00:04, 30790.71it/s][A
+ 47%|████▋     | 224758/478625 [00:07<00:08, 30973.20it/s][A
+ 72%|███████▏  | 343549/478625 [00:11<00:04, 31237.94it/s][A
+ 85%|████████▍ | 405816/478625 [00:12<00:02, 31242.62it/s][A
+ 70%|██████▉   | 333018/478625 [00:10<00:04, 31269.09it/s][A
+ 48%|████▊     | 227858/478625 [00:07<00:08, 30555.48it/s][A
+ 72%|███████▏  | 346677/478625 [00:11<00:04, 30782.03it/s][A
+ 85%|████████▌ | 409070/478625 [00:12<00:02, 31622.97it/s][A
+ 70%|███████   | 336265/478625 [00:10<00:04, 31621.11it/s][A
+ 48%|████▊     | 230963/478625 [00:07<00:08, 30699.82it/s][A
+ 73%|███████▎  | 349901/478625 [00:11<00:04, 31208.89it/s][A
+ 86%|████████▌ | 412286/478625 [00:13<00:02, 31780.98it/s][A
+ 71%|███████   | 339432/478625 [00:10<00:04, 30995.88it/s][A
+ 49%|████▉     | 234145/478625 [00:07<00:07, 31028.12it/s][A
+ 74%|███████▍  | 353127/478625 [00:11<00:03, 31518.20it/s][A
+ 87%|████████▋ | 415467/478625 [00:13<00:02, 30928.99it/s][A
+ 72%|███████▏  | 342703/478625 [00:10<00:04, 31495.50it/s][A
+ 50%|████▉     | 237250/478625 [00:07<00:07, 30593.24it/s][A
+ 74%|███████▍  | 356282/478625 [00:11<00:03, 30985.19it/s][A
+ 87%|████████▋ | 418749/478625 [00:13<00:01, 31480.43it/s][A
+ 72%|███████▏  | 345858/478625 [00:11<00:04, 30950.07it/s][A
+ 50%|█████     | 240436/478625 [00:07<00:07, 30966.38it/s][A
+ 75%|███████▌  | 359473/478625 [00:11<00:03, 31255.68it/s][A
+ 88%|████████▊ | 421990/478625 [00:13<00:01, 31751.30it/s][A
+ 73%|███████▎  | 349113/478625 [00:11<00:04, 31415.89it/s][A
+ 51%|█████     | 243626/478625 [00:07<00:07, 31240.37it/s][A
+ 76%|███████▌  | 362602/478625 [00:11<00:03, 30811.52it/s][A
+ 89%|████████▉ | 425170/478625 [00:13<00:01, 31157.99it/s][A
+ 74%|███████▎  | 352358/478625 [00:11<00:03, 31720.13it/s][A
+ 52%|█████▏    | 246752/478625 [00:08<00:07, 30657.97it/s][A
+ 76%|███████▋  | 365835/478625 [00:11<00:03, 31257.46it/s][A
+ 90%|████████▉ | 428460/478625 [00:13<00:01, 31667.31it/s][A
+ 74%|███████▍  | 355534/478625 [00:11<00:03, 31114.67it/s][A
+ 52%|█████▏    | 249922/478625 [00:08<00:07, 30963.35it/s][A
+ 77%|███████▋  | 368964/478625 [00:11<00:03, 31171.56it/s][A
+ 90%|█████████ | 431632/478625 [00:13<00:01, 31142.37it/s][A
+ 75%|███████▍  | 358797/478625 [00:11<00:03, 31558.49it/s][A
+ 53%|█████▎    | 253022/478625 [00:08<00:07, 30481.40it/s][A
+ 78%|███████▊  | 372084/478625 [00:11<00:03, 30727.97it/s][A
+ 91%|█████████ | 434888/478625 [00:13<00:01, 31555.52it/s][A
+ 76%|███████▌  | 362039/478625 [00:11<00:03, 31810.33it/s][A
+ 54%|█████▎    | 256226/478625 [00:08<00:07, 30938.38it/s][A
+ 78%|███████▊  | 375302/478625 [00:12<00:03, 31153.42it/s][A
+ 92%|█████████▏| 438150/478625 [00:13<00:01, 31868.44it/s][A
+ 76%|███████▋  | 365224/478625 [00:11<00:03, 31229.38it/s][A
+ 54%|█████▍    | 259324/478625 [00:08<00:07, 30937.87it/s][A
+ 79%|███████▉  | 378513/478625 [00:12<00:03, 31436.14it/s][A
+ 92%|█████████▏| 441341/478625 [00:14<00:01, 31294.30it/s][A
+ 77%|███████▋  | 368446/478625 [00:11<00:03, 31517.84it/s][A
+ 55%|█████▍    | 262421/478625 [00:08<00:07, 30544.03it/s][A
+ 80%|███████▉  | 381659/478625 [00:12<00:03, 30873.97it/s][A
+ 93%|█████████▎| 444608/478625 [00:14<00:01, 31696.13it/s][A
+ 78%|███████▊  | 371602/478625 [00:11<00:03, 30745.34it/s][A
+ 55%|█████▌    | 265595/478625 [00:08<00:06, 30896.50it/s][A
+ 80%|████████  | 384876/478625 [00:12<00:02, 31252.58it/s][A
+ 94%|█████████▎| 447782/478625 [00:14<00:00, 31178.75it/s][A
+ 78%|███████▊  | 374862/478625 [00:11<00:03, 31284.62it/s][A
+ 56%|█████▌    | 268780/478625 [00:08<00:06, 31177.83it/s][A
+ 81%|████████  | 388005/478625 [00:12<00:02, 30774.95it/s][A
+ 94%|█████████▍| 451052/478625 [00:14<00:00, 31622.16it/s][A
+ 79%|███████▉  | 378096/478625 [00:12<00:03, 31594.04it/s][A
+ 57%|█████▋    | 271900/478625 [00:08<00:06, 30636.78it/s][A
+ 82%|████████▏ | 391215/478625 [00:12<00:02, 31162.62it/s][A
+ 95%|█████████▍| 454311/478625 [00:14<00:00, 31906.14it/s][A
+ 80%|███████▉  | 381260/478625 [00:12<00:03, 31136.16it/s][A
+ 57%|█████▋    | 275099/478625 [00:08<00:06, 31032.55it/s][A
+ 82%|████████▏ | 394401/478625 [00:12<00:02, 31366.52it/s][A
+ 96%|█████████▌| 457505/478625 [00:14<00:00, 31446.62it/s][A
+ 80%|████████  | 384501/478625 [00:12<00:02, 31509.77it/s][A
+ 58%|█████▊    | 278206/478625 [00:09<00:06, 30498.20it/s][A
+ 83%|████████▎ | 397541/478625 [00:12<00:02, 30859.74it/s][A
+ 96%|█████████▋| 460755/478625 [00:14<00:00, 31754.22it/s][A
+ 81%|████████  | 387754/478625 [00:12<00:02, 31809.74it/s][A
+ 59%|█████▉    | 281384/478625 [00:09<00:06, 30872.80it/s][A
+ 84%|████████▎ | 400743/478625 [00:12<00:02, 31198.29it/s][A
+ 97%|█████████▋| 463968/478625 [00:14<00:00, 31862.78it/s][A
+ 82%|████████▏ | 390938/478625 [00:12<00:02, 31209.96it/s][A
+ 59%|█████▉    | 284580/478625 [00:09<00:06, 31193.47it/s][A
+ 84%|████████▍ | 403987/478625 [00:12<00:02, 31562.74it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+ 98%|█████████▊| 467157/478625 [00:14<00:00, 31017.42it/s][A
+ 82%|████████▏ | 394188/478625 [00:12<00:02, 31586.89it/s][A
+ 60%|██████    | 287703/478625 [00:09<00:06, 30701.92it/s][A
+  1%|          | 3127/478625 [00:00<00:15, 31254.98it/s][A
+ 85%|████████▌ | 407146/478625 [00:13<00:02, 30955.44it/s][A
+ 98%|█████████▊| 470412/478625 [00:14<00:00, 31463.79it/s][A
+ 83%|████████▎ | 397351/478625 [00:12<00:02, 31063.00it/s][A
+ 61%|██████    | 290893/478625 [00:09<00:06, 31054.00it/s][A
+  1%|▏         | 6370/478625 [00:00<00:14, 31939.87it/s][A
+ 86%|████████▌ | 410356/478625 [00:13<00:02, 31288.60it/s][A
+ 99%|█████████▉| 473564/478625 [00:15<00:00, 31057.96it/s][A
+ 84%|████████▎ | 400601/478625 [00:12<00:02, 31482.20it/s][A
+ 61%|██████▏   | 294019/478625 [00:09<00:05, 31113.39it/s][A
+
+ 86%|████████▋ | 413489/478625 [00:13<00:02, 30725.47it/s][A  2%|▏         | 9564/478625 [00:00<00:15, 30498.77it/s][A
+100%|█████████▉| 476840/478625 [00:15<00:00, 31556.02it/s][A
+ 84%|████████▍ | 403865/478625 [00:12<00:02, 31822.84it/s][A100%|██████████| 478625/478625 [00:15<00:00, 31475.29it/s]
+100%|██████████| 1/1 [00:21<00:00, 21.76s/it]100%|██████████| 1/1 [00:21<00:00, 21.76s/it]
+
+ 62%|██████▏   | 297133/478625 [00:09<00:05, 30604.58it/s][A
+
+ 87%|████████▋ | 416608/478625 [00:13<00:02, 30858.54it/s][A  3%|▎         | 12805/478625 [00:00<00:14, 31227.10it/s][A
+ 85%|████████▌ | 407051/478625 [00:13<00:02, 31074.98it/s][A
+ 63%|██████▎   | 300314/478625 [00:09<00:05, 30958.86it/s][A
+
+ 88%|████████▊ | 419830/478625 [00:13<00:01, 31258.84it/s][A  3%|▎         | 15987/478625 [00:00<00:14, 31434.56it/s][A
+ 86%|████████▌ | 410305/478625 [00:13<00:02, 31502.06it/s][A
+ 63%|██████▎   | 303470/478625 [00:09<00:05, 30498.63it/s][A
+ 88%|████████▊ | 422959/478625 [00:13<00:01, 30828.97it/s][A
+  4%|▍         | 19135/478625 [00:00<00:14, 30709.67it/s][A
+ 86%|████████▋ | 413461/478625 [00:13<00:02, 30868.81it/s][A
+ 64%|██████▍   | 306659/478625 [00:10<00:05, 30903.77it/s][A
+ 89%|████████▉ | 426145/478625 [00:13<00:01, 31130.20it/s][A
+  5%|▍         | 22343/478625 [00:00<00:14, 31142.79it/s][A
+ 87%|████████▋ | 416616/478625 [00:13<00:01, 31065.04it/s][A
+ 65%|██████▍   | 309835/478625 [00:10<00:05, 31152.61it/s][A
+ 90%|████████▉ | 429352/478625 [00:13<00:01, 31406.15it/s][A
+  5%|▌         | 25462/478625 [00:00<00:14, 30582.51it/s][A
+ 88%|████████▊ | 419863/478625 [00:13<00:01, 31477.14it/s][A
+ 65%|██████▌   | 312954/478625 [00:10<00:05, 30626.71it/s][A
+ 90%|█████████ | 432495/478625 [00:13<00:01, 30887.54it/s][A
+  6%|▌         | 28655/478625 [00:00<00:14, 30992.70it/s][A
+ 88%|████████▊ | 423015/478625 [00:13<00:01, 30882.98it/s][A
+ 66%|██████▌   | 316133/478625 [00:10<00:05, 30967.85it/s][A
+ 91%|█████████ | 435712/478625 [00:14<00:01, 31262.71it/s][A
+  7%|▋         | 31879/478625 [00:01<00:14, 31370.45it/s][An_elements: 474899
+
+ 89%|████████▉ | 426229/478625 [00:13<00:01, 31249.26it/s][A
+ 67%|██████▋   | 319337/478625 [00:10<00:05, 31282.80it/s][A
+ 92%|█████████▏| 438842/478625 [00:14<00:01, 30790.06it/s][A
+  7%|▋         | 35020/478625 [00:01<00:14, 30708.65it/s][A/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+
+ 90%|████████▉ | 429480/478625 [00:13<00:01, 31618.94it/s][A
+ 67%|██████▋   | 322468/478625 [00:10<00:05, 30713.25it/s][A
+ 92%|█████████▏| 442053/478625 [00:14<00:01, 31176.71it/s][A
+  8%|▊         | 38231/478625 [00:01<00:14, 31121.97it/s][A
+ 90%|█████████ | 432646/478625 [00:13<00:01, 31117.81it/s][A
+ 68%|██████▊   | 325650/478625 [00:10<00:04, 31037.79it/s][A
+ 93%|█████████▎| 445261/478625 [00:14<00:01, 31443.57it/s][A
+  9%|▊         | 41430/478625 [00:01<00:13, 31378.83it/s][A
+ 91%|█████████ | 435904/478625 [00:13<00:01, 31546.71it/s][A
+ 69%|██████▊   | 328759/478625 [00:10<00:04, 31052.49it/s][A
+ 94%|█████████▎| 448408/478625 [00:14<00:00, 30926.54it/s][A
+  9%|▉         | 44572/478625 [00:01<00:14, 30649.20it/s][A
+ 92%|█████████▏| 439063/478625 [00:14<00:01, 31042.67it/s][A
+ 69%|██████▉   | 331867/478625 [00:10<00:04, 30459.93it/s][A
+ 94%|█████████▍| 451606/478625 [00:14<00:00, 31234.70it/s][A
+ 10%|▉         | 47744/478625 [00:01<00:13, 30961.80it/s][A
+ 92%|█████████▏| 442316/478625 [00:14<00:01, 31478.60it/s][A
+ 70%|███████   | 335062/478625 [00:10<00:04, 30895.78it/s][A
+ 95%|█████████▌| 454814/478625 [00:14<00:00, 31483.97it/s][A
+ 11%|█         | 50845/478625 [00:01<00:14, 30181.74it/s][A
+ 93%|█████████▎| 445555/478625 [00:14<00:01, 31744.99it/s][A
+ 71%|███████   | 338156/478625 [00:11<00:04, 30403.40it/s][A
+ 96%|█████████▌| 457965/478625 [00:14<00:00, 30867.20it/s][A
+ 11%|█▏        | 53989/478625 [00:01<00:13, 30546.91it/s][A
+ 94%|█████████▍| 448733/478625 [00:14<00:00, 31130.71it/s][A
+ 71%|███████▏  | 341362/478625 [00:11<00:04, 30888.90it/s][A
+ 96%|█████████▋| 461189/478625 [00:14<00:00, 31268.78it/s][A
+ 12%|█▏        | 57085/478625 [00:01<00:13, 30667.24it/s][A
+ 94%|█████████▍| 451958/478625 [00:14<00:00, 31457.92it/s][A
+ 72%|███████▏  | 344521/478625 [00:11<00:04, 31093.14it/s][A
+ 97%|█████████▋| 464320/478625 [00:14<00:00, 30682.47it/s][A
+ 13%|█▎        | 60156/478625 [00:01<00:13, 30138.37it/s][A
+ 95%|█████████▌| 455197/478625 [00:14<00:00, 31732.68it/s][A
+ 73%|███████▎  | 347634/478625 [00:11<00:04, 30533.86it/s][A
+ 98%|█████████▊| 467415/478625 [00:15<00:00, 30758.12it/s][A
+ 13%|█▎        | 63253/478625 [00:02<00:13, 30380.17it/s][A
+ 96%|█████████▌| 458374/478625 [00:14<00:00, 31159.40it/s][A
+ 73%|███████▎  | 350809/478625 [00:11<00:04, 30890.78it/s][A
+ 98%|█████████▊| 470637/478625 [00:15<00:00, 31188.51it/s][A
+ 14%|█▍        | 66424/478625 [00:02<00:13, 30771.11it/s][A
+ 96%|█████████▋| 461641/478625 [00:14<00:00, 31601.07it/s][A
+ 74%|███████▍  | 353999/478625 [00:11<00:03, 31186.23it/s][A
+ 99%|█████████▉| 473759/478625 [00:15<00:00, 30701.58it/s][A
+ 15%|█▍        | 69505/478625 [00:02<00:13, 30206.29it/s][A
+ 97%|█████████▋| 464805/478625 [00:14<00:00, 30972.10it/s][A
+ 75%|███████▍  | 357121/478625 [00:11<00:03, 30597.61it/s][A
+100%|█████████▉| 476972/478625 [00:15<00:00, 31119.93it/s][A
+ 15%|█▌        | 72624/478625 [00:02<00:13, 30493.99it/s][A100%|██████████| 478625/478625 [00:15<00:00, 31099.93it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.08s/it]100%|██████████| 1/1 [00:22<00:00, 22.08s/it]
+
+ 98%|█████████▊| 467937/478625 [00:14<00:00, 31072.97it/s][A
+ 75%|███████▌  | 360316/478625 [00:11<00:03, 30993.08it/s][A
+ 16%|█▌        | 75677/478625 [00:02<00:13, 30054.38it/s][A
+ 98%|█████████▊| 471182/478625 [00:15<00:00, 31477.37it/s][A
+ 76%|███████▌  | 363419/478625 [00:11<00:03, 30416.45it/s][A
+ 16%|█▋        | 78902/478625 [00:02<00:13, 30697.61it/s][A
+ 99%|█████████▉| 474333/478625 [00:15<00:00, 30967.92it/s][A
+ 77%|███████▋  | 366591/478625 [00:11<00:03, 30797.69it/s][A
+ 17%|█▋        | 82097/478625 [00:02<00:12, 31064.28it/s][A
+100%|█████████▉| 477574/478625 [00:15<00:00, 31390.25it/s][A
+ 77%|███████▋  | 369701/478625 [00:12<00:03, 30885.46it/s][A100%|██████████| 478625/478625 [00:15<00:00, 31289.77it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.02s/it]100%|██████████| 1/1 [00:22<00:00, 22.02s/it]
+
+ 18%|█▊        | 85207/478625 [00:02<00:12, 30484.04it/s][A
+ 78%|███████▊  | 372793/478625 [00:12<00:03, 30460.77it/s][A
+ 18%|█▊        | 88391/478625 [00:02<00:12, 30879.19it/s][A
+ 79%|███████▊  | 375966/478625 [00:12<00:03, 30833.96it/s][A
+ 19%|█▉        | 91545/478625 [00:02<00:12, 31073.37it/s][A
+ 79%|███████▉  | 379127/478625 [00:12<00:03, 31062.92it/s][An_elements: 474899
+
+ 20%|█▉        | 94656/478625 [00:03<00:12, 30262.87it/s][A
+ 80%|███████▉  | 382236/478625 [00:12<00:03, 30590.53it/s][A
+ 20%|██        | 97867/478625 [00:03<00:12, 30801.40it/s][A
+ 81%|████████  | 385432/478625 [00:12<00:03, 30993.03it/s][A
+ 21%|██        | 100953/478625 [00:03<00:12, 29977.68it/s][A
+ 81%|████████  | 388534/478625 [00:12<00:02, 30578.74it/s][A
+ 22%|██▏       | 104144/478625 [00:03<00:12, 30537.83it/s][An_elements: 474899
+
+ 82%|████████▏ | 391720/478625 [00:12<00:02, 30953.81it/s][A
+ 22%|██▏       | 107205/478625 [00:03<00:12, 29998.20it/s][A
+ 83%|████████▎ | 394882/478625 [00:12<00:02, 31149.46it/s][A
+ 23%|██▎       | 110211/478625 [00:03<00:12, 29694.53it/s][A
+ 83%|████████▎ | 397999/478625 [00:12<00:02, 30623.24it/s][A
+ 24%|██▎       | 113423/478625 [00:03<00:12, 30399.49it/s][A
+ 84%|████████▍ | 401193/478625 [00:13<00:02, 31010.51it/s][A
+ 24%|██▍       | 116584/478625 [00:03<00:11, 30751.71it/s][A
+ 84%|████████▍ | 404390/478625 [00:13<00:02, 31293.24it/s][A
+ 25%|██▌       | 119664/478625 [00:03<00:11, 30198.99it/s][A
+ 85%|████████▌ | 407522/478625 [00:13<00:02, 30720.06it/s][A
+ 26%|██▌       | 122848/478625 [00:04<00:11, 30678.01it/s][A
+ 86%|████████▌ | 410682/478625 [00:13<00:02, 30977.24it/s][A
+ 26%|██▋       | 125921/478625 [00:04<00:11, 30352.88it/s][A
+ 86%|████████▋ | 413783/478625 [00:13<00:02, 30372.85it/s][A
+ 27%|██▋       | 128960/478625 [00:04<00:11, 29784.98it/s][A
+ 87%|████████▋ | 416850/478625 [00:13<00:02, 30458.50it/s][A
+ 28%|██▊       | 132067/478625 [00:04<00:11, 30156.86it/s][A
+ 88%|████████▊ | 420053/478625 [00:13<00:01, 30921.02it/s][A
+ 28%|██▊       | 135087/478625 [00:04<00:11, 29623.31it/s][A
+ 88%|████████▊ | 423148/478625 [00:13<00:01, 30469.50it/s][A
+ 29%|██▉       | 138268/478625 [00:04<00:11, 30261.56it/s][A
+ 89%|████████▉ | 426335/478625 [00:13<00:01, 30878.56it/s][A
+ 30%|██▉       | 141448/478625 [00:04<00:10, 30711.38it/s][A
+ 90%|████████▉ | 429502/478625 [00:13<00:01, 31111.97it/s][A
+ 30%|███       | 144524/478625 [00:04<00:11, 30203.42it/s][A
+ 90%|█████████ | 432616/478625 [00:14<00:01, 30616.69it/s][A
+ 31%|███       | 147757/478625 [00:04<00:10, 30824.00it/s][A
+ 91%|█████████ | 435802/478625 [00:14<00:01, 30980.25it/s][A
+ 32%|███▏      | 150944/478625 [00:04<00:10, 31130.88it/s][A
+ 92%|█████████▏| 438903/478625 [00:14<00:01, 30480.86it/s][A
+ 32%|███▏      | 154061/478625 [00:05<00:10, 30526.45it/s][A
+ 92%|█████████▏| 442060/478625 [00:14<00:01, 30799.58it/s][A
+ 33%|███▎      | 157249/478625 [00:05<00:10, 30921.10it/s][A
+ 93%|█████████▎| 445229/478625 [00:14<00:01, 31061.39it/s][A
+ 34%|███▎      | 160346/478625 [00:05<00:10, 30406.96it/s][A
+ 94%|█████████▎| 448338/478625 [00:14<00:00, 30592.87it/s][A
+ 34%|███▍      | 163513/478625 [00:05<00:10, 30774.48it/s][A
+ 94%|█████████▍| 451518/478625 [00:14<00:00, 30945.12it/s][A
+ 35%|███▍      | 166642/478625 [00:05<00:10, 30923.52it/s][A
+ 95%|█████████▌| 454713/478625 [00:14<00:00, 31239.53it/s][A
+ 35%|███▌      | 169738/478625 [00:05<00:10, 30451.86it/s][A
+ 96%|█████████▌| 457840/478625 [00:14<00:00, 30684.54it/s][A
+ 36%|███▌      | 172914/478625 [00:05<00:09, 30835.88it/s][A
+ 96%|█████████▋| 461018/478625 [00:15<00:00, 31005.66it/s][A
+ 37%|███▋      | 176129/478625 [00:05<00:09, 31222.88it/s][A
+ 97%|█████████▋| 464122/478625 [00:15<00:00, 30334.26it/s][A
+ 37%|███▋      | 179254/478625 [00:05<00:09, 30529.42it/s][A
+ 98%|█████████▊| 467196/478625 [00:15<00:00, 30450.64it/s][A
+ 38%|███▊      | 182364/478625 [00:05<00:09, 30693.64it/s][A
+ 98%|█████████▊| 470385/478625 [00:15<00:00, 30873.80it/s][A
+ 39%|███▊      | 185438/478625 [00:06<00:09, 30047.70it/s][A
+ 99%|█████████▉| 473476/478625 [00:15<00:00, 30456.90it/s][A
+ 39%|███▉      | 188635/478625 [00:06<00:09, 30607.01it/s][A
+100%|█████████▉| 476643/478625 [00:15<00:00, 30811.99it/s][A
+ 40%|████      | 191784/478625 [00:06<00:09, 30865.54it/s][A100%|██████████| 478625/478625 [00:15<00:00, 30685.12it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.27s/it]100%|██████████| 1/1 [00:22<00:00, 22.27s/it]
+
+ 41%|████      | 194875/478625 [00:06<00:09, 30368.05it/s][A
+ 41%|████▏     | 198080/478625 [00:06<00:09, 30860.45it/s][A
+ 42%|████▏     | 201170/478625 [00:06<00:09, 30696.41it/s][A
+ 43%|████▎     | 204243/478625 [00:06<00:09, 30086.80it/s][A
+ 43%|████▎     | 207386/478625 [00:06<00:08, 30477.50it/s][A
+ 44%|████▍     | 210521/478625 [00:06<00:08, 30731.44it/s][An_elements: 474899
+
+ 45%|████▍     | 213598/478625 [00:06<00:08, 29757.54it/s][A/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+
+ 45%|████▌     | 216745/478625 [00:07<00:08, 30254.00it/s][A
+ 46%|████▌     | 219778/478625 [00:07<00:08, 29770.92it/s][A
+ 47%|████▋     | 222985/478625 [00:07<00:08, 30439.90it/s][A
+ 47%|████▋     | 226138/478625 [00:07<00:08, 30758.66it/s][A
+ 48%|████▊     | 229219/478625 [00:07<00:08, 30345.69it/s][A
+ 49%|████▊     | 232258/478625 [00:07<00:08, 30325.23it/s][A
+ 49%|████▉     | 235373/478625 [00:07<00:07, 30566.11it/s][A
+ 50%|████▉     | 238432/478625 [00:07<00:07, 30241.81it/s][A
+ 50%|█████     | 241645/478625 [00:07<00:07, 30798.73it/s][A
+ 51%|█████     | 244728/478625 [00:08<00:07, 30328.52it/s][A
+ 52%|█████▏    | 247945/478625 [00:08<00:07, 30869.69it/s][A
+ 52%|█████▏    | 251087/478625 [00:08<00:07, 31028.67it/s][A
+ 53%|█████▎    | 254193/478625 [00:08<00:07, 30512.83it/s][A
+ 54%|█████▎    | 257248/478625 [00:08<00:07, 30192.20it/s][A  0%|          | 0/1 [00:00<?, ?it/s]
+ 54%|█████▍    | 260349/478625 [00:08<00:07, 30429.51it/s][A
+ 55%|█████▌    | 263395/478625 [00:08<00:07, 30145.49it/s][A
+ 56%|█████▌    | 266579/478625 [00:08<00:06, 30642.95it/s][A
+ 56%|█████▋    | 269665/478625 [00:08<00:06, 30705.60it/s][A
+ 57%|█████▋    | 272738/478625 [00:08<00:06, 30135.39it/s][A
+ 58%|█████▊    | 275936/478625 [00:09<00:06, 30677.20it/s][A
+ 58%|█████▊    | 279007/478625 [00:09<00:06, 30082.81it/s][A
+ 59%|█████▉    | 282238/478625 [00:09<00:06, 30732.63it/s][A
+ 60%|█████▉    | 285316/478625 [00:09<00:06, 30079.09it/s][A
+ 60%|██████    | 288330/478625 [00:09<00:06, 29766.14it/s][A
+ 61%|██████    | 291427/478625 [00:09<00:06, 30116.60it/s][A
+ 62%|██████▏   | 294453/478625 [00:09<00:06, 30156.56it/s][A
+ 62%|██████▏   | 297472/478625 [00:09<00:06, 29356.36it/s][A
+ 63%|██████▎   | 300645/478625 [00:09<00:05, 30045.66it/s][A
+ 63%|██████▎   | 303656/478625 [00:09<00:05, 29932.56it/s][A
+ 64%|██████▍   | 306838/478625 [00:10<00:05, 30487.51it/s][A
+ 65%|██████▍   | 310044/478625 [00:10<00:05, 30952.33it/s][A
+ 65%|██████▌   | 313143/478625 [00:10<00:05, 30199.73it/s][A
+ 66%|██████▌   | 316279/478625 [00:10<00:05, 30537.15it/s][A
+ 67%|██████▋   | 319338/478625 [00:10<00:05, 30354.53it/s][A
+ 67%|██████▋   | 322377/478625 [00:10<00:05, 29737.61it/s][A
+ 68%|██████▊   | 325557/478625 [00:10<00:05, 30337.40it/s][A
+ 69%|██████▊   | 328666/478625 [00:10<00:04, 30556.96it/s][A
+ 69%|██████▉   | 331726/478625 [00:10<00:04, 30132.97it/s][A
+ 70%|██████▉   | 334945/478625 [00:10<00:04, 30735.13it/s][A
+ 71%|███████   | 338023/478625 [00:11<00:04, 30092.91it/s][A
+ 71%|███████▏  | 341126/478625 [00:11<00:04, 30365.38it/s][A
+ 72%|███████▏  | 344265/478625 [00:11<00:04, 30664.47it/s][A
+ 73%|███████▎  | 347335/478625 [00:11<00:04, 29899.61it/s][A
+ 73%|███████▎  | 350540/478625 [00:11<00:04, 30524.46it/s][A
+ 74%|███████▍  | 353599/478625 [00:11<00:04, 30338.27it/s][A
+ 75%|███████▍  | 356637/478625 [00:11<00:04, 29986.34it/s][A
+ 75%|███████▌  | 359761/478625 [00:11<00:03, 30350.97it/s][A
+ 76%|███████▌  | 362800/478625 [00:11<00:03, 29965.90it/s][A
+ 76%|███████▋  | 365937/478625 [00:12<00:03, 30377.18it/s][A
+ 77%|███████▋  | 369052/478625 [00:12<00:03, 30603.53it/s][A
+ 78%|███████▊  | 372115/478625 [00:12<00:03, 29438.22it/s][A
+ 78%|███████▊  | 375236/478625 [00:12<00:03, 29949.15it/s][A
+ 79%|███████▉  | 378240/478625 [00:12<00:03, 29860.11it/s][A
+ 80%|███████▉  | 381233/478625 [00:12<00:03, 29590.88it/s][A
+ 80%|████████  | 384450/478625 [00:12<00:03, 30345.46it/s][A
+ 81%|████████  | 387649/478625 [00:12<00:02, 30830.78it/s][A
+ 82%|████████▏ | 390737/478625 [00:12<00:02, 29960.31it/s][A
+ 82%|████████▏ | 393754/478625 [00:12<00:02, 30018.31it/s][A
+ 83%|████████▎ | 396762/478625 [00:13<00:02, 29749.64it/s][A
+ 84%|████████▎ | 399914/478625 [00:13<00:02, 30268.04it/s][A
+ 84%|████████▍ | 402945/478625 [00:13<00:02, 30209.62it/s][A
+ 85%|████████▍ | 405969/478625 [00:13<00:02, 29840.08it/s][A
+ 85%|████████▌ | 409120/478625 [00:13<00:02, 30329.57it/s][A
+ 86%|████████▌ | 412316/478625 [00:13<00:02, 30811.74it/s][A
+ 87%|████████▋ | 415400/478625 [00:13<00:02, 29930.73it/s][A
+ 87%|████████▋ | 418436/478625 [00:13<00:02, 30054.09it/s][A
+ 88%|████████▊ | 421568/478625 [00:13<00:01, 30423.46it/s][A
+ 89%|████████▊ | 424615/478625 [00:13<00:01, 29425.28it/s][A
+ 89%|████████▉ | 427754/478625 [00:14<00:01, 29992.45it/s][A
+ 90%|████████▉ | 430762/478625 [00:14<00:01, 29706.72it/s][A
+ 91%|█████████ | 433964/478625 [00:14<00:01, 30383.50it/s][A
+ 91%|█████████▏| 437138/478625 [00:14<00:01, 30781.71it/s][A
+ 92%|█████████▏| 440221/478625 [00:14<00:01, 30314.16it/s][A
+ 93%|█████████▎| 443394/478625 [00:14<00:01, 30727.73it/s][A
+ 93%|█████████▎| 446471/478625 [00:14<00:01, 30308.32it/s][A
+ 94%|█████████▍| 449506/478625 [00:14<00:00, 30067.43it/s][A
+ 95%|█████████▍| 452644/478625 [00:14<00:00, 30452.51it/s][A
+ 95%|█████████▌| 455692/478625 [00:14<00:00, 29990.07it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+ 96%|█████████▌| 458881/478625 [00:15<00:00, 30547.40it/s][A
+  1%|          | 3194/478625 [00:00<00:14, 31926.33it/s][A
+ 97%|█████████▋| 462054/478625 [00:15<00:00, 30896.24it/s][A
+  1%|▏         | 6457/478625 [00:00<00:14, 32336.62it/s][A
+ 97%|█████████▋| 465147/478625 [00:15<00:00, 30298.86it/s][A
+  2%|▏         | 9691/478625 [00:00<00:14, 31272.68it/s][A
+ 98%|█████████▊| 468181/478625 [00:15<00:00, 30214.80it/s][A
+  3%|▎         | 12949/478625 [00:00<00:14, 31777.72it/s][A
+ 98%|█████████▊| 471397/478625 [00:15<00:00, 30785.98it/s][A
+  3%|▎         | 16131/478625 [00:00<00:14, 31046.37it/s][A
+ 99%|█████████▉| 474479/478625 [00:15<00:00, 30199.50it/s][A
+  4%|▍         | 19371/478625 [00:00<00:14, 31494.27it/s][A
+100%|█████████▉| 477559/478625 [00:15<00:00, 30374.13it/s][A100%|██████████| 478625/478625 [00:15<00:00, 30415.01it/s]
+100%|██████████| 1/1 [00:22<00:00, 22.47s/it]100%|██████████| 1/1 [00:22<00:00, 22.47s/it]
+
+  5%|▍         | 22630/478625 [00:00<00:14, 31843.43it/s][A
+  5%|▌         | 25818/478625 [00:00<00:14, 31152.00it/s][A
+  6%|▌         | 29053/478625 [00:00<00:14, 31516.29it/s][A
+  7%|▋         | 32277/478625 [00:01<00:14, 31733.90it/s][A
+  7%|▋         | 35454/478625 [00:01<00:14, 31138.23it/s][A
+  8%|▊         | 38660/478625 [00:01<00:14, 31410.79it/s][A
+  9%|▊         | 41805/478625 [00:01<00:14, 30849.13it/s][An_elements: 474899
+
+  9%|▉         | 45020/478625 [00:01<00:13, 31231.99it/s][A
+ 10%|█         | 48248/478625 [00:01<00:13, 31539.78it/s][A
+ 11%|█         | 51405/478625 [00:01<00:13, 31017.83it/s][A
+ 11%|█▏        | 54620/478625 [00:01<00:13, 31350.75it/s][A
+ 12%|█▏        | 57824/478625 [00:01<00:13, 31551.83it/s][A
+ 13%|█▎        | 60982/478625 [00:01<00:13, 31002.10it/s][A
+ 13%|█▎        | 64222/478625 [00:02<00:13, 31412.59it/s][A
+ 14%|█▍        | 67367/478625 [00:02<00:13, 30958.27it/s][A
+ 15%|█▍        | 70606/478625 [00:02<00:13, 31378.30it/s][A
+ 15%|█▌        | 73827/478625 [00:02<00:12, 31622.93it/s][A
+ 16%|█▌        | 76992/478625 [00:02<00:12, 31009.79it/s][A
+ 17%|█▋        | 80218/478625 [00:02<00:12, 31374.12it/s][A
+ 17%|█▋        | 83359/478625 [00:02<00:12, 30916.95it/s][A
+ 18%|█▊        | 86584/478625 [00:02<00:12, 31306.90it/s][A
+ 19%|█▉        | 89793/478625 [00:02<00:12, 31535.70it/s][A
+ 19%|█▉        | 92950/478625 [00:02<00:12, 30928.24it/s][A
+ 20%|██        | 96162/478625 [00:03<00:12, 31275.56it/s][A
+ 21%|██        | 99388/478625 [00:03<00:12, 31565.61it/s][A
+ 21%|██▏       | 102548/478625 [00:03<00:12, 30916.37it/s][A
+ 22%|██▏       | 105758/478625 [00:03<00:11, 31261.73it/s][A
+ 23%|██▎       | 108889/478625 [00:03<00:12, 30680.33it/s][A
+ 23%|██▎       | 112124/478625 [00:03<00:11, 31168.20it/s][A
+ 24%|██▍       | 115306/478625 [00:03<00:11, 31360.03it/s][A
+ 25%|██▍       | 118446/478625 [00:03<00:11, 30861.73it/s][A
+ 25%|██▌       | 121639/478625 [00:03<00:11, 31172.23it/s][A
+ 26%|██▌       | 124800/478625 [00:03<00:11, 31300.64it/s][A
+ 27%|██▋       | 127933/478625 [00:04<00:11, 30758.93it/s][A
+ 27%|██▋       | 131159/478625 [00:04<00:11, 31199.81it/s][A
+ 28%|██▊       | 134283/478625 [00:04<00:11, 30832.53it/s][A
+ 29%|██▊       | 137490/478625 [00:04<00:10, 31196.42it/s][A
+ 29%|██▉       | 140725/478625 [00:04<00:10, 31535.37it/s][A
+ 30%|███       | 143881/478625 [00:04<00:10, 30788.92it/s][A
+ 31%|███       | 147116/478625 [00:04<00:10, 31245.87it/s][A
+ 31%|███▏      | 150320/478625 [00:04<00:10, 31479.48it/s][A
+ 32%|███▏      | 153472/478625 [00:04<00:10, 30931.01it/s][A
+ 33%|███▎      | 156707/478625 [00:05<00:10, 31347.30it/s][A
+ 33%|███▎      | 159846/478625 [00:05<00:10, 30817.63it/s][A
+ 34%|███▍      | 163030/478625 [00:05<00:10, 31116.99it/s][A
+ 35%|███▍      | 166262/478625 [00:05<00:09, 31470.80it/s][A
+ 35%|███▌      | 169413/478625 [00:05<00:10, 30909.89it/s][A
+ 36%|███▌      | 172632/478625 [00:05<00:09, 31242.39it/s][A
+ 37%|███▋      | 175842/478625 [00:05<00:09, 31492.74it/s][A
+ 37%|███▋      | 178994/478625 [00:05<00:09, 30917.52it/s][A
+ 38%|███▊      | 182134/478625 [00:05<00:09, 31055.56it/s][A
+ 39%|███▊      | 185243/478625 [00:05<00:09, 30706.77it/s][A
+ 39%|███▉      | 188462/478625 [00:06<00:09, 31141.84it/s][A
+ 40%|████      | 191669/478625 [00:06<00:09, 31413.83it/s][A
+ 41%|████      | 194813/478625 [00:06<00:09, 30942.04it/s][A
+ 41%|████▏     | 198032/478625 [00:06<00:08, 31308.22it/s][A
+ 42%|████▏     | 201266/478625 [00:06<00:08, 31611.23it/s][A
+ 43%|████▎     | 204430/478625 [00:06<00:08, 30929.23it/s][A
+ 43%|████▎     | 207616/478625 [00:06<00:08, 31200.74it/s][A
+ 44%|████▍     | 210740/478625 [00:06<00:08, 30661.48it/s][A
+ 45%|████▍     | 213968/478625 [00:06<00:08, 31135.36it/s][A
+ 45%|████▌     | 217186/478625 [00:06<00:08, 31442.08it/s][A
+ 46%|████▌     | 220334/478625 [00:07<00:08, 30966.71it/s][A
+ 47%|████▋     | 223560/478625 [00:07<00:08, 31345.72it/s][A
+ 47%|████▋     | 226744/478625 [00:07<00:07, 31490.91it/s][A
+ 48%|████▊     | 229896/478625 [00:07<00:08, 30937.54it/s][A
+ 49%|████▊     | 233054/478625 [00:07<00:07, 31125.53it/s][A
+ 49%|████▉     | 236170/478625 [00:07<00:07, 30692.78it/s][A
+ 50%|█████     | 239399/478625 [00:07<00:07, 31160.71it/s][A
+ 51%|█████     | 242591/478625 [00:07<00:07, 31384.76it/s][A
+ 51%|█████▏    | 245732/478625 [00:07<00:07, 30882.76it/s][A
+ 52%|█████▏    | 248926/478625 [00:07<00:07, 31192.39it/s][A
+ 53%|█████▎    | 252094/478625 [00:08<00:07, 30782.75it/s][A
+ 53%|█████▎    | 255334/478625 [00:08<00:07, 31255.46it/s][A
+ 54%|█████▍    | 258506/478625 [00:08<00:07, 31390.27it/s][A
+ 55%|█████▍    | 261648/478625 [00:08<00:07, 30780.59it/s][A
+ 55%|█████▌    | 264864/478625 [00:08<00:06, 31183.90it/s][A
+ 56%|█████▌    | 268101/478625 [00:08<00:06, 31532.54it/s][A
+ 57%|█████▋    | 271258/478625 [00:08<00:06, 30861.32it/s][A
+ 57%|█████▋    | 274467/478625 [00:08<00:06, 31220.19it/s][A
+ 58%|█████▊    | 277594/478625 [00:08<00:06, 30731.33it/s][A
+ 59%|█████▊    | 280823/478625 [00:09<00:06, 31186.23it/s][A
+ 59%|█████▉    | 284054/478625 [00:09<00:06, 31517.41it/s][A
+ 60%|██████    | 287209/478625 [00:09<00:06, 31011.49it/s][A
+ 61%|██████    | 290427/478625 [00:09<00:06, 31353.37it/s][A
+ 61%|██████▏   | 293566/478625 [00:09<00:05, 31345.13it/s][A
+ 62%|██████▏   | 296703/478625 [00:09<00:05, 30877.03it/s][A
+ 63%|██████▎   | 299937/478625 [00:09<00:05, 31307.35it/s][A
+ 63%|██████▎   | 303071/478625 [00:09<00:05, 30849.81it/s][A
+ 64%|██████▍   | 306291/478625 [00:09<00:05, 31245.00it/s][A
+ 65%|██████▍   | 309502/478625 [00:09<00:05, 31498.04it/s][A
+ 65%|██████▌   | 312655/478625 [00:10<00:05, 30983.69it/s][A
+ 66%|██████▌   | 315850/478625 [00:10<00:05, 31265.72it/s][A
+ 67%|██████▋   | 319065/478625 [00:10<00:05, 31524.12it/s][A
+ 67%|██████▋   | 322220/478625 [00:10<00:05, 30993.89it/s][A
+ 68%|██████▊   | 325396/478625 [00:10<00:04, 31215.95it/s][A
+ 69%|██████▊   | 328521/478625 [00:10<00:04, 30588.16it/s][A
+ 69%|██████▉   | 331732/478625 [00:10<00:04, 31033.22it/s][A
+ 70%|██████▉   | 334957/478625 [00:10<00:04, 31389.94it/s][A
+ 71%|███████   | 338100/478625 [00:10<00:04, 30766.66it/s][A
+ 71%|███████▏  | 341327/478625 [00:10<00:04, 31205.28it/s][A
+ 72%|███████▏  | 344527/478625 [00:11<00:04, 31438.56it/s][A
+ 73%|███████▎  | 347675/478625 [00:11<00:04, 30954.07it/s][A
+ 73%|███████▎  | 350893/478625 [00:11<00:04, 31313.26it/s][A
+ 74%|███████▍  | 354028/478625 [00:11<00:04, 30862.15it/s][A
+ 75%|███████▍  | 357240/478625 [00:11<00:03, 31230.77it/s][A
+ 75%|███████▌  | 360411/478625 [00:11<00:03, 31363.59it/s][A
+ 76%|███████▌  | 363550/478625 [00:11<00:03, 30922.94it/s][A
+ 77%|███████▋  | 366739/478625 [00:11<00:03, 31207.15it/s][A
+ 77%|███████▋  | 369890/478625 [00:11<00:03, 31296.28it/s][A
+ 78%|███████▊  | 373022/478625 [00:11<00:03, 30834.42it/s][A
+ 79%|███████▊  | 376202/478625 [00:12<00:03, 31118.95it/s][A
+ 79%|███████▉  | 379317/478625 [00:12<00:03, 30692.55it/s][A
+ 80%|███████▉  | 382521/478625 [00:12<00:03, 31087.90it/s][A
+ 81%|████████  | 385742/478625 [00:12<00:02, 31419.64it/s][A
+ 81%|████████▏ | 388887/478625 [00:12<00:02, 31000.69it/s][A
+ 82%|████████▏ | 392087/478625 [00:12<00:02, 31294.83it/s][A
+ 83%|████████▎ | 395314/478625 [00:12<00:02, 31581.39it/s][A
+ 83%|████████▎ | 398474/478625 [00:12<00:02, 31023.42it/s][A
+ 84%|████████▍ | 401708/478625 [00:12<00:02, 31408.46it/s][A
+ 85%|████████▍ | 404852/478625 [00:12<00:02, 30869.31it/s][A
+ 85%|████████▌ | 408038/478625 [00:13<00:02, 31159.33it/s][A
+ 86%|████████▌ | 411250/478625 [00:13<00:02, 31439.96it/s][A
+ 87%|████████▋ | 414397/478625 [00:13<00:02, 30793.72it/s][A
+ 87%|████████▋ | 417493/478625 [00:13<00:01, 30842.02it/s][A
+ 88%|████████▊ | 420730/478625 [00:13<00:01, 31291.11it/s][A
+ 89%|████████▊ | 423862/478625 [00:13<00:01, 30743.87it/s][A
+ 89%|████████▉ | 427056/478625 [00:13<00:01, 31094.77it/s][A
+ 90%|████████▉ | 430169/478625 [00:13<00:01, 30709.51it/s][A
+ 91%|█████████ | 433406/478625 [00:13<00:01, 31197.63it/s][A
+ 91%|█████████ | 436628/478625 [00:14<00:01, 31499.11it/s][A
+ 92%|█████████▏| 439781/478625 [00:14<00:01, 31002.41it/s][A
+ 93%|█████████▎| 442983/478625 [00:14<00:01, 31299.02it/s][A
+ 93%|█████████▎| 446215/478625 [00:14<00:01, 30854.06it/s][A
+ 94%|█████████▍| 449437/478625 [00:14<00:00, 31252.89it/s][A
+ 95%|█████████▍| 452635/478625 [00:14<00:00, 31465.13it/s][A
+ 95%|█████████▌| 455785/478625 [00:14<00:00, 30987.61it/s][A
+ 96%|█████████▌| 458982/478625 [00:14<00:00, 31274.03it/s][A
+ 97%|█████████▋| 462212/478625 [00:14<00:00, 31577.04it/s][A
+ 97%|█████████▋| 465373/478625 [00:14<00:00, 30885.16it/s][A
+ 98%|█████████▊| 468501/478625 [00:15<00:00, 31000.20it/s][A
+ 99%|█████████▊| 471605/478625 [00:15<00:00, 30593.74it/s][A
+ 99%|█████████▉| 474817/478625 [00:15<00:00, 31040.92it/s][A
+100%|█████████▉| 478026/478625 [00:15<00:00, 31350.53it/s][A100%|██████████| 478625/478625 [00:15<00:00, 31167.95it/s]
+100%|██████████| 1/1 [00:21<00:00, 21.92s/it]100%|██████████| 1/1 [00:21<00:00, 21.92s/it]
+n_elements: 474899
+[2024-09-26 17:48:50,888] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Flops Profiler Enabled: False
+[2024-09-26 17:48:50,893] [INFO] [logging.py:96:log_dist] [Rank 0] Using client Optimizer as basic optimizer
+[2024-09-26 17:48:50,893] [INFO] [logging.py:96:log_dist] [Rank 0] Removing param_group that has no 'params' in the basic Optimizer
+zp rank is 5, zp_size=8
+zp rank is 1, zp_size=8
+zp rank is 2, zp_size=8
+zp rank is 3, zp_size=8
+[2024-09-26 17:48:51,042] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Basic Optimizer = AdamW
+[2024-09-26 17:48:51,042] [INFO] [utils.py:56:is_zero_supported_optimizer] Checking ZeRO support for optimizer=AdamW type=<class 'torch_npu.utils._optim.partialclass.<locals>.NewCls'>
+[2024-09-26 17:48:51,042] [INFO] [logging.py:96:log_dist] [Rank 0] Creating torch.bfloat16 ZeRO stage 2 optimizer
+[2024-09-26 17:48:51,042] [INFO] [stage_1_and_2.py:173:__init__] Reduce bucket size 500000000
+[2024-09-26 17:48:51,043] [INFO] [stage_1_and_2.py:174:__init__] Allgather bucket size 500,000,000
+[2024-09-26 17:48:51,043] [INFO] [stage_1_and_2.py:175:__init__] CPU Offload: False
+[2024-09-26 17:48:51,043] [INFO] [stage_1_and_2.py:176:__init__] Round robin gradient partitioning: False
+zp rank is 0, zp_size=8
+zp rank is 6, zp_size=8
+zp rank is 4, zp_size=8
+zp rank is 7, zp_size=8
+[2024-09-26 17:48:56,480] [INFO] [utils.py:791:see_memory_usage] Before initializing optimizer states
+[2024-09-26 17:48:56,482] [INFO] [utils.py:792:see_memory_usage] MA 17.66 GB         Max_MA 18.32 GB         CA 18.67 GB         Max_CA 19 GB 
+[2024-09-26 17:48:56,482] [INFO] [utils.py:799:see_memory_usage] CPU Virtual Memory:  used = 248.8 GB, percent = 16.5%
+[2024-09-26 17:48:58,421] [INFO] [utils.py:791:see_memory_usage] After initializing optimizer states
+[2024-09-26 17:48:58,422] [INFO] [utils.py:792:see_memory_usage] MA 20.29 GB         Max_MA 24.23 GB         CA 25.24 GB         Max_CA 25 GB 
+[2024-09-26 17:48:58,423] [INFO] [utils.py:799:see_memory_usage] CPU Virtual Memory:  used = 248.78 GB, percent = 16.5%
+[2024-09-26 17:48:58,423] [INFO] [stage_1_and_2.py:552:__init__] optimizer state initialized
+[2024-09-26 17:49:00,322] [INFO] [utils.py:791:see_memory_usage] After initializing ZeRO optimizer
+[2024-09-26 17:49:00,323] [INFO] [utils.py:792:see_memory_usage] MA 20.29 GB         Max_MA 20.29 GB         CA 25.24 GB         Max_CA 25 GB 
+[2024-09-26 17:49:00,323] [INFO] [utils.py:799:see_memory_usage] CPU Virtual Memory:  used = 248.78 GB, percent = 16.5%
+[2024-09-26 17:49:00,332] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Final Optimizer = AdamW
+[2024-09-26 17:49:00,332] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed using client LR scheduler
+[2024-09-26 17:49:00,332] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed LR Scheduler = None
+[2024-09-26 17:49:00,332] [INFO] [logging.py:96:log_dist] [Rank 0] step=0, skipped=0, lr=[1e-05], mom=[(0.9, 0.999)]
+[2024-09-26 17:49:00,335] [INFO] [config.py:984:print] DeepSpeedEngine configuration:
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   activation_checkpointing_config  {
+    "partition_activations": false, 
+    "contiguous_memory_optimization": false, 
+    "cpu_checkpointing": false, 
+    "number_checkpoints": null, 
+    "synchronize_checkpoint_boundary": false, 
+    "profile": false
+}
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   aio_config ................... {'block_size': 1048576, 'queue_depth': 8, 'thread_count': 1, 'single_submit': False, 'overlap_events': True}
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   amp_enabled .................. False
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   amp_params ................... False
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   autotuning_config ............ {
+    "enabled": false, 
+    "start_step": null, 
+    "end_step": null, 
+    "metric_path": null, 
+    "arg_mappings": null, 
+    "metric": "throughput", 
+    "model_info": null, 
+    "results_dir": "autotuning_results", 
+    "exps_dir": "autotuning_exps", 
+    "overwrite": true, 
+    "fast": true, 
+    "start_profile_step": 3, 
+    "end_profile_step": 5, 
+    "tuner_type": "gridsearch", 
+    "tuner_early_stopping": 5, 
+    "tuner_num_trials": 50, 
+    "model_info_path": null, 
+    "mp_size": 1, 
+    "max_train_batch_size": null, 
+    "min_train_batch_size": 1, 
+    "max_train_micro_batch_size_per_gpu": 1.024000e+03, 
+    "min_train_micro_batch_size_per_gpu": 1, 
+    "num_tuning_micro_batch_sizes": 3
+}
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   bfloat16_enabled ............. True
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   checkpoint_parallel_write_pipeline  False
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   checkpoint_tag_validation_enabled  True
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   checkpoint_tag_validation_fail  False
+[2024-09-26 17:49:00,336] [INFO] [config.py:988:print]   comms_config ................. <deepspeed.comm.config.DeepSpeedCommsConfig object at 0xfffef607afa0>
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   communication_data_type ...... torch.float32
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   compression_config ........... {'weight_quantization': {'shared_parameters': {'enabled': False, 'quantizer_kernel': False, 'schedule_offset': 0, 'quantize_groups': 1, 'quantize_verbose': False, 'quantization_type': 'symmetric', 'quantize_weight_in_forward': False, 'rounding': 'nearest', 'fp16_mixed_quantize': False, 'quantize_change_ratio': 0.001}, 'different_groups': {}}, 'activation_quantization': {'shared_parameters': {'enabled': False, 'quantization_type': 'symmetric', 'range_calibration': 'dynamic', 'schedule_offset': 1000}, 'different_groups': {}}, 'sparse_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'row_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'head_pruning': {'shared_parameters': {'enabled': False, 'method': 'topk', 'schedule_offset': 1000}, 'different_groups': {}}, 'channel_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'layer_reduction': {'enabled': False}}
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   curriculum_enabled_legacy .... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   curriculum_params_legacy ..... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   data_efficiency_config ....... {'enabled': False, 'seed': 1234, 'data_sampling': {'enabled': False, 'num_epochs': 1000, 'num_workers': 0, 'curriculum_learning': {'enabled': False}}, 'data_routing': {'enabled': False, 'random_ltd': {'enabled': False, 'layer_token_lr_schedule': {'enabled': False}}}}
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   data_efficiency_enabled ...... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   dataloader_drop_last ......... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   disable_allgather ............ False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   dump_state ................... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   dynamic_loss_scale_args ...... None
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_enabled ........... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_gas_boundary_resolution  1
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_layer_name ........ bert.encoder.layer
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_layer_num ......... 0
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_max_iter .......... 100
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_stability ......... 1e-06
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_tol ............... 0.01
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   eigenvalue_verbose ........... False
+[2024-09-26 17:49:00,337] [INFO] [config.py:988:print]   elasticity_enabled ........... False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   flops_profiler_config ........ {
+    "enabled": false, 
+    "recompute_fwd_factor": 0.0, 
+    "profile_step": 1, 
+    "module_depth": -1, 
+    "top_modules": 1, 
+    "detailed": true, 
+    "output_file": null
+}
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   fp16_auto_cast ............... None
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   fp16_enabled ................. False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   fp16_master_weights_and_gradients  False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   global_rank .................. 0
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   grad_accum_dtype ............. None
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   gradient_accumulation_steps .. 1
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   gradient_clipping ............ 1.0
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   gradient_predivide_factor .... 1.0
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   graph_harvesting ............. False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   hybrid_engine ................ enabled=False max_out_tokens=512 inference_tp_size=1 release_inference_cache=False pin_parameters=True tp_gather_partition_size=8
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   initial_dynamic_scale ........ 1
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   load_universal_checkpoint .... False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   loss_scale ................... 1.0
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   memory_breakdown ............. False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   mics_hierarchial_params_gather  False
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   mics_shard_size .............. -1
+[2024-09-26 17:49:00,338] [INFO] [config.py:988:print]   monitor_config ............... tensorboard=TensorBoardConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') wandb=WandbConfig(enabled=False, group=None, team=None, project='deepspeed') csv_monitor=CSVConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') enabled=False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   nebula_config ................ {
+    "enabled": false, 
+    "persistent_storage_path": null, 
+    "persistent_time_interval": 100, 
+    "num_of_version_in_retention": 2, 
+    "enable_nebula_load": true, 
+    "load_path": null
+}
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   optimizer_legacy_fusion ...... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   optimizer_name ............... None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   optimizer_params ............. None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   pipeline ..................... {'stages': 'auto', 'partition': 'best', 'seed_layers': False, 'activation_checkpoint_interval': 0, 'pipe_partitioned': True, 'grad_partitioned': True}
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   pld_enabled .................. False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   pld_params ................... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   prescale_gradients ........... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   scheduler_name ............... None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   scheduler_params ............. None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   seq_parallel_communication_data_type  torch.float32
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   sparse_attention ............. None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   sparse_gradients_enabled ..... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   steps_per_print .............. inf
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   train_batch_size ............. 8
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   train_micro_batch_size_per_gpu  1
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   use_data_before_expert_parallel_  False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   use_node_local_storage ....... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   wall_clock_breakdown ......... False
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   weight_quantization_config ... None
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   world_size ................... 8
+[2024-09-26 17:49:00,339] [INFO] [config.py:988:print]   zero_allow_untested_optimizer  True
+[2024-09-26 17:49:00,340] [INFO] [config.py:988:print]   zero_config .................. stage=2 contiguous_gradients=True reduce_scatter=True reduce_bucket_size=500000000 use_multi_rank_bucket_allreduce=True allgather_partitions=True allgather_bucket_size=500,000,000 overlap_comm=True load_from_fp32_weights=True elastic_checkpoint=False offload_param=None offload_optimizer=None sub_group_size=1000000000 cpu_offload_param=None cpu_offload_use_pin_memory=None cpu_offload=None prefetch_bucket_size=50,000,000 param_persistence_threshold=100,000 model_persistence_threshold=sys.maxsize max_live_parameters=1,000,000,000 max_reuse_distance=1,000,000,000 gather_16bit_weights_on_model_save=False stage3_gather_fp16_weights_on_model_save=False ignore_unused_parameters=True legacy_stage1=False round_robin_gradients=False zero_hpz_partition_size=1 zero_quantized_weights=False zero_quantized_nontrainable_weights=False zero_quantized_gradients=False mics_shard_size=-1 mics_hierarchical_params_gather=False memory_efficient_linear=True pipeline_loading_checkpoint=False override_module_apply=True
+[2024-09-26 17:49:00,340] [INFO] [config.py:988:print]   zero_enabled ................. True
+[2024-09-26 17:49:00,340] [INFO] [config.py:988:print]   zero_force_ds_cpu_optimizer .. True
+[2024-09-26 17:49:00,340] [INFO] [config.py:988:print]   zero_optimization_stage ...... 2
+[2024-09-26 17:49:00,340] [INFO] [config.py:974:print_user_config]   json = {
+    "fp16": {
+        "enabled": false, 
+        "loss_scale": 0, 
+        "loss_scale_window": 1000, 
+        "initial_scale_power": 16, 
+        "hysteresis": 2, 
+        "min_loss_scale": 1
+    }, 
+    "bf16": {
+        "enabled": true
+    }, 
+    "communication_data_type": "fp32", 
+    "gradient_clipping": 1.0, 
+    "train_micro_batch_size_per_gpu": 1, 
+    "train_batch_size": 8, 
+    "gradient_accumulation_steps": 1, 
+    "zero_optimization": {
+        "stage": 2, 
+        "overlap_comm": true, 
+        "contiguous_gradients": true, 
+        "sub_group_size": 1.000000e+09, 
+        "reduce_bucket_size": 5.000000e+08
+    }, 
+    "steps_per_print": inf, 
+    "zero_allow_untested_optimizer": true
+}
+09/26/2024 17:49:00 - INFO - __main__ - after accelerator.prepare
+09/26/2024 17:49:00 - INFO - __main__ - init trackers...
+wandb: Currently logged in as: cxh0519. Use `wandb login --relogin` to force relogin
+wandb: - Waiting for wandb.init()...wandb: \ Waiting for wandb.init()...wandb: wandb version 0.18.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.16.3
+wandb: Run data is saved locally in /home/image_data/chengxinhua/Open-Sora-Plan/wandb/run-20240926_174905-dzi0z953
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run sandy-pyramid-28
+wandb: ⭐️ View project at https://wandb.ai/cxh0519/Open-Sora-Plan-opensora_train
+wandb: 🚀 View run at https://wandb.ai/cxh0519/Open-Sora-Plan-opensora_train/runs/dzi0z953
+09/26/2024 17:49:08 - INFO - __main__ - ***** Running training *****
+09/26/2024 17:49:08 - INFO - __main__ -   Model = DeepSpeedEngine(
+  (module): OpenSoraInpaint_v1_2(
+    (caption_projection): PixArtAlphaTextProjection(
+      (linear_1): Linear(in_features=4096, out_features=2304, bias=True)
+      (act_1): GELU(approximate='tanh')
+      (linear_2): Linear(in_features=2304, out_features=2304, bias=True)
+    )
+    (motion_projection): MotionAdaLayerNormSingle(
+      (emb): MotionEmbeddings(
+        (motion_proj): Timesteps()
+        (motion_embedder): TimestepEmbedding(
+          (linear_1): Linear(in_features=256, out_features=2304, bias=True)
+          (act): SiLU()
+          (linear_2): Linear(in_features=2304, out_features=2304, bias=True)
+        )
+      )
+      (silu): SiLU()
+      (linear): Linear(in_features=2304, out_features=13824, bias=True)
+    )
+    (pos_embed): PatchEmbed2D(
+      (proj): Conv2d(8, 2304, kernel_size=(2, 2), stride=(2, 2))
+    )
+    (transformer_blocks): ModuleList(
+      (0-31): 32 x BasicTransformerBlock(
+        (norm1): LayerNorm((2304,), eps=1e-06, elementwise_affine=False)
+        (attn1): Attention(
+          (to_q): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_k): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_v): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_out): ModuleList(
+            (0): Linear(in_features=2304, out_features=2304, bias=True)
+            (1): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (norm2): LayerNorm((2304,), eps=1e-06, elementwise_affine=False)
+        (attn2): Attention(
+          (to_q): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_k): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_v): Linear(in_features=2304, out_features=2304, bias=True)
+          (to_out): ModuleList(
+            (0): Linear(in_features=2304, out_features=2304, bias=True)
+            (1): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (ff): FeedForward(
+          (net): ModuleList(
+            (0): GELU(
+              (proj): Linear(in_features=2304, out_features=9216, bias=True)
+            )
+            (1): Dropout(p=0.0, inplace=False)
+            (2): Linear(in_features=9216, out_features=2304, bias=True)
+          )
+        )
+      )
+    )
+    (norm_out): LayerNorm((2304,), eps=1e-06, elementwise_affine=False)
+    (proj_out): Linear(in_features=2304, out_features=32, bias=True)
+    (adaln_single): AdaLayerNormSingle(
+      (emb): PixArtAlphaCombinedTimestepSizeEmbeddings(
+        (time_proj): Timesteps()
+        (timestep_embedder): TimestepEmbedding(
+          (linear_1): Linear(in_features=256, out_features=2304, bias=True)
+          (act): SiLU()
+          (linear_2): Linear(in_features=2304, out_features=2304, bias=True)
+        )
+      )
+      (silu): SiLU()
+      (linear): Linear(in_features=2304, out_features=13824, bias=True)
+    )
+    (pos_embed_masked_hidden_states): ModuleList(
+      (0): PatchEmbed2D(
+        (proj): Conv2d(8, 2304, kernel_size=(2, 2), stride=(2, 2))
+      )
+      (1): Linear(in_features=2304, out_features=2304, bias=False)
+    )
+    (pos_embed_mask): ModuleList(
+      (0): PatchEmbed2D(
+        (proj): Conv2d(4, 2304, kernel_size=(2, 2), stride=(2, 2))
+      )
+      (1): Linear(in_features=2304, out_features=2304, bias=False)
+    )
+  )
+)
+09/26/2024 17:49:08 - INFO - __main__ -   Num examples = 474899
+09/26/2024 17:49:08 - INFO - __main__ -   Num Epochs = 17
+09/26/2024 17:49:08 - INFO - __main__ -   Instantaneous batch size per device = 1
+09/26/2024 17:49:08 - INFO - __main__ -   Total train batch size (w. parallel, distributed & accumulation) = 8
+09/26/2024 17:49:08 - INFO - __main__ -   Gradient Accumulation steps = 1
+09/26/2024 17:49:08 - INFO - __main__ -   Total optimization steps = 1000000
+09/26/2024 17:49:08 - INFO - __main__ -   Total optimization steps (num_update_steps_per_epoch) = 59362
+09/26/2024 17:49:08 - INFO - __main__ -   Total training parameters = 2.8204808 B
+09/26/2024 17:49:08 - INFO - __main__ -   AutoEncoder = WFVAEModel_D8_4x8x8; Dtype = torch.float32; Parameters = 0.147347724 B
+09/26/2024 17:49:08 - INFO - __main__ -   Text_enc_1 = google/mt5-xxl; Dtype = torch.bfloat16; Parameters = 5.65517312 B
+Steps:   0%|          | 0/1000000 [00:00<?, ?it/s][] -> [247236]
+[] -> [247236]
+[] -> [247236]
+[] -> [247236]
+[] -> [5015]
+[] -> [247236]
+[] -> [247236]
+[] -> [247236]
+[] -> [247236]
+[] -> [247236]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [207770]
+[] -> [5015]
+[] -> [5015]
+[] -> [5015]
+[] -> [5015]
+[] -> [207770]
+[] -> [247236]
+[] -> [207770]
+[] -> [5015]
+[] -> [247236]
+[] -> [207770]
+[] -> [247236]
+[] -> [207770]
+[] -> [5015]
+[] -> [207770]
+[] -> [247236]
+[] -> [5015]
+[] -> [247236]
+[] -> [207770]
+[] -> [207770]
+[] -> [5015]
+file /home/obs_data/TV01_clips/86516dca-8bb4-426e-a491-353fd9b368c7.24.mp4 do not exist!
+file /home/obs_data/TV01_clips/46ad231b-5dbb-4459-90a9-39b3d2992550.1232.mp4 do not exist!
+file /home/obs_data/TV01_clips/7c84ff83-1552-4833-bb26-cf15204eecda.914.mp4 do not exist!
+file /home/obs_data/TV01_clips/45d69b21-e012-4c65-9fb5-965104f4dcbb.45.mp4 do not exist!
+file /home/obs_data/TV01_clips/9b031000-9cd1-41af-ac16-6d6ac5fec92f.882.mp4 do not exist!
+file /home/obs_data/TV01_clips/3e123493-fec8-4e23-a7a8-a8288d87ef2c.219.mp4 do not exist!
+file /home/obs_data/TV01_clips/0f65673a-4c29-4cb2-8678-298e51f012d8.25.mp4 do not exist!
+file /home/obs_data/TV01_clips/28905b2c-f196-42ff-baa2-554470e7423d.198.mp4 do not exist!
+09/26/2024 17:49:23 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/28905b2c-f196-42ff-baa2-554470e7423d.198.mp4 do not exist!
+file /home/obs_data/TV01_clips/d39125b4-996f-4915-9c53-1918eba874b0.698.mp4 do not exist!
+file /home/obs_data/TV01_clips/346b541f-adea-44b1-a841-f13fc690bb95.172.mp4 do not exist!
+09/26/2024 17:49:25 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/346b541f-adea-44b1-a841-f13fc690bb95.172.mp4 do not exist!
+file /home/obs_data/TV01_clips/bfc73c8f-7a67-4207-86b1-172c8267097a.433.mp4 do not exist!
+file /home/obs_data/TV01_clips/708292b2-6bd8-4780-86db-0d7ce1279d47.489.mp4 do not exist!
+09/26/2024 17:49:27 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/708292b2-6bd8-4780-86db-0d7ce1279d47.489.mp4 do not exist!
+file /home/obs_data/TV01_clips/839aaffa-829a-4442-8d0e-9855184f6470.493.mp4 do not exist!
+file /home/obs_data/TV01_clips/4c08881a-d253-4cad-9ff0-424de1737462.156.mp4 do not exist!
+file /home/obs_data/TV01_clips/615c6179-9691-465d-adc5-9d727d55b8d8.325.mp4 do not exist!
+file /home/obs_data/TV01_clips/67cb630d-cb4e-4568-9c51-6ec1a74cac9f.271.mp4 do not exist!
+file /home/obs_data/TV01_clips/1d483da2-cfa9-45a8-acb3-3935a5c3b7a1.237.mp4 do not exist!
+file /home/obs_data/TV01_clips/f5411598-7f0c-4a56-9a0e-8986f9135344.11.mp4 do not exist!
+file /home/obs_data/TV01_clips/b58d06c1-04f7-4fd6-a967-54f12903665e.720.mp4 do not exist!
+file /home/obs_data/TV01_clips/96bc426f-f589-4433-a5c8-5c84f3cb0a63.192.mp4 do not exist!
+file /home/obs_data/TV01_clips/36df6db7-39e0-48eb-9205-3dfa415613a2.42.mp4 do not exist!
+file /home/obs_data/TV01_clips/dc3ae319-382c-4be0-b142-20ff9e5cab88.356.mp4 do not exist!
+09/26/2024 17:49:38 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/dc3ae319-382c-4be0-b142-20ff9e5cab88.356.mp4 do not exist!
+file /home/obs_data/TV01_clips/000bc2d5-efbf-451c-b0f6-1c170f01a0bc.499.mp4 do not exist!
+file /home/obs_data/TV01_clips/9cd20fce-5653-46a4-ac7a-54d07c995064.164.mp4 do not exist!
+09/26/2024 17:49:40 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/9cd20fce-5653-46a4-ac7a-54d07c995064.164.mp4 do not exist!
+file /home/obs_data/TV01_clips/1a05beb9-d796-4440-8c0d-823b9ecb6ea3.5.mp4 do not exist!
+file /home/obs_data/TV01_clips/2fac3178-2edb-4140-bf31-8478fb050114.349.mp4 do not exist!
+09/26/2024 17:49:42 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/2fac3178-2edb-4140-bf31-8478fb050114.349.mp4 do not exist!
+file /home/obs_data/TV01_clips/5597a5e3-ca92-4f8a-ac5c-4daaa3dfbbe2.252.mp4 do not exist!
+file /home/obs_data/TV01_clips/19ab0748-4a5f-4139-b517-89ea1cab3be9.691.mp4 do not exist!
+09/26/2024 17:49:44 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/19ab0748-4a5f-4139-b517-89ea1cab3be9.691.mp4 do not exist!
+file /home/obs_data/TV01_clips/e5763e2f-34bb-4713-9af5-633c19905a7a.168.mp4 do not exist!
+file /home/obs_data/TV01_clips/32a63a76-222f-4e5e-986d-a3eef097bbe0.572.mp4 do not exist!
+09/26/2024 17:49:46 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/32a63a76-222f-4e5e-986d-a3eef097bbe0.572.mp4 do not exist!
+file /home/obs_data/TV01_clips/2d682da5-c3b7-4957-8204-4a8c2f874691.15.mp4 do not exist!
+file /home/obs_data/TV01_clips/cc177398-fe8e-43d3-a48f-cb4c611bfb53.442.mp4 do not exist!
+09/26/2024 17:49:48 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/cc177398-fe8e-43d3-a48f-cb4c611bfb53.442.mp4 do not exist!
+file /home/obs_data/TV01_clips/c9a73c19-36fe-49c7-aa67-012de0cc7985.671.mp4 do not exist!
+file /home/obs_data/TV01_clips/2e4295ec-de3f-4186-9785-3308200b2292.107.mp4 do not exist!
+09/26/2024 17:49:50 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/2e4295ec-de3f-4186-9785-3308200b2292.107.mp4 do not exist!
+file /home/obs_data/TV01_clips/b956c100-953f-4313-85a0-626158ceb542.400.mp4 do not exist!
+file /home/obs_data/TV01_clips/4d8fc121-9ebb-44ef-923e-a8cbc09926c2.338.mp4 do not exist!
+file /home/obs_data/TV01_clips/7c84ff83-1552-4833-bb26-cf15204eecda.135.mp4 do not exist!
+09/26/2024 17:49:53 - INFO - opensora.dataset.t2v_datasets - Error with file /home/obs_data/TV01_clips/7c84ff83-1552-4833-bb26-cf15204eecda.135.mp4 do not exist!
+file /home/obs_data/TV01_clips/446e1ace-1de0-4acf-a66d-1b3edc80f9f6.998.mp4 do not exist!
+file /home/obs_data/TV01_clips/8ac0a024-48e1-4c66-a214-7ed130696825.527.mp4 do not exist!
+file /home/obs_data/TV01_clips/dd88a391-33ac-4fba-bb97-cb6ce9e7d302.4.mp4 do not exist!
+file /home/obs_data/TV01_clips/eaa8428e-26ef-4466-89ad-9186146cd223.362.mp4 do not exist!
+file /home/obs_data/TV01_clips/4b3b7dee-656e-41e2-aad9-86d50b21728f.404.mp4 do not exist!
+file /home/obs_data/TV01_clips/f4c2c7a5-8cf3-4243-9ce9-d232c0bab857.11.mp4 do not exist!
+file /home/obs_data/TV01_clips/7c84ff83-1552-4833-bb26-cf15204eecda.1063.mp4 do not exist!
+file /home/obs_data/TV01_clips/1e6098d3-4578-43aa-ab67-9e3cdf5ce1fc.15.mp4 do not exist!
+file /home/obs_data/TV01_clips/efe197e6-efd6-43d1-8613-82669d3efef8.294.mp4 do not exist!
+file /home/obs_data/TV01_clips/be4443ea-c619-44b0-9f69-172817c78320.134.mp4 do not exist!
+file /home/obs_data/TV01_clips/b4505c37-3c45-404f-9814-fdc149120f95.31.mp4 do not exist!
+file /home/obs_data/TV01_clips/3f3288da-7b17-4fc4-9603-9e48a9dad790.501.mp4 do not exist!
+file /home/obs_data/TV01_clips/8ed67046-2c9d-4d7c-a167-2da15b9f2a0b.512.mp4 do not exist!
+file /home/obs_data/TV01_clips/caa3c380-7f7c-4561-a80d-12dba420f06d.305.mp4 do not exist!
+file /home/obs_data/TV01_clips/1617f93f-584f-4e75-b519-c346d0eafc65.282.mp4 do not exist!
+file /home/obs_data/TV01_clips/69e08e3b-24a3-40f5-9249-3acfddd7206c.7.mp4 do not exist!
+file /home/obs_data/TV01_clips/64cd543d-534f-4354-95ec-ff9e056a28eb.402.mp4 do not exist!
+file /home/obs_data/TV01_clips/1f59f697-485e-4ba6-bb6d-e0193e67e138.379.mp4 do not exist!
+file /home/obs_data/TV01_clips/f5411598-7f0c-4a56-9a0e-8986f9135344.950.mp4 do not exist!
+file /home/obs_data/TV01_clips/42d39f76-173b-4953-af5b-151576b33107.313.mp4 do not exist!
+file /home/obs_data/TV01_clips/b4505c37-3c45-404f-9814-fdc149120f95.190.mp4 do not exist!
+file /home/obs_data/TV01_clips/28c0b0c8-c55f-4556-9e6b-86bf127b55b4.513.mp4 do not exist!
+file /home/obs_data/TV01_clips/ec09dc73-134a-4894-af47-016fcb1254fd.189.mp4 do not exist!
+file /home/obs_data/TV01_clips/839aaffa-829a-4442-8d0e-9855184f6470.872.mp4 do not exist!
+file /home/obs_data/TV01_clips/306de951-a797-4081-a14f-f434f95aad25.599.mp4 do not exist!
+file /home/obs_data/TV01_clips/de758ee1-f451-46df-b483-ec9a0ef970ee.107.mp4 do not exist!
+file /home/obs_data/TV01_clips/399a6e17-9074-4e70-98b0-fb3296beeca0.533.mp4 do not exist!
+file /home/obs_data/TV01_clips/f8126010-8288-44e5-aee9-1e3d7e1b0f66.152.mp4 do not exist!
+file /home/obs_data/TV01_clips/e496a001-60d9-49a1-b6b8-baa7b62345a3.148.mp4 do not exist!
+file /home/obs_data/TV01_clips/2d8bcf3f-b123-44d3-b34e-eff60cd1e4a2.59.mp4 do not exist!
+file /home/obs_data/TV01_clips/edb91414-e861-4fcc-bd4a-41dfd2e0aeb8.315.mp4 do not exist!
+file /home/obs_data/TV01_clips/f3b66bdf-b99c-4404-8069-d0d589f4a46c.612.mp4 do not exist!
+file /home/obs_data/TV01_clips/80d928e6-f109-4e8d-9990-c48359cd92a9.396.mp4 do not exist!
+file /home/obs_data/TV01_clips/85ee1845-d72e-4340-971d-35fcef45f061.612.mp4 do not exist!
+file /home/obs_data/TV01_clips/ba02d3e6-6ef9-4c9e-9cf6-4692074947ce.268.mp4 do not exist!
+file /home/obs_data/TV01_clips/2e6f65ed-c71c-4741-bec0-589a2e23aa06.65.mp4 do not exist!
+file /home/obs_data/TV01_clips/35f28300-1d8e-4243-96c4-38dd12d11b76.363.mp4 do not exist!
+file /home/obs_data/TV01_clips/eb662b05-2b36-47b4-9848-38914d14c09a.102.mp4 do not exist!
+file /home/obs_data/TV01_clips/b349f3ff-b141-41ee-992d-921e9bb28845.1349.mp4 do not exist!
+file /home/obs_data/TV01_clips/71d30219-cb6f-4c07-b6d6-dabda93e7a75.296.mp4 do not exist!
+file /home/obs_data/TV01_clips/003a4683-2dc9-43fb-b992-77a2e989143e.424.mp4 do not exist!
+file /home/obs_data/TV01_clips/3261c9af-9f43-447f-9526-a91df11f9bce.455.mp4 do not exist!
+file /home/obs_data/TV01_clips/e86da963-ad9d-4bc0-9401-d1d967a83e5e.329.mp4 do not exist!
+file /home/obs_data/TV01_clips/6874ab2d-6d2d-4950-ad43-c06d082b4248.337.mp4 do not exist!
+file /home/obs_data/TV01_clips/9e5d4bb6-bccb-4898-bc0f-621ed8cdadae.338.mp4 do not exist!
+file /home/obs_data/TV01_clips/cc1c3971-fc12-4728-b065-51e8302e5cee.784.mp4 do not exist!
+file /home/obs_data/TV01_clips/4988098a-1846-4a5c-a6c3-27152904271b.1304.mp4 do not exist!
+file /home/obs_data/TV01_clips/9de6f265-b275-493a-a0eb-12daa2a78c3e.35.mp4 do not exist!
+file /home/obs_data/TV01_clips/f56b8327-98d1-4237-97d2-404c83c4525f.72.mp4 do not exist!
+file /home/obs_data/TV01_clips/8f2d71ae-eab1-43ca-99c3-4d84e7a36f2d.295.mp4 do not exist!
+file /home/obs_data/TV01_clips/d263687d-0887-4223-a686-85221a48bd8a.948.mp4 do not exist!
+file /home/obs_data/TV01_clips/5179838a-b6b2-470d-9c8d-add0d1783731.288.mp4 do not exist!
+file /home/obs_data/TV01_clips/1d483da2-cfa9-45a8-acb3-3935a5c3b7a1.479.mp4 do not exist!
+file /home/obs_data/TV01_clips/603b1ab6-83a3-454d-8053-dc2fdc9e6d87.76.mp4 do not exist!
+file /home/obs_data/TV01_clips/ebf84f08-23f0-41a5-a0e5-a9b04591e9ec.262.mp4 do not exist!
+file /home/obs_data/TV01_clips/06a66dd8-d69c-40f5-ac26-ea8139c252e1.390.mp4 do not exist!
+file /home/obs_data/TV01_clips/a06be091-72f3-4f3a-b56e-78e417a02cc9.114.mp4 do not exist!
+file /home/obs_data/TV01_clips/f4c2c7a5-8cf3-4243-9ce9-d232c0bab857.222.mp4 do not exist!
+file /home/obs_data/TV01_clips/b5230e67-8920-4978-ba4c-2c4e9c684a32.18.mp4 do not exist!
+file /home/obs_data/TV01_clips/f871a932-33ce-42ab-a946-f0fc564d42ed.928.mp4 do not exist!
+file /home/obs_data/TV01_clips/dafe8da6-01ad-43d8-ba35-f9db5620ce32.95.mp4 do not exist!
+file /home/obs_data/TV01_clips/7769ed0c-58ef-45e3-a3e1-38836adda707.124.mp4 do not exist!
+file /home/obs_data/TV01_clips/80cbf4ea-73e8-4a36-862b-f7911139f8a4.164.mp4 do not exist!
+file /home/obs_data/TV01_clips/3f3288da-7b17-4fc4-9603-9e48a9dad790.233.mp4 do not exist!
+file /home/obs_data/TV01_clips/e5b7578b-eb92-4412-94a3-f27c6b0b54e0.358.mp4 do not exist!
+file /home/obs_data/TV01_clips/38e97d38-f3a6-4aff-99e6-f9e89da5c554.445.mp4 do not exist!
+file /home/obs_data/TV01_clips/8c905370-ee12-4268-86eb-12354d25abda.111.mp4 do not exist!
+file /home/obs_data/TV01_clips/2e4295ec-de3f-4186-9785-3308200b2292.228.mp4 do not exist!
+file /home/obs_data/TV01_clips/30774e07-ffcf-416d-80c0-d6def62528ef.114.mp4 do not exist!
+file /home/obs_data/TV01_clips/505fb53c-d57d-464c-b922-5812cd8e50dc.884.mp4 do not exist!
+file /home/obs_data/TV01_clips/26630adf-2266-4181-9d33-68a8139dc7bb.1120.mp4 do not exist!
+file /home/obs_data/TV01_clips/f6845400-bef6-4f2c-a557-7e920eee7709.238.mp4 do not exist!
+file /home/obs_data/TV01_clips/e6a69a0a-f8b2-4ab7-8d83-ce5243ec93c7.1200.mp4 do not exist!
+file /home/obs_data/TV01_clips/9a038188-227c-40b8-b0a3-f17aaa292101.103.mp4 do not exist!
+file /home/obs_data/TV01_clips/d98b00b1-6134-4f14-86d5-9ff8d34cd4da.273.mp4 do not exist!
+file /home/obs_data/TV01_clips/bd1ab8d1-4429-445b-a163-daaed3b66699.313.mp4 do not exist!
+file /home/obs_data/TV01_clips/585e5ebc-d69b-4fc3-a458-038007b0bc6e.293.mp4 do not exist!
+file /home/obs_data/TV01_clips/5f997442-eaa3-440f-8527-32f0a77794ac.299.mp4 do not exist!
+file /home/obs_data/TV01_clips/a4c884dc-4b34-41eb-a290-9013acf4f69a.169.mp4 do not exist!
+file /home/obs_data/TV01_clips/adbaa5f7-aeb0-4d90-baae-7a196deb23eb.1049.mp4 do not exist!
+file /home/obs_data/TV01_clips/aba71db0-f351-4d5e-96c2-4ab85243b819.1326.mp4 do not exist!
+file /home/obs_data/TV01_clips/29890dbf-f49b-410a-bc52-34d8b243b7c7.42.mp4 do not exist!
+file /home/obs_data/TV01_clips/531721fa-711b-43dc-95b5-46da767b1e1b.337.mp4 do not exist!
+file /home/obs_data/TV01_clips/548b76d9-8197-4698-abb3-85fdffe088a7.231.mp4 do not exist!
+file /home/obs_data/TV01_clips/8646abf6-2779-49b4-88e2-6d9aab8035f1.388.mp4 do not exist!
+file /home/obs_data/TV01_clips/7769ed0c-58ef-45e3-a3e1-38836adda707.339.mp4 do not exist!
+file /home/obs_data/TV01_clips/395622bf-00b8-4746-bdc8-c457ce5d92b9.369.mp4 do not exist!
+file /home/obs_data/TV01_clips/ea45695b-5649-47fb-b75a-43f2bb8ddf24.98.mp4 do not exist!
+file /home/obs_data/TV01_clips/0635f804-4dc4-463e-b94b-68e8914b097a.653.mp4 do not exist!
+file /home/obs_data/TV01_clips/aba71db0-f351-4d5e-96c2-4ab85243b819.625.mp4 do not exist!
+file /home/obs_data/TV01_clips/6d4c6eca-4149-44af-b1ee-6b5b9a4624e0.429.mp4 do not exist!
+file /home/obs_data/TV01_clips/a3267365-4fcd-435f-b07f-bd9f147d238a.194.mp4 do not exist!
+file /home/obs_data/TV01_clips/9b9a3787-8e29-453d-92b9-915f1cd071c9.122.mp4 do not exist!
+file /home/obs_data/TV01_clips/575ee1af-4190-4652-97d7-59dc8d967b7e.282.mp4 do not exist!
+file /home/obs_data/TV01_clips/71f1cb82-770d-4783-ad06-2a019129c089.84.mp4 do not exist!
+file /home/obs_data/TV01_clips/57410cc6-45e3-48d1-9e76-578a7ca87b39.1134.mp4 do not exist!
+file /home/obs_data/TV01_clips/c9a73c19-36fe-49c7-aa67-012de0cc7985.251.mp4 do not exist!
+file /home/obs_data/TV01_clips/92c32551-0e16-4535-86a3-29473b147032.1291.mp4 do not exist!
+file /home/obs_data/TV01_clips/e2f07c85-8c30-42c2-89f4-aad4f354e79e.280.mp4 do not exist!
+file /home/obs_data/TV01_clips/9aaebcb0-a87b-458f-82a3-14072505f6eb.336.mp4 do not exist!
+file /home/obs_data/TV01_clips/9694ae6c-fe12-4c47-b4c8-412ffb91af28.307.mp4 do not exist!
+file /home/obs_data/TV01_clips/03b6aed4-4179-466c-ae3f-20a61ac2a446.113.mp4 do not exist!
+file /home/obs_data/TV01_clips/162d4223-5e2e-4326-b9cb-b39003b0ea13.133.mp4 do not exist!
+file /home/obs_data/TV01_clips/8ac0a024-48e1-4c66-a214-7ed130696825.991.mp4 do not exist!
+file /home/obs_data/TV01_clips/67542ea4-0f40-439c-89c9-468df1de7372.897.mp4 do not exist!
+file /home/obs_data/TV01_clips/a1372780-88a1-437d-94b1-b97f8b837336.189.mp4 do not exist!
+file /home/obs_data/TV01_clips/0b91ce02-0718-40ec-9192-0bdd1f54f23e.138.mp4 do not exist!
+file /home/obs_data/TV01_clips/cf2dcf72-a0c8-47c4-a26c-25af8bcc78f8.410.mp4 do not exist!
+file /home/obs_data/TV01_clips/a82442f0-0466-4d34-91ca-3d661fdfe8ae.167.mp4 do not exist!
+file /home/obs_data/TV01_clips/a9c5fef4-2417-4805-9a71-73846e920fc4.35.mp4 do not exist!
+file /home/obs_data/TV01_clips/20ddfd40-992f-4071-b48c-e38f601899f3.406.mp4 do not exist!
+file /home/obs_data/TV01_clips/8c512a02-0172-4acc-998f-e8efed994481.353.mp4 do not exist!
+file /home/obs_data/TV01_clips/f7e5338f-37c6-4886-95f5-21f03dfd5471.259.mp4 do not exist!
+file /home/obs_data/TV01_clips/a33ab3ad-0512-4223-b1d0-71903fe3d1cc.356.mp4 do not exist!
+file /home/obs_data/TV01_clips/9cd20fce-5653-46a4-ac7a-54d07c995064.18.mp4 do not exist!
+file /home/obs_data/TV01_clips/0e84acfa-6ad7-4488-b8ca-542a5f7c2959.125.mp4 do not exist!
+file /home/obs_data/TV01_clips/92c32551-0e16-4535-86a3-29473b147032.818.mp4 do not exist!
+file /home/obs_data/TV01_clips/28905b2c-f196-42ff-baa2-554470e7423d.227.mp4 do not exist!
+file /home/obs_data/TV01_clips/67cb630d-cb4e-4568-9c51-6ec1a74cac9f.372.mp4 do not exist!
+file /home/obs_data/TV01_clips/6a896058-5174-4904-a4e4-17f9f1bc2332.1024.mp4 do not exist!
+file /home/obs_data/TV01_clips/71948b1d-fcea-4780-9fa8-71c3aa61f787.822.mp4 do not exist!
+file /home/obs_data/TV01_clips/a3267365-4fcd-435f-b07f-bd9f147d238a.269.mp4 do not exist!
+file /home/obs_data/TV01_clips/3223e8b4-0b80-4415-a5c7-5b3c963248aa.153.mp4 do not exist!
+file /home/obs_data/TV01_clips/abf74d44-e2b2-48a8-9987-1433de384cd4.863.mp4 do not exist!
+file /home/obs_data/TV01_clips/3e123493-fec8-4e23-a7a8-a8288d87ef2c.649.mp4 do not exist!
+file /home/obs_data/TV01_clips/3261c9af-9f43-447f-9526-a91df11f9bce.927.mp4 do not exist!
+file /home/obs_data/TV01_clips/f805f29c-45d3-4d4c-a986-bd8abfcf4f47.322.mp4 do not exist!
+file /home/obs_data/TV01_clips/28b5edfa-854d-4d05-9245-028b6b5fbc51.341.mp4 do not exist!
+file /home/obs_data/TV01_clips/0e3e7fc0-8c11-409c-92de-b28d1ae1c77f.78.mp4 do not exist!
+file /home/obs_data/TV01_clips/5f997442-eaa3-440f-8527-32f0a77794ac.1231.mp4 do not exist!
+file /home/obs_data/TV01_clips/7afef9a0-845b-45a1-be84-872c04a8e11f.123.mp4 do not exist!
+file /home/obs_data/TV01_clips/a33ab3ad-0512-4223-b1d0-71903fe3d1cc.788.mp4 do not exist!
+file /home/obs_data/TV01_clips/090086ef-ecd5-44a1-b88b-d44c6d0d9c7c.349.mp4 do not exist!
+file /home/obs_data/TV01_clips/c4b6174e-2718-43e6-9119-66f500c02569.114.mp4 do not exist!

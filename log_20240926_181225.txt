@@ -1,0 +1,518 @@
+[2024-09-26 18:12:33,929] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 18:12:34,338] torch.distributed.run: [WARNING] 
+[2024-09-26 18:12:34,338] torch.distributed.run: [WARNING] *****************************************
+[2024-09-26 18:12:34,338] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+[2024-09-26 18:12:34,338] torch.distributed.run: [WARNING] *****************************************
+[2024-09-26 18:12:40,297] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:209: ImportWarning: 
+    *************************************************************************************************************
+    The torch.Tensor.cuda and torch.nn.Module.cuda are replaced with torch.Tensor.npu and torch.nn.Module.npu now..
+    The torch.cuda.DoubleTensor is replaced with torch.npu.FloatTensor cause the double type is not supported now..
+    The backend in torch.distributed.init_process_group set to hccl now..
+    The torch.cuda.* and torch.cuda.amp.* are replaced with torch.npu.* and torch.npu.amp.* now..
+    The device parameters have been replaced with npu in the function below:
+    torch.logspace, torch.randint, torch.hann_window, torch.rand, torch.full_like, torch.ones_like, torch.rand_like, torch.randperm, torch.arange, torch.frombuffer, torch.normal, torch._empty_per_channel_affine_quantized, torch.empty_strided, torch.empty_like, torch.scalar_tensor, torch.tril_indices, torch.bartlett_window, torch.ones, torch.sparse_coo_tensor, torch.randn, torch.kaiser_window, torch.tensor, torch.triu_indices, torch.as_tensor, torch.zeros, torch.randint_like, torch.full, torch.eye, torch._sparse_csr_tensor_unsafe, torch.empty, torch._sparse_coo_tensor_unsafe, torch.blackman_window, torch.zeros_like, torch.range, torch.sparse_csr_tensor, torch.randn_like, torch.from_file, torch._cudnn_init_dropout_state, torch._empty_affine_quantized, torch.linspace, torch.hamming_window, torch.empty_quantized, torch._pin_memory, torch.autocast, torch.load, torch.Generator, torch.Tensor.new_empty, torch.Tensor.new_empty_strided, torch.Tensor.new_full, torch.Tensor.new_ones, torch.Tensor.new_tensor, torch.Tensor.new_zeros, torch.Tensor.to, torch.nn.Module.to, torch.nn.Module.to_empty
+    *************************************************************************************************************
+    
+  warnings.warn(msg, ImportWarning)
+[2024-09-26 18:12:40,606] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 18:12:40,711] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 18:12:40,741] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 18:12:40,785] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 18:12:40,943] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+[2024-09-26 18:12:40,995] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+[2024-09-26 18:12:41,006] [INFO] [real_accelerator.py:161:get_accelerator] Setting ds_accelerator to npu (auto detect)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch_npu/contrib/transfer_to_npu.py:171: RuntimeWarning: torch.jit.script will be disabled by transfer_to_npu, which currently does not support it.
+  warnings.warn(msg, RuntimeWarning)
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+The npu_config.on_npu is True
+pid 870222's current affinity list: 0-191
+pid 870222's new affinity list: 0-23
+skip replace _has_inf_or_nan
+pid 870223's current affinity list: 0-191
+pid 870223's new affinity list: 24-47
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+pid 870225's current affinity list: 0-191
+pid 870225's new affinity list: 72-95
+pid 870224's current affinity list: 0-191
+pid 870224's new affinity list: 48-71
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+pid 870228's current affinity list: 0-191
+pid 870228's new affinity list: 144-167
+skip replace _has_inf_or_nan
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+pid 870229's current affinity list: 0-191
+pid 870229's new affinity list: 168-191
+pid 870227's current affinity list: 0-191
+pid 870227's new affinity list: 120-143
+skip replace _has_inf_or_nan
+skip replace _DeepSpeedEngine__check_params
+skip replace __init__
+skip replace _change_recovery_script_permissions
+skip replace _copy_recovery_script
+skip replace _get_expert_ckpt_name
+skip replace is_iterable_style_dataset
+skip replace is_map_style_dataset
+skip replace load_moe_state_dict
+pid 870226's current affinity list: 0-191
+pid 870226's new affinity list: 96-119
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+A matching Triton is not available, some optimizations will not be enabled.
+Error caught was: No module named 'triton'
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 0.1-ascend-20240308 is an invalid version and will not be supported in a future release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/_vendor/packaging/version.py:111: DeprecationWarning: Creating a LegacyVersion has been deprecated and will be removed in the next major release
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/pkg_resources/__init__.py:123: PkgResourcesDeprecationWarning: 2.1.16.2ae09d45 is an invalid version and will not be supported in a future release
+  warnings.warn(
+[RANK-0]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:56,645] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:56,645] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-09-26 18:12:56,645] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend hccl
+Detected kernel version 4.19.90, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+[33m[2024-09-26 18:12:56,651] [32m[DEBUG] [32m[train.transition] [32maccelerator init![0m
+[33m[2024-09-26 18:12:56,651] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 0
+Local process index: 0
+Device: npu:0
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:56 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 0
+Local process index: 0
+Device: npu:0
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-3]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:57,747] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:57,747] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:57,753] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 3
+Local process index: 3
+Device: npu:3
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:57 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 3
+Local process index: 3
+Device: npu:3
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-2]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:57,897] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:57,897] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:57,903] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 2
+Local process index: 2
+Device: npu:2
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:57 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 2
+Local process index: 2
+Device: npu:2
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-7]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:57,942] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:57,943] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:57,948] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 7
+Local process index: 7
+Device: npu:7
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:57 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 7
+Local process index: 7
+Device: npu:7
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-1]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:58,014] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:58,015] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:58,020] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 1
+Local process index: 1
+Device: npu:1
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:58 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 1
+Local process index: 1
+Device: npu:1
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+[RANK-6]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:58,058] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:58,058] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:58,064] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 6
+Local process index: 6
+Device: npu:6
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:58 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 6
+Local process index: 6
+Device: npu:6
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+[RANK-5]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:58,265] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:58,266] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:58,272] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 5
+Local process index: 5
+Device: npu:5
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:58 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 5
+Local process index: 5
+Device: npu:5
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+[RANK-4]: Namespace(dataset='inpaint', data='scripts/train_data/transition_debug.txt', sample_rate=1, train_fps=16, drop_short_ratio=0.0, speed_factor=1.0, num_frames=93, max_height=512, max_width=512, min_height=None, min_width=None, max_height_for_img=None, max_width_for_img=None, ood_img_ratio=0.0, use_img_from_vid=False, model_max_length=512, cfg=0.1, dataloader_num_workers=8, train_batch_size=1, group_data=True, hw_stride=32, skip_low_resolution=True, force_resolution=False, trained_data_global_step=0, use_decord=True, vae_fp32=True, extra_save_mem=False, model='OpenSoraInpaint_v1_2-L/122', enable_tiling=False, interpolation_scale_h=1.0, interpolation_scale_w=1.0, interpolation_scale_t=1.0, ae='WFVAEModel_D8_4x8x8', ae_path='/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL', text_encoder_name_1='google/mt5-xxl', text_encoder_name_2=None, cache_dir='../../cache_dir/', pretrained=None, sparse1d=True, sparse_n=4, adapt_vae=False, cogvideox_scheduler=False, use_motion=True, gradient_checkpointing=True, snr_gamma=None, use_ema=True, ema_decay=0.9999, ema_start_step=0, noise_offset=0.0, prediction_type='v_prediction', rescale_betas_zero_snr=True, enable_profiling=False, num_sampling_steps=20, guidance_scale=4.5, enable_tracker=False, seed=1234, output_dir='debug', checkpoints_total_limit=None, checkpointing_steps=1000, resume_from_checkpoint=None, logging_dir='logs', report_to='wandb', num_train_epochs=100, max_train_steps=1000000, gradient_accumulation_steps=1, optimizer='adamW', learning_rate=1e-05, lr_warmup_steps=0, use_8bit_adam=False, adam_beta1=0.9, adam_beta2=0.999, prodigy_decouple=True, adam_weight_decay=0.01, adam_weight_decay_text_encoder=None, adam_epsilon=1e-15, prodigy_use_bias_correction=True, prodigy_safeguard_warmup=True, max_grad_norm=1.0, prodigy_beta3=None, lr_scheduler='constant', allow_tf32=True, mixed_precision='bf16', local_rank=-1, sp_size=1, train_sp_batch_size=1, t2v_ratio=0.02, i2v_ratio=0.5, transition_ratio=0.3, v2v_ratio=0.0, clear_video_ratio=0.0, min_clear_ratio=0.0, max_clear_ratio=1.0, default_text_ratio=0.5, pretrained_transformer_model_path='/home/image_data/captions/vpre_latest_168k/model_ema')
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/deepspeed/comm/comm.py:163: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+  utils.logger.warn("HCCL backend in DeepSpeed not yet implemented")
+[2024-09-26 18:12:58,283] [WARNING] [comm.py:163:init_deepspeed_backend] HCCL backend in DeepSpeed not yet implemented
+[2024-09-26 18:12:58,283] [INFO] [comm.py:637:init_distributed] cdb=None
+[33m[2024-09-26 18:12:58,289] [36m[INFO] [32m[train.transition] [36mDistributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 4
+Local process index: 4
+Device: npu:4
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+[0m
+09/26/2024 18:12:58 - INFO - train.transition - Distributed environment: DEEPSPEED  Backend: hccl
+Num processes: 8
+Process index: 4
+Local process index: 4
+Device: npu:4
+
+Mixed precision type: bf16
+ds_config: {'fp16': {'enabled': False, 'loss_scale': 0, 'loss_scale_window': 1000, 'initial_scale_power': 16, 'hysteresis': 2, 'min_loss_scale': 1}, 'bf16': {'enabled': True}, 'communication_data_type': 'fp32', 'gradient_clipping': 1.0, 'train_micro_batch_size_per_gpu': 'auto', 'train_batch_size': 'auto', 'gradient_accumulation_steps': 'auto', 'zero_optimization': {'stage': 2, 'overlap_comm': True, 'contiguous_gradients': True, 'sub_group_size': 1000000000.0, 'reduce_bucket_size': 500000000.0}, 'steps_per_print': inf}
+
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/diffusers/configuration_utils.py:245: FutureWarning: It is deprecated to pass a pretrained model name or path to `from_config`.If you were trying to load a model, please use <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.load_config(...) followed by <class 'opensora.models.causalvideovae.model.vae.modeling_wfvae.WFVAEModel'>.from_config(...) instead. Otherwise, please make sure to pass a configuration dictionary instead. This functionality will be removed in v1.0.0.
+  deprecate("config-passed-as-path", "1.0.0", deprecation_message, standard_warn=False)
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+You are using a model of type mt5 to instantiate a model of type t5. This is not supported for all configurations of models and can yield errors.
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+init from /home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL/wfvae.ckpt
+Load from ema model!
+['encoder.wavelet_tranform_3d.h_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_conv.conv.weight', 'encoder.wavelet_tranform_3d.h_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.g_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.hh_v_conv.conv.weight', 'encoder.wavelet_tranform_3d.gh_v_conv.conv.weight', 'encoder.wavelet_tranform_2d.aa', 'encoder.wavelet_tranform_2d.ad', 'encoder.wavelet_tranform_2d.da', 'encoder.wavelet_tranform_2d.dd', 'decoder.inverse_wavelet_tranform_3d.h', 'decoder.inverse_wavelet_tranform_3d.g', 'decoder.inverse_wavelet_tranform_3d.hh', 'decoder.inverse_wavelet_tranform_3d.gh', 'decoder.inverse_wavelet_tranform_3d.h_v', 'decoder.inverse_wavelet_tranform_3d.g_v', 'decoder.inverse_wavelet_tranform_3d.hh_v', 'decoder.inverse_wavelet_tranform_3d.gh_v', 'decoder.inverse_wavelet_tranform_2d.aa', 'decoder.inverse_wavelet_tranform_2d.ad', 'decoder.inverse_wavelet_tranform_2d.da', 'decoder.inverse_wavelet_tranform_2d.dd'] []
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+missing_keys 4 ['pos_embed_masked_hidden_states.1.weight', 'pos_embed_mask.0.proj.weight', 'pos_embed_mask.0.proj.bias', 'pos_embed_mask.1.weight'], unexpected_keys 0
+Successfully load 695/699 keys from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors!
+[33m[2024-09-26 18:17:13,253] [36m[INFO] [32m[train.transition] [36moptimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-15
+    foreach: False
+    fused: None
+    lr: 1e-05
+    maximize: False
+    weight_decay: 0.01
+)[0m
+09/26/2024 18:17:13 - INFO - train.transition - optimizer: AdamW (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-15
+    foreach: False
+    fused: None
+    lr: 1e-05
+    maximize: False
+    weight_decay: 0.01
+)
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+/home/ma-user/anaconda3/envs/PyTorch-2.1.0/lib/python3.9/site-packages/transformers/convert_slow_tokenizer.py:551: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]09/26/2024 18:17:22 - INFO - opensora.dataset.t2v_datasets - Building /home/image_data/captions/TV01_clips_final_478625_llavanext_217405_aes478625.json...
+Loading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+  1%|          | 3187/478625 [00:00<00:14, 31851.73it/s][A
+  1%|▏         | 6373/478625 [00:00<00:15, 31358.32it/s][A
+  2%|▏         | 9677/478625 [00:00<00:14, 32118.30it/s][A
+  3%|▎         | 12890/478625 [00:00<00:14, 31471.25it/s][A
+  3%|▎         | 16159/478625 [00:00<00:14, 31901.53it/s][A
+  0%|          | 0/478625 [00:00<?, ?it/s][A
+  4%|▍         | 19352/478625 [00:00<00:14, 31330.46it/s][A
+  1%|          | 3133/478625 [00:00<00:15, 31326.22it/s][A
+  5%|▍         | 22644/478625 [00:00<00:14, 31838.37it/s][A
+  1%|▏         | 6343/478625 [00:00<00:14, 31779.91it/s][A
+  5%|▌         | 25935/478625 [00:00<00:14, 32174.03it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+  2%|▏         | 9521/478625 [00:00<00:15, 30204.72it/s][A
+  6%|▌         | 29155/478625 [00:00<00:14, 31632.40it/s][A
+  3%|▎         | 12763/478625 [00:00<00:15, 31049.82it/s][A
+  7%|▋         | 32448/478625 [00:01<00:13, 32023.93it/s][A
+  3%|▎         | 15927/478625 [00:00<00:14, 31257.56it/s][A
+  7%|▋         | 35654/478625 [00:01<00:14, 31523.96it/s][A
+  4%|▍         | 19059/478625 [00:00<00:14, 30698.60it/s][A
+  8%|▊         | 38954/478625 [00:01<00:13, 31960.95it/s][ALoading OpenSoraInpaint_v1_2 pretrained weights...
+Loading pretrained model from /home/image_data/captions/vpre_latest_168k/model_ema/diffusion_pytorch_model.safetensors...
+
+  5%|▍         | 22264/478625 [00:00<00:14, 31128.29it/s][A
+  9%|▉         | 42226/478625 [00:01<00:13, 32186.67it/s][A
+  5%|▌         | 25487/478625 [00:00<00:14, 31471.36it/s][A
+  9%|▉         | 45448/478625 [00:01<00:13, 31583.81it/s][A
+  6%|▌         | 28638/478625 [00:00<00:14, 30808.44it/s][A
+ 10%|█         | 48760/478625 [00:01<00:13, 32035.68it/s][A
+  7%|▋         | 31825/478625 [00:01<00:14, 31124.49it/s][A
+ 11%|█         | 52046/478625 [00:01<00:13, 32277.94it/s][A
+  7%|▋         | 34942/478625 [00:01<00:14, 30327.75it/s][A
+ 12%|█▏        | 55277/478625 [00:01<00:13, 31675.99it/s][A
