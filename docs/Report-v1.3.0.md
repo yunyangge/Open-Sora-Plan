@@ -322,7 +322,7 @@ $$
 \begin{align}
 	d&=\frac{1}{THW}\left[ \left( \frac{THW}{k}-1 \right) \times 1+\left( \frac{THW}{k}-1 \right) \times 1+\left[ THW-\left( \frac{2THW}{k}-\frac{THW}{k^2} \right) \right] \times 2 \right]\\
 	&=2-\frac{2}{k}+\frac{2}{k^2}-\frac{2}{THW}\\
-	&=2-\frac{2}{k}+\frac{1}{k^2}\left( 2\ll THW \right)\\
+	&=2-\frac{2}{k}+\frac{2}{k^2}\left( 2\ll THW \right)\\
 \end{align}
 $$
 
@@ -340,16 +340,9 @@ For the commonly used resolution of 93x512x512, using a causal VAE with a 4x8x8 
 
 |                        | Skiparse Attention(k=2) | Skiparse Attention(k=4) | Skiparse Attention(k=6) | Skiparse Attention(k=8) |
 | ---------------------- | ----------------------- | ----------------------- | ----------------------- | ----------------------- |
-| AVG Attention Distance | 1.250                   | 1.563                   | 1.694                   | 1.766                   |
+| AVG Attention Distance | 1.500                  | 1.625                   | 1.722                   | 1.781                   |
 
 In 2+1D Attention, the average attention distance is 1.957, larger than that of Skip + Window Attention and Skiparse Attention at commonly used sparse ratios. While Skip + Window Attention achieves a shorter average attention distance, its modeling capacity remains limited due to the locality of attention in its 2N+1 blocks. Skiparse Attention, with the shortest average attention distance, applies global attention in both 2N and 2N+1 blocks, making its spatiotemporal modeling capabilities closer to Full 3D Attention than the other two non-Full 3D methods.
-
-<center>
-<figure>
-	<img src="https://github.com/user-attachments/assets/80ca6d70-5033-454b-883f-11d12d140360" width=600/>
-</figure>
-</center>
-
 
 The figure above shows how Skiparse Attention’s AVG Attention Distance changes with sparse ratio $$k$$.
 
@@ -361,7 +354,7 @@ We can summarize the characteristics of these attention types as follows:
 | Spatiotemporal modeling capability | Strong            | Weak                             | Weak                                    | Approaches Full 3D                                           |
 | Is attention global?               | Yes               | No                               | Half of the attention blocks are global | Yes                                                          |
 | Computation load per block         | Equal             | Not Equal                        | Not Equal                               | Equal                                                        |
-| AVG Attention Distance             | 1                 | $$2-(\frac{1}{T}+\frac{1}{HW})$$ | $$2-(\frac{1}{k}+\frac{k}{THW})$$       | $$2-\frac{2}{k}+\frac{1}{k^2},1<k\ll THW$$                   |
+| AVG Attention Distance             | 1                 | $$2-(\frac{1}{T}+\frac{1}{HW})$$ | $$2-(\frac{1}{k}+\frac{k}{THW})$$       | $$2-\frac{2}{k}+\frac{2}{k^2},1<k\ll THW$$                   |
 
 Considering both computational load and AVG Attention Distance, we select Skiparse with $$k = 4$$, replacing the first and last two blocks with Full 3D Attention to enhance performance.
 
