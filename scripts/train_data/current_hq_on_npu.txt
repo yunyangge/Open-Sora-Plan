@@ -1,1 +1,1 @@
-/home/obs_data/20240426,/home/save_dir/captions/10.12_hwpkl_panda/panda_part5_final_1234792_hw.pkl
+/home/obs_data,/home/save_dir/captions/10.12_hwpkl_movie_sucai/sucai_movie_part0_final_1409218.pkl

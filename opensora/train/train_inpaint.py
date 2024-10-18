@@ -70,7 +70,7 @@ from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.utils.utils import explicit_uniform_sampling
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
-from opensora.utils.mask_utils import MaskCompressor
+from opensora.utils.mask_utils import MaskCompressor, GaussianNoiseAdder
 
 # from opensora.utils.utils import monitor_npu_power
 
@@ -220,6 +220,8 @@ def main(args):
     args.latent_size_t = latent_size_t = (args.num_frames - 1) // ae_stride_t + 1
 
     mask_compressor = MaskCompressor(ae_stride_h=ae_stride_h, ae_stride_w=ae_stride_w, ae_stride_t=ae_stride_t)
+    if args.add_noise_to_condition:
+        noise_adder = GaussianNoiseAdder(mean=-3.0, std=0.5, clear_ratio=0.05)
 
     model_kwargs = {'vae_scale_factor_t': ae_stride_t}
 
@@ -728,6 +730,9 @@ def main(args):
 
             # Map input images to latent space + normalize latents
             x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
+            # Adding noise to control frames enhances generalization ability.
+            if noise_adder is not None:
+                masked_x = noise_adder(masked_x, mask)
             x, masked_x = ae.encode(x), ae.encode(masked_x)
             mask = mask_compressor(mask)
             x = torch.cat([x, masked_x, mask], dim=1) 
@@ -987,6 +992,7 @@ if __name__ == "__main__":
 
     # inpaint
     parser.add_argument("--mask_config", type=str, default=None)
+    parser.add_argument("--add_noise_to_condition", action='store_true')
     parser.add_argument("--default_text_ratio", type=float, default=0.5) # for inpainting mode
     parser.add_argument("--pretrained_transformer_model_path", type=str, default=None)
 

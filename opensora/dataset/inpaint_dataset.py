@@ -50,6 +50,18 @@ def type_ratio_normalize(mask_type_ratio_dict):
         return {k: 1.0 / length for k in mask_type_ratio_dict.keys()}
     return {k: v / total for k, v in mask_type_ratio_dict.items()}
 
+class TestVideoReader:
+    def __init__(self, path):
+        self.path = path
+
+    def __enter__(self):
+        self.vr = decord.VideoReader(self.path, ctx=decord.cpu(0), num_threads=1)
+        return self.vr
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        del self.vr
+        gc.collect()
+
 class Inpaint_dataset(T2V_dataset):
     def __init__(self, args, resize_transform, transform, temporal_sample, tokenizer_1, tokenizer_2):
         super().__init__(
@@ -85,9 +97,9 @@ class Inpaint_dataset(T2V_dataset):
 
     def __getitem__(self, idx):
         try:
-            # future = self.executor.submit(self.get_data, idx)
-            # data = future.result(timeout=self.timeout) 
-            # return data
+        # future = self.executor.submit(self.get_data, idx)
+        # data = future.result(timeout=self.timeout) 
+        # return data
             return self.get_data(idx)
         except Exception as e:
             # if len(str(e)) < 2:
@@ -95,7 +107,6 @@ class Inpaint_dataset(T2V_dataset):
             print(f'Error with {e}')
             index_cand = self.shape_idx_dict[self.sample_size[idx]]  # pick same shape
             return self.__getitem__(random.choice(index_cand))
-            # return self.__getitem__(idx)
     
     def get_data(self, idx):
         path = dataset_prog.cap_list[idx]['path']
@@ -123,6 +134,36 @@ class Inpaint_dataset(T2V_dataset):
 
         return dict(text=text)
     
+    def decord_read(self, video_data):
+        path = video_data['path']
+        predefine_frame_indice = video_data['sample_frame_index']
+        start_frame_idx = video_data['start_frame_idx']
+        clip_total_frames = video_data['num_frames']
+        fps = video_data['fps']
+        s_x, e_x, s_y, e_y = video_data.get('crop', [None, None, None, None])
+
+        predefine_num_frames = len(predefine_frame_indice)
+        # decord_vr = decord.VideoReader(path, ctx=decord.cpu(0), num_threads=1)
+
+        frame_indices = self.get_actual_frame(
+            fps, start_frame_idx, clip_total_frames, path, predefine_num_frames, predefine_frame_indice
+            )
+        
+        with TestVideoReader(path) as decord_vr:
+            video_data = decord_vr.get_batch(frame_indices).asnumpy()
+            video_data = torch.from_numpy(video_data)
+            # video_data = decord_vr.get_batch(frame_indices)
+            if video_data is not None:
+                video_data = video_data.permute(0, 3, 1, 2)  # (T, H, W, C) -> (T C H W)
+                if s_y is not None:
+                    video_data = video_data[:, :, s_y: e_y, s_x: e_x]
+            else:
+                raise ValueError(f'Get video_data {video_data}')
+        # del decord_vr
+        # gc.collect()
+        return video_data
+
+
     def get_video(self, idx):
         # npu_config.print_msg(f"current idx is {idx}")
         # video = random.choice([random_video_noise(65, 3, 336, 448), random_video_noise(65, 3, 1024, 1024), random_video_noise(65, 3, 360, 480)])

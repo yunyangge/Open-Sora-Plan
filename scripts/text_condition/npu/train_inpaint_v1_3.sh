@@ -7,9 +7,9 @@ export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 export TASK_QUEUE_ENABLE=0
-export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
 # --machine_rank=${MACHINE_RANK} \
 # --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
@@ -17,7 +17,9 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # deepspeed_zero2_config.yaml
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+    --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
+    --machine_rank=${MACHINE_RANK} \
+    --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_inpaint.py \
     --model OpenSoraInpaint_v1_3-2B/122 \
     --text_encoder_name_1 google/mt5-xxl \
@@ -31,12 +33,15 @@ accelerate launch \
     --num_frames 93 \
     --max_hxw 236544 \
     --min_hxw 102400 \
+    --force_resolution \
+    --max_height 352 \
+    --max_width 640 \
     --snr_gamma 5.0 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
     --interpolation_scale_w 1.0 \
     --gradient_checkpointing \
-    --train_batch_size=1 \
+    --train_batch_size=2 \
     --dataloader_num_workers 8 \
     --gradient_accumulation_steps=1 \
     --max_train_steps=1000000 \
@@ -45,7 +50,7 @@ accelerate launch \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=500 \
+    --checkpointing_steps=300 \
     --allow_tf32 \
     --model_max_length 512 \
     --use_ema \
@@ -65,9 +70,7 @@ accelerate launch \
     --output_dir="/home/save_dir/runs/$PROJECT" \
     --mask_config scripts/train_configs/mask_config.yaml \
     --default_text_ratio 0.5 \
+    --add_noise_to_condition \
+    --rescale_betas_zero_snr  \
     --resume_from_checkpoint="latest" \
     # --pretrained_transformer_model_path /home/save_dir/pretrained/i2v_ckpt14777_ema \
-    # --force_resolution
-    # --force_resolution \
-    # --max_height 352 \
-    # --max_width 640 \
