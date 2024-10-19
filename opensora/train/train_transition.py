@@ -58,11 +58,8 @@ from diffusers.training_utils import EMAModel, compute_snr
 from diffusers.utils import check_min_version, is_wandb_available
 
 from opensora.models.causalvideovae import ae_stride_config, ae_channel_config
-from opensora.models.causalvideovae import ae_norm, ae_denorm
-from opensora.models import CausalVAEModelWrapper
 from opensora.models.text_encoder import get_text_warpper
 from opensora.dataset import getdataset
-from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
@@ -72,6 +69,7 @@ from opensora.utils.custom_logger import get_logger
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.24.0")
 logger = get_logger('train.transition')
+
 from torch.utils.data import _utils
 _utils.MP_STATUS_CHECK_INTERVAL = 1800.0  # dataloader timeout (default is 5.0s), we increase it to 1800s.
 
@@ -432,13 +430,13 @@ def main(args):
     # The trackers initializes automatically on the main process.
     # NOTE wandb
     if accelerator.is_main_process:
-        logger.info("init trackers...")
+        logger.info("init wandb trackers...")
         project_name = os.getenv('PROJECT', os.path.basename(args.output_dir))
         entity = os.getenv('ENTITY', None)
-        run_name = os.getenv('WANDB_NAME', None)
+        run_name = os.getenv('RUN_NAME', None)
         init_kwargs = {
             "entity": entity,
-            "run_name": run_name,
+            "name": run_name,
         }
         accelerator.init_trackers(project_name=project_name, config=vars(args), init_kwargs=init_kwargs)
     

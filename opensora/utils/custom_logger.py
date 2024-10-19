@@ -27,6 +27,8 @@ def get_logger(name, level=logging.DEBUG, use_accelerate=True):
         secondary_log_colors={},
 	    style='%'
     )
+
+    console_handler.setFormatter(color_formatter)
     
     if use_accelerate:
         for handler in logger.logger.handlers:

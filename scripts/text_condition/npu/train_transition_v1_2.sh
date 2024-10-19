@@ -1,8 +1,7 @@
-export WANDB_KEY="720d886d8c437c2142c88056a1eab8ef78d64a1f"
-export WANDB_MODE="online"
-export ENTITY="yunyang"
-export PROJECT=$PROJECT_NAME
-# export PROJECT='test'
+export ENTITY='Xinhua Cheng'
+export RUN_NAME='test'
+
+export PROJECT='OpenSoraPlan-Transition'
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 
@@ -70,3 +69,5 @@ accelerate launch \
     # --resume_from_checkpoint="latest" \
     # --min_height 0 \
     # --min_width 0 \
+
+    # 2>&1 | tee -a "logs/log_$(date +'%Y%m%d_%H%M%S').txt"
