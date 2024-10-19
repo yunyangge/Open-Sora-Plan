@@ -3,7 +3,7 @@ export TASK_QUEUE_ENABLE=0
 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29522 \
     -m opensora.sample.sample \
     --model_type "inpaint" \
-    --model_path /home/save_dir/runs/i2v_1_3_hq_finetune_from_org_sucai_movie/checkpoint-4304/model_ema \
+    --model_path /home/save_dir/runs/i2v_1_3_hq_finetune_from_org_sucai_movie_final/checkpoint-600/model_ema \
     --version v1_3 \
     --num_frames 93 \
     --crop_for_hw \

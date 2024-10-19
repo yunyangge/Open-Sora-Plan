@@ -213,9 +213,9 @@ class GaussianNoiseAdder(BaseNoiseAdder):
     def add_noise(self, masked_pixel_values, mask):
         if random.random() < self.clear_ratio:
             return masked_pixel_values
-        noise_sigma = torch.normal(mean=self.mean, std=self.std, size=(masked_pixel_values.shape[0], masked_pixel_values.shape[2],), device=masked_pixel_values.device)
+        noise_sigma = torch.normal(mean=self.mean, std=self.std, size=(masked_pixel_values.shape[0],), device=masked_pixel_values.device)
         noise_sigma = torch.exp(noise_sigma).to(dtype=masked_pixel_values.dtype)
-        noise = torch.randn_like(masked_pixel_values) * noise_sigma[:, None, :, None, None]
+        noise = torch.randn_like(masked_pixel_values) * noise_sigma[:, None, None, None, None]
         noise = torch.where(mask < 0.5, noise, torch.zeros_like(noise))
         return masked_pixel_values + noise
 

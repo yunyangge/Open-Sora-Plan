@@ -7,9 +7,9 @@ export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 export TASK_QUEUE_ENABLE=0
+export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
-export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
 # --machine_rank=${MACHINE_RANK} \
 # --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
@@ -42,10 +42,10 @@ accelerate launch \
     --interpolation_scale_w 1.0 \
     --gradient_checkpointing \
     --train_batch_size=2 \
-    --dataloader_num_workers 8 \
+    --dataloader_num_workers 4 \
     --gradient_accumulation_steps=1 \
     --max_train_steps=1000000 \
-    --learning_rate=1e-5 \
+    --learning_rate=5e-6 \
     --lr_scheduler="constant" \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
@@ -73,4 +73,4 @@ accelerate launch \
     --add_noise_to_condition \
     --rescale_betas_zero_snr  \
     --resume_from_checkpoint="latest" \
-    # --pretrained_transformer_model_path /home/save_dir/pretrained/i2v_ckpt14777_ema \
+    --pretrained_transformer_model_path /home/image_data/gyy/mmdit/Open-Sora-Plan/opensora_inpaint_v1_3 \
