@@ -1,7 +1,4 @@
-export WANDB_KEY="953e958793b218efb850fa194e85843e2c3bd88b"
-# export WANDB_MODE="offline"
-export ENTITY="linbin"
-export PROJECT="bs32x8x2_61x480p_lr1e-4_snr5_noioff0.02_opensora122_rope_mt5xxl_pandamovie_aes_mo_sucai_mo_speed1.2"
+
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 export PDSH_RCMD_TYPE=ssh
@@ -21,19 +18,19 @@ export NCCL_IB_RETRY_CNT=32
 # export NCCL_ALGO=Tree
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/multi_node_example.yaml \
+    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
     opensora/train/train_t2v_diffusers.py \
     --model OpenSoraT2V_v1_3-2B/122 \
     --text_encoder_name_1 google/mt5-xxl \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data "scripts/train_data/video_data.txt" \
+    --data "scripts/train_data/merge_data.txt" \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/storage/lcm/WF-VAE/results/latent8" \
     --sample_rate 1 \
-    --num_frames 93 \
-    --max_height 352 \
-    --max_width 640 \
+    --num_frames 105 \
+    --max_hxw 147456 \
+    --min_hxw 110592 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
     --interpolation_scale_w 1.0 \
@@ -47,7 +44,7 @@ accelerate launch \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=250 \
+    --checkpointing_steps=500 \
     --allow_tf32 \
     --model_max_length 512 \
     --use_ema \
@@ -57,7 +54,7 @@ accelerate launch \
     --speed_factor 1.0 \
     --ema_decay 0.9999 \
     --drop_short_ratio 0.0 \
-    --pretrained "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x1_anyx93x640x640_fps16_lr1e-5_snr5_ema9999_sparse1d4_dit_l_mt5xxl_vpred_zerosnr/checkpoint-144000/model_ema/diffusion_pytorch_model.safetensors" \
+    --pretrained "" \
     --hw_stride 32 \
     --sparse1d --sparse_n 4 \
     --train_fps 16 \
@@ -67,6 +64,6 @@ accelerate launch \
     --use_decord \
     --prediction_type "v_prediction" \
     --snr_gamma 5.0 \
-    --force_resolution \
     --rescale_betas_zero_snr \
-    --output_dir="final_ft_93x352x640_v1_3_bs512_lr1e-5_snr5.0_fps16_zsnr_fixres_16node"
+    --output_dir="debug" \
+    --skip_abnorml_step 

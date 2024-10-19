@@ -110,7 +110,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         pooled_projection_dim: int = 1024, 
         timestep_embed_dim: int = 512,
         norm_cls: str = 'rms_norm', 
-        skip_connection: bool = True
+        skip_connection: bool = False
     ):
         super().__init__()
         # Set some common variables used across the board.
@@ -125,6 +125,9 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         assert len(self.config.num_layers) == len(self.config.sparse_n)
         assert len(self.config.num_layers) % 2 == 1
         assert all([i % 2 == 0 for i in self.config.num_layers])
+
+        if not self.config.sparse1d:
+            self.config.sparse_n = self.sparse_n = [1] * len(self.config.sparse_n)
 
         self._init_patched_inputs()
 
@@ -525,50 +528,70 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         return output
 
 
+def OpenSoraT2V_v1_5_2B_122(**kwargs):
+    if kwargs.get('sparse_n', None) is not None:
+        kwargs.pop('sparse_n')
+    return OpenSoraT2V_v1_5(  # 22 layers
+        num_layers=[2, 2, 4, 6, 4, 2, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=96, num_attention_heads=24, 
+        timestep_embed_dim=512, patch_size_t=1, patch_size=2, 
+        caption_channels=2048, pooled_projection_dim=1280, **kwargs
+    )
 
 def OpenSoraT2V_v1_5_3B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 32 layers
-        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=72, num_attention_heads=32, 
+    return OpenSoraT2V_v1_5(  # 28 layers
+        num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=96, num_attention_heads=24, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
-def OpenSoraT2V_v1_5_7B_122(**kwargs):
+def OpenSoraT2V_v1_5_6B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 36 layers
-        num_layers=[2, 4, 8, 8, 8, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+    return OpenSoraT2V_v1_5(  # 32 layers
+        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
         attention_head_dim=96, num_attention_heads=32, 
-        timestep_embed_dim=1280, patch_size_t=1, patch_size=2, 
+        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
-
 
 def OpenSoraT2V_v1_5_13B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 44 layers
-        num_layers=[2, 6, 8, 12, 8, 6, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=96, num_attention_heads=40, 
+    return OpenSoraT2V_v1_5(  # 32 layers
+        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=144, num_attention_heads=32, 
         timestep_embed_dim=1536, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
+def OpenSoraT2V_v1_5_32B_122(**kwargs):
+    if kwargs.get('sparse_n', None) is not None:
+        kwargs.pop('sparse_n')
+    return OpenSoraT2V_v1_5(  # 48 layers
+        num_layers=[4, 8, 8, 8, 8, 8, 4], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=144, num_attention_heads=40, 
+        timestep_embed_dim=2048, patch_size_t=1, patch_size=2, 
+        caption_channels=2048, pooled_projection_dim=1280, **kwargs
+    )
+
 OpenSora_v1_5_models = {
+    "OpenSoraT2V_v1_5-2B/122": OpenSoraT2V_v1_5_2B_122, 
     "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5_3B_122, 
-    "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5_3B_122, 
-    "OpenSoraT2V_v1_5-7B/122": OpenSoraT2V_v1_5_7B_122, 
+    "OpenSoraT2V_v1_5-6B/122": OpenSoraT2V_v1_5_6B_122, 
     "OpenSoraT2V_v1_5-13B/122": OpenSoraT2V_v1_5_13B_122, 
+    "OpenSoraT2V_v1_5-32B/122": OpenSoraT2V_v1_5_32B_122, 
 }
 
 OpenSora_v1_5_models_class = {
+    "OpenSoraT2V_v1_5-2B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5,
-    "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5,
-    "OpenSoraT2V_v1_5-7B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_v1_5-6B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-13B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_v1_5-32B/122": OpenSoraT2V_v1_5,
 }
 
 if __name__ == '__main__':
@@ -589,7 +612,7 @@ if __name__ == '__main__':
         'interpolation_scale_t': 1,
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
-        "sparse1d": True, 
+        "sparse1d": False, 
         "rank": 64, 
     }
     )
@@ -616,8 +639,9 @@ if __name__ == '__main__':
         interpolation_scale_w=args.interpolation_scale_w, 
         sparse1d=args.sparse1d, 
         )
-    
     print(model)
+    total_cnt = len(list(model.named_parameters()))
+    print('total_cnt', total_cnt)
     print(f'{sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B')
     # import sys;sys.exit()
     try:
