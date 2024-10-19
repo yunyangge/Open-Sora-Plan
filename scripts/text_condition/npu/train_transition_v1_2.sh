@@ -15,7 +15,7 @@ accelerate launch \
     --model OpenSoraInpaint_v1_2-L/122 \
     --text_encoder_name_1 google/mt5-xxl \
     --cache_dir "../../cache_dir/" \
-    --dataset inpaint \
+    --dataset transition \
     --data "scripts/train_data/transition_debug.txt" \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/home/image_data/lb/Open-Sora-Plan/WFVAE_DISTILL_FORMAL" \

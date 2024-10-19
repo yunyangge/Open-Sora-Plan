@@ -2,10 +2,13 @@ import logging
 import colorlog
 import accelerate.logging
 
-def get_logger(name, level=logging.DEBUG):
-
-    logger = accelerate.logging.get_logger(name)
-    logger.logger.setLevel(level)
+def get_logger(name, level=logging.DEBUG, use_accelerate=True):
+    if use_accelerate:
+        logger = accelerate.logging.get_logger(name)
+        logger.logger.setLevel(level)
+    else:
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
@@ -15,7 +18,7 @@ def get_logger(name, level=logging.DEBUG):
         datefmt=None,
     	reset=True,
         log_colors={
-            'DEBUG': 'blue',
+            'DEBUG': 'purple',
             'INFO': 'cyan',
             'WARNING': 'yellow',
             'ERROR': 'red',
@@ -24,11 +27,16 @@ def get_logger(name, level=logging.DEBUG):
         secondary_log_colors={},
 	    style='%'
     )
+    
+    if use_accelerate:
+        for handler in logger.logger.handlers:
+            logger.logger.removeHandler(handler)
 
-    console_handler.setFormatter(color_formatter)
+        logger.logger.addHandler(console_handler)
+    else:
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
 
-    for handler in logger.logger.handlers:
-        logger.logger.removeHandler(handler)
+        logger.addHandler(console_handler)
 
-    logger.logger.addHandler(console_handler)
     return logger

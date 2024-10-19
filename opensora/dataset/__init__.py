@@ -4,13 +4,11 @@ from transformers import AutoTokenizer, AutoImageProcessor
 from torchvision import transforms
 from torchvision.transforms import Lambda
 
-
-
 from opensora.dataset.t2v_datasets import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
+from opensora.dataset.transition_dataset import Transition_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
 from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, RandomHorizontalFlipVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
-
 
 
 def getdataset(args):
@@ -39,12 +37,9 @@ def getdataset(args):
 
 
     tokenizer_1 = AutoTokenizer.from_pretrained('/home/image_data/mt5-xxl', cache_dir=args.cache_dir)
-    # tokenizer_1 = AutoTokenizer.from_pretrained("/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl", cache_dir=args.cache_dir)
-    # tokenizer_1 = AutoTokenizer.from_pretrained('/storage/cache_dir/models--DeepFloyd--t5-v1_1-xxl/snapshots/c9c625d2ec93667ec579ede125fd3811d1f81d37', cache_dir=args.cache_dir)
     tokenizer_2 = None
     if args.text_encoder_name_2 is not None:
         tokenizer_2 = AutoTokenizer.from_pretrained('/home/image_data/mt5-xxl', cache_dir=args.cache_dir)
-        # tokenizer_2 = AutoTokenizer.from_pretrained('/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k', cache_dir=args.cache_dir)
     if args.dataset == 't2v':
         transform = transforms.Compose([
             ToTensorVideo(),
@@ -73,6 +68,19 @@ def getdataset(args):
         if resize_for_img is not None:
             resize_transform_img = Compose([*resize_for_img])
         return Inpaint_dataset(
+            args, resize_transform=resize_transform, transform=transform, resize_transform_img=resize_transform_img, 
+            temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
+        )
+    elif args.dataset == 'transition':
+        resize_transform = Compose([*resize])
+        transform = Compose([
+            ToTensorAfterResize(),
+            norm_fun,
+        ])
+        resize_transform_img = None
+        if resize_for_img is not None:
+            resize_transform_img = Compose([*resize_for_img])
+        return Transition_dataset(
             args, resize_transform=resize_transform, transform=transform, resize_transform_img=resize_transform_img, 
             temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
         )

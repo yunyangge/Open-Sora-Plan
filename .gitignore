@@ -19,6 +19,8 @@ wandb/
 *.pth
 *.pt
 *.txt
+inference/
+logs/
 cache_dir/
 wandb/
 test*
