@@ -10,7 +10,7 @@ import random
 import subprocess
 import numpy as np
 import torch.distributed as dist
-import deepspeed
+
 # from torch._six import inf
 import accelerate
 from torch import inf
@@ -28,7 +28,6 @@ import html
 import re
 import urllib.parse as ul
 
-
 if is_bs4_available():
     from bs4 import BeautifulSoup
 
@@ -37,24 +36,12 @@ if is_ftfy_available():
 
 _tensor_or_tensors = Union[torch.Tensor, Iterable[torch.Tensor]]
 
-
-
-def print_grad_norm(model):
-    grad_norm = 0
-    n_grad = 0
-    for name, param in model.named_parameters():
-        grad_data = deepspeed.utils.safe_get_full_grad(param)
-        if grad_data is not None:
-            param_norm = grad_data.norm(2)
-            grad_norm += param_norm ** 2
-            n_grad += 1
-    grad_norm = (grad_norm / n_grad) ** (1. / 2)
-    return grad_norm
-
 def to_2tuple(x):
     if isinstance(x, collections.abc.Iterable):
         return x
     return (x, x)
+
+
 
 
 def explicit_uniform_sampling(T, n, rank, bsz, device):
@@ -80,6 +67,7 @@ def explicit_uniform_sampling(T, n, rank, bsz, device):
     sampled_timesteps = torch.tensor([round(random.uniform(lower_bound, upper_bound)) for _ in range(bsz)], device=device)
     sampled_timesteps = sampled_timesteps.long()
     return sampled_timesteps
+
 
 
 #################################################################################

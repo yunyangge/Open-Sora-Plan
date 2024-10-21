@@ -28,9 +28,9 @@ accelerate launch \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/storage/lcm/WF-VAE/results/latent8" \
     --sample_rate 1 \
-    --num_frames 105 \
-    --max_hxw 147456 \
-    --min_hxw 110592 \
+    --num_frames 1 \
+    --max_height 352 \
+    --max_width 640 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
     --interpolation_scale_w 1.0 \
@@ -64,6 +64,6 @@ accelerate launch \
     --use_decord \
     --prediction_type "v_prediction" \
     --snr_gamma 5.0 \
+    --force_resolution \
     --rescale_betas_zero_snr \
-    --output_dir="debug" \
-    --skip_abnorml_step 
+    --output_dir="debug"

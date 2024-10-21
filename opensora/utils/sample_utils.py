@@ -35,10 +35,6 @@ from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2
 from opensora.models.diffusion.opensora_v1_3.modeling_inpaint import OpenSoraInpaint_v1_3
 from transformers import T5EncoderModel, T5Tokenizer, AutoTokenizer, MT5EncoderModel, CLIPTextModelWithProjection
 
-from opensora.utils.custom_logger import get_logger
-
-logger = get_logger('sample', use_accelerate=False)
-
 def get_scheduler(args):
     kwargs = dict(
         prediction_type=args.prediction_type, 
@@ -119,12 +115,7 @@ def prepare_pipeline(args, dtype, device):
         text_encoder_2, tokenizer_2 = None, None
 
     if args.version == 'v1_3':
-        if args.model_type == 'inpaint':
-            transformer_model = OpenSoraInpaint_v1_3.from_pretrained(
-                args.model_path, cache_dir=args.cache_dir,
-                device_map=None, torch_dtype=weight_dtype
-                ).eval()
-        elif args.model_type == 'transition':
+        if args.model_type == 'inpaint' or args.model_type == 'i2v':
             transformer_model = OpenSoraInpaint_v1_3.from_pretrained(
                 args.model_path, cache_dir=args.cache_dir,
                 device_map=None, torch_dtype=weight_dtype
@@ -135,7 +126,7 @@ def prepare_pipeline(args, dtype, device):
                 device_map=None, torch_dtype=weight_dtype
                 ).eval()
     elif args.version == 'v1_5':
-        if args.model_type == 'inpaint' or args.model_type == 'transition':
+        if args.model_type == 'inpaint' or args.model_type == 'i2v':
             raise NotImplementedError('Inpainting model is not available in v1_5')
         else:
             from opensora.models.diffusion.opensora_v1_5.modeling_opensora import OpenSoraT2V_v1_5
@@ -146,14 +137,7 @@ def prepare_pipeline(args, dtype, device):
                 ).eval()
     
     scheduler = get_scheduler(args)
-
-    logger.debug(f'Sample start. Loading {args.model_type} pipeline')
-    if args.model_type == 'i2v':
-        pipeline_class = OpenSoraPipeline
-    elif args.model_type == 'inpaint':
-        pipeline_class = OpenSoraInpaintPipeline
-    elif args.model_type == 'transition':
-        pipeline_class = OpenSoraTransitionPipeline
+    pipeline_class = OpenSoraInpaintPipeline if args.model_type == 'inpaint' or args.model_type == 'i2v' else OpenSoraPipeline
 
     pipeline = pipeline_class(
         vae=vae,
@@ -250,7 +234,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
         text_prompt = open(args.text_prompt[0], 'r').readlines()
         args.text_prompt = [i.strip() for i in text_prompt]
     
-    if args.model_type == 'inpaint' or args.model_type == 'transition':
+    if args.model_type == 'inpaint' or args.model_type == 'i2v':
         if not isinstance(args.conditional_pixel_values_path, list):
             args.conditional_pixel_values_path = [args.conditional_pixel_values_path]
         if len(args.conditional_pixel_values_path) == 1 and args.conditional_pixel_values_path[0].endswith('txt'):
@@ -281,7 +265,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 time.sleep(3)
         input_prompt = positive_prompt.format(prompt)
         
-        if args.model_type == 'inpaint' or args.model_type == 'transition':
+        if args.model_type == 'inpaint' or args.model_type == 'i2v':
             print(f'\nConditional pixel values path: {conditional_pixel_values_path}')
             videos = pipeline(
                 conditional_pixel_values_path=conditional_pixel_values_path,
@@ -373,7 +357,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                     videos = videos.unsqueeze(0) # 1 t h w c
             video_grids.append(videos)
 
-    if args.model_type == 'inpaint' or args.model_type == 'transition':
+    if args.model_type == 'inpaint' or args.model_type == 'i2v':
         for index, (prompt, cond_path) in enumerate(zip(args.text_prompt, conditional_pixel_values_path)):
             if not args.sp and args.local_rank != -1 and index % args.world_size != args.local_rank:
                 continue
@@ -384,7 +368,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 continue  # skip when ddp
             generate(prompt)
 
-    if (args.model_type == "inpaint" or args.model_type == "transition") and not args.crop_for_hw:
+    if (args.model_type == "inpaint" or args.model_type == "i2v") and not args.crop_for_hw:
         print('completed, please check the saved images and videos')
     else:
         if not args.sp:

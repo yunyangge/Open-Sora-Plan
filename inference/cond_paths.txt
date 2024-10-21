@@ -1,0 +1,2 @@
+/home/image_data/chengxinhua/Open-Sora-Plan/inference/The_Starry_Night.jpeg,/home/image_data/chengxinhua/Open-Sora-Plan/inference/Water_lilies.jpeg
+/home/image_data/chengxinhua/Open-Sora-Plan/inference/The_Mona_Lisa.jpeg,/home/image_data/chengxinhua/Open-Sora-Plan/inference/Girl_with_a_Pearl_Earring.jpg

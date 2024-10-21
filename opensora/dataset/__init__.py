@@ -11,13 +11,10 @@ except:
 
 from opensora.dataset.t2v_datasets import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
-from opensora.dataset.transition_dataset import Transition_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
 from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
 
 
-from accelerate.logging import get_logger
-logger = get_logger(__name__)
 
 def getdataset(args):
     temporal_sample = TemporalRandomCrop(args.num_frames)  # 16 x
@@ -27,16 +24,13 @@ def getdataset(args):
     else:
         resize = [
             MaxHWResizeVideo(args.max_hxw), 
-            SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio), 
+            SpatialStrideCropVideo(stride=args.hw_stride), 
         ]
 
-    # tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
-    tokenizer_1 = AutoTokenizer.from_pretrained('/storage/cache_dir/t5-v1_1-xl', cache_dir=args.cache_dir)
-    # tokenizer_1 = AutoTokenizer.from_pretrained('/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl', cache_dir=args.cache_dir)
+    tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
     tokenizer_2 = None
     if args.text_encoder_name_2 is not None:
-        # tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
-        tokenizer_2 = AutoTokenizer.from_pretrained('/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k', cache_dir=args.cache_dir)
+        tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
     if args.dataset == 't2v':
         transform = transforms.Compose([
             ToTensorVideo(),
@@ -85,7 +79,7 @@ if __name__ == "__main__":
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
         'cache_dir': '../cache_dir', 
-        'data': '/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/scripts/train_data/image_data_debug.txt', 
+        'data': '/home/image_data/gyy/mmdit/Open-Sora-Plan/scripts/train_data/current_hq_on_npu.txt', 
         'train_fps': 18, 
         'drop_short_ratio': 0.0, 
         'speed_factor': 1.0, 
@@ -104,15 +98,17 @@ if __name__ == "__main__":
         'patch_size_t': 1, 
         'total_batch_size': 256, 
         'sp_size': 1, 
-        'max_hxw': 256*256, 
-        'min_hxw': 256*192, 
-        'force_5_ratio': True, 
-        'random_data': False, 
+        'max_hxw': 384*384, 
+        'min_hxw': 384*288, 
+        # 'max_hxw': 236544, 
+        # 'min_hxw': 102400, 
     }
     )
-    accelerator = Accelerator()
+    # accelerator = Accelerator()
     dataset = getdataset(args)
-    import ipdb;ipdb.set_trace()
+    # data = next(iter(dataset))
+    # import ipdb;ipdb.set_trace()
+    # print()
     sampler = LengthGroupedSampler(
                 args.train_batch_size,
                 world_size=1, 
@@ -132,6 +128,7 @@ if __name__ == "__main__":
         drop_last=False, 
         prefetch_factor=4
     )
+    import ipdb;ipdb.set_trace()
     import imageio
     import numpy as np
     from einops import rearrange
