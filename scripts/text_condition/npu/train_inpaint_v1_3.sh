@@ -17,7 +17,9 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # deepspeed_zero2_config.yaml
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+    --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
+    --machine_rank=${MACHINE_RANK} \
+    --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_inpaint.py \
     --model OpenSoraInpaint_v1_3-2B/122 \
     --text_encoder_name_1 google/mt5-xxl \
@@ -71,4 +73,4 @@ accelerate launch \
     --add_noise_to_condition \
     --rescale_betas_zero_snr  \
     --resume_from_checkpoint="latest" \
-    --pretrained_transformer_model_path /home/image_data/gyy/mmdit/Open-Sora-Plan/opensora_inpaint_v1_3 \
+    # --pretrained_transformer_model_path /home/image_data/gyy/mmdit/Open-Sora-Plan/opensora_inpaint_v1_3 \
