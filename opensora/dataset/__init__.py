@@ -4,90 +4,66 @@ from transformers import AutoTokenizer, AutoImageProcessor
 from torchvision import transforms
 from torchvision.transforms import Lambda
 
+try:
+    import torch_npu
+except:
+    torch_npu = None
+
 from opensora.dataset.t2v_datasets import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
 from opensora.dataset.transition_dataset import Transition_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
-from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, RandomHorizontalFlipVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
+from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
 
+
+from accelerate.logging import get_logger
+logger = get_logger(__name__)
 
 def getdataset(args):
     temporal_sample = TemporalRandomCrop(args.num_frames)  # 16 x
     norm_fun = ae_norm[args.ae]
     if args.force_resolution:
         resize = [CenterCropResizeVideo((args.max_height, args.max_width)), ]
-        resize_for_img = None
-        assert args.max_height_for_img is None
-        assert args.max_width_for_img is None
     else:
-        assert (args.min_height is not None and args.skip_low_resolution) or (args.min_height is None)
-        assert (args.min_width is not None and args.skip_low_resolution) or (args.min_width is None)
         resize = [
-            LongSideResizeVideo((args.max_height, args.max_width), skip_low_resolution=args.skip_low_resolution), 
-            SpatialStrideCropVideo(stride=args.hw_stride), 
+            MaxHWResizeVideo(args.max_hxw), 
+            SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio), 
         ]
-        resize_for_img = None
-        if args.max_height_for_img is not None and args.max_width_for_img is not None:
-            assert args.max_height_for_img > 0 and args.max_width_for_img > 0
-            assert args.max_height_for_img > args.max_height and args.max_width_for_img > args.max_width
-            resize_for_img = [
-                LongSideResizeVideo((args.max_height_for_img, args.max_width_for_img), skip_low_resolution=args.skip_low_resolution), 
-                SpatialStrideCropVideo(stride=args.hw_stride), 
-            ]
 
-
-    tokenizer_1 = AutoTokenizer.from_pretrained('/home/image_data/mt5-xxl', cache_dir=args.cache_dir)
+    # tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
+    tokenizer_1 = AutoTokenizer.from_pretrained('/storage/cache_dir/t5-v1_1-xl', cache_dir=args.cache_dir)
+    # tokenizer_1 = AutoTokenizer.from_pretrained('/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl', cache_dir=args.cache_dir)
     tokenizer_2 = None
     if args.text_encoder_name_2 is not None:
-        tokenizer_2 = AutoTokenizer.from_pretrained('/home/image_data/mt5-xxl', cache_dir=args.cache_dir)
+        # tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
+        tokenizer_2 = AutoTokenizer.from_pretrained('/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k', cache_dir=args.cache_dir)
     if args.dataset == 't2v':
         transform = transforms.Compose([
             ToTensorVideo(),
             *resize, 
             norm_fun
         ])  # also work for img, because img is video when frame=1
-
-        transform_img = None
-        if resize_for_img is not None:
-            transform_img = transforms.Compose([
-                ToTensorVideo(),
-                *resize_for_img, 
-                norm_fun
-            ])
         return T2V_dataset(
-            args, transform=transform, transform_img=transform_img, 
-            temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
+            args, transform=transform, temporal_sample=temporal_sample, 
+            tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
             )
     elif args.dataset == 'i2v' or args.dataset == 'inpaint':
-        resize_transform = Compose([*resize])
+        resize_transform = Compose(resize)
         transform = Compose([
             ToTensorAfterResize(),
             norm_fun,
         ])
-        resize_transform_img = None
-        if resize_for_img is not None:
-            resize_transform_img = Compose([*resize_for_img])
         return Inpaint_dataset(
-            args, resize_transform=resize_transform, transform=transform, resize_transform_img=resize_transform_img, 
-            temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
-        )
-    elif args.dataset == 'transition':
-        resize_transform = Compose([*resize])
-        transform = Compose([
-            ToTensorAfterResize(),
-            norm_fun,
-        ])
-        resize_transform_img = None
-        if resize_for_img is not None:
-            resize_transform_img = Compose([*resize_for_img])
-        return Transition_dataset(
-            args, resize_transform=resize_transform, transform=transform, resize_transform_img=resize_transform_img, 
+            args, resize_transform=resize_transform, transform=transform, 
             temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
         )
     raise NotImplementedError(args.dataset)
 
 
 if __name__ == "__main__":
+    '''
+    python opensora/dataset/__init__.py
+    '''
     from accelerate import Accelerator
     from opensora.dataset.t2v_datasets import dataset_prog
     from opensora.utils.dataset_utils import LengthGroupedSampler, Collate
@@ -97,49 +73,49 @@ if __name__ == "__main__":
     from tqdm import tqdm
     args = type('args', (), 
     {
-        'ae': 'CausalVAEModel_D8_4x8x8', 
+        'ae': 'WFVAEModel_D32_4x8x8', 
         'dataset': 't2v', 
-        'attention_mode': 'xformers', 
-        'use_rope': True, 
-        'model_max_length': 300, 
-        'max_height': 320,
-        'max_width': 320,
-        'hw_stride': 32, 
-        'skip_low_resolution': True, 
+        'model_max_length': 512, 
+        'max_height': 640,
+        'max_width': 640,
+        'hw_stride': 16, 
         'num_frames': 93,
         'compress_kv_factor': 1, 
         'interpolation_scale_t': 1,
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
         'cache_dir': '../cache_dir', 
-        'data': 'scripts/train_data/merge_data_debug.txt', 
-        'train_fps': 16, 
+        'data': '/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/scripts/train_data/image_data_debug.txt', 
+        'train_fps': 18, 
         'drop_short_ratio': 0.0, 
-        'use_img_from_vid': False, 
         'speed_factor': 1.0, 
         'cfg': 0.1, 
-        'text_encoder_name': 'google/mt5-xxl', 
-        'dataloader_num_workers': 10,
-        'use_motion': False, 
+        'text_encoder_name_1': 'google/mt5-xxl', 
+        'text_encoder_name_2': None,
+        'dataloader_num_workers': 8,
         'force_resolution': False, 
         'use_decord': True, 
         'group_data': True, 
         'train_batch_size': 1, 
         'gradient_accumulation_steps': 1, 
         'ae_stride': 8, 
-        'ae_stride_t': 4, 
+        'ae_stride_t': 4,  
         'patch_size': 2, 
         'patch_size_t': 1, 
+        'total_batch_size': 256, 
+        'sp_size': 1, 
+        'max_hxw': 256*256, 
+        'min_hxw': 256*192, 
+        'force_5_ratio': True, 
+        'random_data': False, 
     }
     )
     accelerator = Accelerator()
     dataset = getdataset(args)
-    # data = next(iter(dataset))
-    # import ipdb;ipdb.set_trace()
-    # print()
+    import ipdb;ipdb.set_trace()
     sampler = LengthGroupedSampler(
                 args.train_batch_size,
-                world_size=accelerator.num_processes, 
+                world_size=1, 
                 gradient_accumulation_size=args.gradient_accumulation_steps, 
                 initial_global_step=0, 
                 lengths=dataset.lengths, 
@@ -161,7 +137,6 @@ if __name__ == "__main__":
     from einops import rearrange
     while True:
         for idx, i in enumerate(tqdm(train_dataloader)):
-            import ipdb;ipdb.set_trace()
             pixel_values = i[0][0]
             pixel_values_ = (pixel_values+1)/2
             pixel_values_ = rearrange(pixel_values_, 'c t h w -> t h w c') * 255.0

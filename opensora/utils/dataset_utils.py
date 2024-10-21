@@ -12,7 +12,8 @@ from typing import List
 from collections import Counter, defaultdict
 import random
 
-
+from accelerate.logging import get_logger
+logger = get_logger(__name__)
 IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG']
 
 def is_image_file(filename):
@@ -75,32 +76,28 @@ class Collate:
         cond_mask_1 = [i['cond_mask_1'] for i in batch]  # b [1 l]
         input_ids_2 = [i['input_ids_2'] for i in batch]  # b [1 l]
         cond_mask_2 = [i['cond_mask_2'] for i in batch]  # b [1 l]
-        motion_score = [i['motion_score'] for i in batch]  # List[float]
-        assert all([i is None for i in motion_score]) or all([i is not None for i in motion_score])
         assert all([i is None for i in input_ids_2]) or all([i is not None for i in input_ids_2])
         assert all([i is None for i in cond_mask_2]) or all([i is not None for i in cond_mask_2])
-        if all([i is None for i in motion_score]):
-            motion_score = None
         if all([i is None for i in input_ids_2]):
             input_ids_2 = None
         if all([i is None for i in cond_mask_2]):
             cond_mask_2 = None
-        return batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score
+        return batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2
 
     def __call__(self, batch):
-        batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score = self.package(batch)
+        batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = self.package(batch)
 
         ds_stride = self.ae_stride * self.patch_size
         t_ds_stride = self.ae_stride_t * self.patch_size_t
         
-        pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score = self.process(
-            batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score, 
+        pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = self.process(
+            batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, 
             t_ds_stride, ds_stride, self.max_thw, self.ae_stride_thw
         )
         assert not torch.any(torch.isnan(pad_batch_tubes)), 'after pad_batch_tubes'
-        return pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score
+        return pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2
 
-    def process(self, batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score, t_ds_stride, ds_stride, max_thw, ae_stride_thw):
+    def process(self, batch_tubes, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, t_ds_stride, ds_stride, max_thw, ae_stride_thw):
         # pad to max multiple of ds_stride
         batch_input_size = [i.shape for i in batch_tubes]  # [(c t h w), (c t h w)]
         assert len(batch_input_size) == self.batch_size
@@ -126,8 +123,6 @@ class Collate:
                     input_ids_2 = [input_ids_2[i] for i in pick_idx]  # b [1, l]
                 if cond_mask_2 is not None:
                     cond_mask_2 = [cond_mask_2[i] for i in pick_idx]  # b [1, l]
-                if motion_score is not None:
-                    motion_score = [motion_score[i] for i in pick_idx]  # b [1, l]
 
             for i in range(1, self.batch_size):
                 assert batch_input_size[0] == batch_input_size[i]
@@ -180,9 +175,8 @@ class Collate:
         cond_mask_1 = torch.stack(cond_mask_1)  # b 1 l
         input_ids_2 = torch.stack(input_ids_2) if input_ids_2 is not None else input_ids_2  # b 1 l
         cond_mask_2 = torch.stack(cond_mask_2) if cond_mask_2 is not None else cond_mask_2  # b 1 l
-        motion_score = torch.tensor(motion_score).unsqueeze(-1) if motion_score is not None else motion_score # b 1
 
-        return pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, motion_score
+        return pad_batch_tubes, attention_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2
 
 
 def group_data_fun(lengths, generator=None):
@@ -320,6 +314,7 @@ def get_length_grouped_indices(lengths, batch_size, world_size, gradient_accumul
     # print('shuffled_megabatches[:10]', shuffled_megabatches[:10])
     # print('have been trained idx:', shuffled_megabatches[:initial_global_step])
     shuffled_megabatches = shuffled_megabatches[initial_global_step:]
+    logger.info(f'Skip the data of {initial_global_step} step!')
     # print('after shuffled_megabatches', len(shuffled_megabatches))
     # print('after shuffled_megabatches[:10]', shuffled_megabatches[:10])
 

@@ -10,7 +10,7 @@ import random
 import subprocess
 import numpy as np
 import torch.distributed as dist
-
+import deepspeed
 # from torch._six import inf
 import accelerate
 from torch import inf
@@ -19,12 +19,15 @@ from typing import Union, Iterable
 import collections
 from collections import OrderedDict
 from torch.utils.tensorboard import SummaryWriter
+import wandb
+import time
 
 from diffusers.utils import is_bs4_available, is_ftfy_available
 
 import html
 import re
 import urllib.parse as ul
+
 
 if is_bs4_available():
     from bs4 import BeautifulSoup
@@ -34,11 +37,49 @@ if is_ftfy_available():
 
 _tensor_or_tensors = Union[torch.Tensor, Iterable[torch.Tensor]]
 
+
+
+def print_grad_norm(model):
+    grad_norm = 0
+    n_grad = 0
+    for name, param in model.named_parameters():
+        grad_data = deepspeed.utils.safe_get_full_grad(param)
+        if grad_data is not None:
+            param_norm = grad_data.norm(2)
+            grad_norm += param_norm ** 2
+            n_grad += 1
+    grad_norm = (grad_norm / n_grad) ** (1. / 2)
+    return grad_norm
+
 def to_2tuple(x):
     if isinstance(x, collections.abc.Iterable):
         return x
     return (x, x)
 
+
+def explicit_uniform_sampling(T, n, rank, bsz, device):
+    """
+    Explicit Uniform Sampling with integer timesteps and PyTorch.
+
+    Args:
+        T (int): Maximum timestep value.
+        n (int): Number of ranks (data parallel processes).
+        rank (int): The rank of the current process (from 0 to n-1).
+        bsz (int): Batch size, number of timesteps to return.
+
+    Returns:
+        torch.Tensor: A tensor of shape (bsz,) containing uniformly sampled integer timesteps
+                      within the rank's interval.
+    """
+    interval_size = T / n  # Integer division to ensure boundaries are integers
+    lower_bound = interval_size * rank - 0.5
+    upper_bound = interval_size * (rank + 1) - 0.5
+    sampled_timesteps = [round(random.uniform(lower_bound, upper_bound)) for _ in range(bsz)]
+
+    # Uniformly sample within the rank's interval, returning integers
+    sampled_timesteps = torch.tensor([round(random.uniform(lower_bound, upper_bound)) for _ in range(bsz)], device=device)
+    sampled_timesteps = sampled_timesteps.long()
+    return sampled_timesteps
 
 
 #################################################################################
@@ -208,6 +249,32 @@ def write_tensorboard(writer, *args):
     if dist.get_rank() == 0:  # real tensorboard
         writer.add_scalar(args[0], args[1], args[2])
 
+def get_npu_power():
+    result = subprocess.run(["npu-smi", "info"], stdout=subprocess.PIPE, text=True)
+    power_data = {}
+    npu_id = None
+
+    # 解析npu-smi的输出
+    for line in result.stdout.splitlines():
+        if line.startswith("| NPU"):
+            npu_id = 0  # 开始新NPU记录
+        elif line.startswith("|") and npu_id is not None:
+            parts = line.split("|")
+            if len(parts) > 4:
+                power = parts[4].strip().split()[0]  # 提取Power(W)
+                
+                # 记录每个NPU的功率信息
+                power_data[f"NPU_{npu_id}_Power_W"] = float(power)
+                
+                npu_id += 1
+
+    return power_data
+
+def monitor_npu_power():
+    while wandb.run is not None:
+        power_data = get_npu_power()
+        wandb.log(power_data)  # 实时记录NPU功率信息到wandb
+        time.sleep(10)  # 每10秒采集一次数据
 
 #################################################################################
 #                      EMA Update/ DDP Training Utils                           #
@@ -240,6 +307,18 @@ def cleanup():
     """
     dist.destroy_process_group()
 
+
+# adapted from https://github.com/huggingface/accelerate/blob/main/src/accelerate/utils/random.py#L31
+def set_seed(seed, rank, device_specific=True):
+    if device_specific:
+        seed += rank
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def setup_distributed(backend="nccl", port=None):
     """Initialize distributed training environment.

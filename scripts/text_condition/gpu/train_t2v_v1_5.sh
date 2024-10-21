@@ -1,7 +1,5 @@
-export WANDB_KEY="953e958793b218efb850fa194e85843e2c3bd88b"
+export WANDB_API_KEY="953e958793b218efb850fa194e85843e2c3bd88b"
 # export WANDB_MODE="offline"
-export ENTITY="linbin"
-export PROJECT="bs32x8x2_61x480p_lr1e-4_snr5_noioff0.02_opensora122_rope_mt5xxl_pandamovie_aes_mo_sucai_mo_speed1.2"
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 export PDSH_RCMD_TYPE=ssh
@@ -18,61 +16,66 @@ export NCCL_ALGO=Ring
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NCCL_IB_RETRY_CNT=32
+export TOKENIZERS_PARALLELISM=false
 # export NCCL_ALGO=Tree
 
+# MAIN_PROCESS_IP=${1}
+# MAIN_PROCESS_PORT=${2}
+# NUM_MACHINES=${3}
+# NUM_PROCESSES=${4}
+# MACHINE_RANK=${5}
+
+# accelerate launch \
+#     --config_file scripts/accelerate_configs/multi_node_example.k8s.yaml \
+#     --main_process_ip=${MAIN_PROCESS_IP} \
+#     --main_process_port=${MAIN_PROCESS_PORT} \
+#     --num_machines=${NUM_MACHINES} \
+#     --num_processes=${NUM_PROCESSES} \
+#     --machine_rank=${MACHINE_RANK} \
+
+# accelerate launch \
+#     --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+
 accelerate launch \
-    --config_file scripts/accelerate_configs/deepspeed_zero3_config.yaml \
+    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
     opensora/train/train_t2v_diffusers.py \
-    --model OpenSoraT2V_v1_5-5B/122 \
-    --text_encoder_name_1 DeepFloyd/t5-v1_1-xxl \
+    --model OpenSoraT2V_v1_5-13B/122 \
+    --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data "scripts/train_data/merge_data_debug.txt" \
-    --ae WFVAEModel_D8_4x8x8 \
-    --ae_path "/storage/lcm/Causal-Video-VAE/results/WFVAE_DISTILL_FORMAL" \
+    --data "scripts/train_data/video_data_debug.txt" \
+    --ae WFVAEModel_D32_8x8x8 \
+    --ae_path "/storage/lcm/WF-VAE/results/Middle888" \
     --sample_rate 1 \
-    --num_frames 93 \
-    --max_height 480 \
-    --max_width 640 \
-    --interpolation_scale_t 1.0 \
-    --interpolation_scale_h 1.0 \
-    --interpolation_scale_w 1.0 \
+    --num_frames 1 \
+    --max_hxw 147456 \
+    --mim_hxw 110592 \
     --gradient_checkpointing \
-    --train_batch_size=1 \
-    --dataloader_num_workers 8 \
-    --gradient_accumulation_steps=1 \
-    --max_train_steps=1000000 \
-    --learning_rate=1e-5 \
-    --lr_scheduler="constant" \
-    --lr_warmup_steps=0 \
+    --train_batch_size=8 \
+    --dataloader_num_workers 16 \
+    --learning_rate=1e-4 \
+    --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
     --checkpointing_steps=1000 \
     --allow_tf32 \
     --model_max_length 512 \
-    --use_ema \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --skip_low_resolution \
-    --speed_factor 1.0 \
     --ema_decay 0.9999 \
     --drop_short_ratio 1.0 \
-    --pretrained "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x2_anyx93x320x320_fps16_lr2e-6_snr5_ema9999_sparse1d4_dit_l_mt5xxl_alldata100m_vpred_zerosnr/checkpoint-45100/model_ema/diffusion_pytorch_model.safetensors" \
-    --hw_stride 32 \
+    --hw_stride 16 \
     --sparse1d \
     --train_fps 16 \
     --seed 1234 \
-    --trained_data_global_step 0 \
     --group_data \
     --use_decord \
-    --prediction_type "v_prediction" \
-    --rescale_betas_zero_snr \
-    --output_dir="debug" \
+    --output_dir="mmdit13b_rf_bs1024_lr1e-4_max1x384x384_min1x384x288_noema_emaclip9999" \
     --vae_fp32 \
-    --ood_img_ratio 0.5 \
-    --min_height 320 \
-    --min_width 320 \
-    --force_resolution
+    --rf_scheduler \
+    --proj_name "10.19_mmdit13b" \
+    --log_name "rf_bs1024_lr1e-4_max1x384x384_min1x384x288_emaclip9999" \
+    --skip_abnorml_step --ema_decay_grad_clipping 0.9999

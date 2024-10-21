@@ -28,7 +28,7 @@ sample_video*/
 512*
 720*
 1024*
-debug*
+*debug*
 private*
 .deepspeed_env
 256*
@@ -88,8 +88,8 @@ bs32x8x2*
 filter_json_aes_m*
 json2json*
 makenpu_json*
-make_small_json.py
-schedule_noise.py
+*make_small_json*
+*schedule_noise*
 test*
 gpu_profiling*
 gyy_dense*
@@ -97,4 +97,15 @@ torchelasti*
 *VEnhancer*
 *spdemo*
 i2v.txt
-run_i2v.py
+*run_i2v*
+*curope*
+any*
+*nomotion*
+log*
+*svg
+*k8s*
+*rf*
+*lzj*
+final*
+opensora/train/*debug.py
+mmdit*

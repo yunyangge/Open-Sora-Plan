@@ -253,18 +253,35 @@ class RandomCropVideo:
         return f"{self.__class__.__name__}(size={self.size})"
 
 
-def get_params(h, w, stride):
-    
-    th, tw = h // stride * stride, w // stride * stride
+RATIOS = [
+    [16, 9],
+    [9, 16],
+    [1, 1],
+    [4, 3],
+    [3, 4]
+]
 
+def find_closest_ratio(h, w):
+    input_ratio = h / w
+    closest_ratio = min(RATIOS, key=lambda r: abs(r[0]/r[1] - input_ratio))
+    return closest_ratio[0], closest_ratio[1]
+
+def get_params(h, w, stride, force_5_ratio):
+    if not force_5_ratio:
+        th, tw = h // stride * stride, w // stride * stride
+    else:
+        closest_ratio_h, closest_ratio_w = find_closest_ratio(h, w)
+        stride_h, stride_w = closest_ratio_h * stride, closest_ratio_w * stride
+        min_k = min(h // stride_h, w // stride_w)
+        th, tw = stride_h * min_k, stride_w * min_k
     i = (h - th) // 2
     j = (w - tw) // 2
-
     return i, j, th, tw 
     
 class SpatialStrideCropVideo:
-    def __init__(self, stride):
+    def __init__(self, stride, force_5_ratio=False):
         self.stride = stride
+        self.force_5_ratio = force_5_ratio
 
     def __call__(self, clip):
         """
@@ -275,7 +292,7 @@ class SpatialStrideCropVideo:
                 size is (T, C, OH, OW)
         """
         h, w = clip.shape[-2:] 
-        i, j, h, w = get_params(h, w, self.stride)
+        i, j, h, w = get_params(h, w, self.stride, self.force_5_ratio)
         return crop(clip, i, j, h, w)
 
 
@@ -296,6 +313,16 @@ def longsideresize(h, w, size, skip_low_resolution):
         h = int(size[1] / w * h)
         w = size[1]
     return h, w
+
+def maxhwresize(ori_height, ori_width, max_hxw):
+    if ori_height * ori_width > max_hxw:
+        scale_factor = np.sqrt(max_hxw / (ori_height * ori_width))
+        new_height = int(ori_height * scale_factor)
+        new_width = int(ori_width * scale_factor)
+    else:
+        new_height = ori_height
+        new_width = ori_width
+    return new_height, new_width
 
 class LongSideResizeVideo:
     '''
@@ -331,6 +358,38 @@ class LongSideResizeVideo:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
 
+
+class MaxHWResizeVideo:
+    '''
+    First use the h*w,
+    then resize to the specified size
+    '''
+
+    def __init__(
+            self,
+            max_hxw,
+            interpolation_mode="bilinear",
+    ):
+        self.max_hxw = max_hxw
+        self.interpolation_mode = interpolation_mode
+
+    def __call__(self, clip):
+        """
+        Args:
+            clip (torch.tensor): Video clip to be cropped. Size is (T, C, H, W)
+        Returns:
+            torch.tensor: scale resized video clip.
+        """
+        _, _, h, w = clip.shape
+        tr_h, tr_w = maxhwresize(h, w, self.max_hxw)
+        if h == tr_h and w == tr_w:
+            return clip
+        resize_clip = resize(clip, target_size=(tr_h, tr_w),
+                                         interpolation_mode=self.interpolation_mode)
+        return resize_clip
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.size}, interpolation_mode={self.interpolation_mode}"
 
 
 class CenterCropResizeVideo:
@@ -680,6 +739,19 @@ high_aesthetic_score_notices_image = [
     "The visual appeal of this image is outstanding.", 
 ]
 
+low_aesthetic_score_notices_image = [
+    "This image has a low aesthetic quality.", 
+    "The beauty of this image is minimal.", 
+    "This image scores low in aesthetic appeal.", 
+    "The aesthetic quality of this image is below average.", 
+    "This image ranks low for beauty.", 
+    "The artistic quality of this image is lacking.", 
+    "This image has a low score for aesthetic value.", 
+    "The visual appeal of this image is low.", 
+    "This image is rated low for beauty.", 
+    "The aesthetic quality of this image is poor.", 
+]
+
 high_aesthetic_score_notices_image_human = [
     "High-quality image with visible human features and high aesthetic score.", 
     "Clear depiction of an individual in a high-quality image with top aesthetics.", 
@@ -705,12 +777,22 @@ def add_webvid_watermark_notice(caption):
     return random.choice([caption + ' ' + notice, notice + ' ' + caption])
 
 def add_aesthetic_notice_video(caption, aesthetic_score):
-    assert add_aesthetic_notice_video is not None
-    if aesthetic_score <= 4.5:
+    if aesthetic_score <= 4.25:
         notice = random.choice(low_aesthetic_score_notices_video)
         return random.choice([caption + ' ' + notice, notice + ' ' + caption])
     if aesthetic_score >= 5.75:
         notice = random.choice(high_aesthetic_score_notices_video)
+        return random.choice([caption + ' ' + notice, notice + ' ' + caption])
+    return caption
+
+
+
+def add_aesthetic_notice_image(caption, aesthetic_score):
+    if aesthetic_score <= 4.25:
+        notice = random.choice(low_aesthetic_score_notices_image)
+        return random.choice([caption + ' ' + notice, notice + ' ' + caption])
+    if aesthetic_score >= 5.75:
+        notice = random.choice(high_aesthetic_score_notices_image)
         return random.choice([caption + ' ' + notice, notice + ' ' + caption])
     return caption
 
@@ -756,13 +838,6 @@ def clean_vidal(text):
     if text == '' or text.isspace():
         raise ValueError('text is empty')
     return text
-
-
-
-def motion_mapping_fun(motion_score, n=3):
-    assert motion_score is not None
-    return max(motion_score, 0.0) ** n
-
 
 def calculate_statistics(data):
     if len(data) == 0:
