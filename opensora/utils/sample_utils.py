@@ -120,6 +120,11 @@ def prepare_pipeline(args, dtype, device):
                 args.model_path, cache_dir=args.cache_dir,
                 device_map=None, torch_dtype=weight_dtype
                 ).eval()
+        elif args.model_type == 'transition':
+            transformer_model = OpenSoraInpaint_v1_3.from_pretrained(
+                args.model_path, cache_dir=args.cache_dir,
+                device_map=None, torch_dtype=weight_dtype
+                ).eval()
         else:
             transformer_model = OpenSoraT2V_v1_3.from_pretrained(
                 args.model_path, cache_dir=args.cache_dir,
@@ -128,6 +133,8 @@ def prepare_pipeline(args, dtype, device):
     elif args.version == 'v1_5':
         if args.model_type == 'inpaint' or args.model_type == 'i2v':
             raise NotImplementedError('Inpainting model is not available in v1_5')
+        if args.model_type == 'transition':
+            raise NotImplementedError('Transition model is not available in v1_5')
         else:
             from opensora.models.diffusion.opensora_v1_5.modeling_opensora import OpenSoraT2V_v1_5
             transformer_model = OpenSoraT2V_v1_5.from_pretrained(
@@ -137,7 +144,13 @@ def prepare_pipeline(args, dtype, device):
                 ).eval()
     
     scheduler = get_scheduler(args)
-    pipeline_class = OpenSoraInpaintPipeline if args.model_type == 'inpaint' or args.model_type == 'i2v' else OpenSoraPipeline
+    
+    if args.model_type == 'inpaint' or args.model_type == 'i2v':
+        pipeline_class = OpenSoraInpaintPipeline
+    elif args.model_type == 'transition':
+        pipeline_class = OpenSoraInpaintPipeline
+    else:
+        pipeline_class = OpenSoraPipeline
 
     pipeline = pipeline_class(
         vae=vae,
@@ -243,6 +256,15 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
         
         mask_type = args.mask_type if args.mask_type is not None else None
 
+    elif args.model_type == 'transition':
+        if not isinstance(args.conditional_pixel_values_path, list):
+            args.conditional_pixel_values_path = [args.conditional_pixel_values_path]
+        if len(args.conditional_pixel_values_path) == 1 and args.conditional_pixel_values_path[0].endswith('txt'):
+            temp = open(args.conditional_pixel_values_path[0], 'r').readlines()
+            conditional_pixel_values_path = [i.strip().split(',') for i in temp]
+        
+        mask_type = args.mask_type if args.mask_type is not None else None
+
     positive_prompt = """
     high quality, high aesthetic, {}
     """
@@ -255,7 +277,11 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
     def generate(prompt, conditional_pixel_values_path=None, mask_type=None):
         
         if args.caption_refiner is not None:
-            if args.model_type != 'inpaint' and args.model_type != 'i2v':
+            if args.model_type != 'inpaint' or args.model_type == 'i2v':
+                refine_prompt = caption_refiner_model.get_refiner_output(prompt)
+                print(f'\nOrigin prompt: {prompt}\n->\nRefine prompt: {refine_prompt}')
+                prompt = refine_prompt
+            elif args.model_type != 'transition':
                 refine_prompt = caption_refiner_model.get_refiner_output(prompt)
                 print(f'\nOrigin prompt: {prompt}\n->\nRefine prompt: {refine_prompt}')
                 prompt = refine_prompt
@@ -266,6 +292,23 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
         input_prompt = positive_prompt.format(prompt)
         
         if args.model_type == 'inpaint' or args.model_type == 'i2v':
+            print(f'\nConditional pixel values path: {conditional_pixel_values_path}')
+            videos = pipeline(
+                conditional_pixel_values_path=conditional_pixel_values_path,
+                mask_type=mask_type,
+                crop_for_hw=args.crop_for_hw,
+                max_hxw=args.max_hxw,
+                prompt=input_prompt, 
+                negative_prompt=negative_prompt, 
+                num_frames=args.num_frames,
+                height=args.height,
+                width=args.width,
+                num_inference_steps=args.num_sampling_steps,
+                guidance_scale=args.guidance_scale,
+                num_samples_per_prompt=args.num_samples_per_prompt,
+                max_sequence_length=args.max_sequence_length,
+            ).videos
+        elif args.model_type == 'transition':
             print(f'\nConditional pixel values path: {conditional_pixel_values_path}')
             videos = pipeline(
                 conditional_pixel_values_path=conditional_pixel_values_path,
@@ -362,6 +405,11 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
             if not args.sp and args.local_rank != -1 and index % args.world_size != args.local_rank:
                 continue
             generate(prompt, cond_path, mask_type)
+    elif args.model_type == 'transition':
+        for index, (prompt, cond_path) in enumerate(zip(args.text_prompt, conditional_pixel_values_path)):
+            if not args.sp and args.local_rank != -1 and index % args.world_size != args.local_rank:
+                continue
+            generate(prompt, cond_path, mask_type)
     else:
         for index, prompt in enumerate(args.text_prompt):
             if not args.sp and args.local_rank != -1 and index % args.world_size != args.local_rank:
@@ -369,6 +417,8 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
             generate(prompt)
 
     if (args.model_type == "inpaint" or args.model_type == "i2v") and not args.crop_for_hw:
+        print('completed, please check the saved images and videos')
+    if (args.model_type == "transition") and not args.crop_for_hw:
         print('completed, please check the saved images and videos')
     else:
         if not args.sp:
@@ -412,17 +462,15 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
             print('save path {}'.format(args.save_img_path))
 
 
-
 def run_model_and_save_samples_npu(args, pipeline, caption_refiner_model=None, enhance_video_model=None):
     run_model_and_save_samples(args, pipeline, caption_refiner_model, enhance_video_model)
     
-
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, default='LanguageBind/Open-Sora-Plan-v1.0.0')
     parser.add_argument("--version", type=str, default='v1_3', choices=['v1_3', 'v1_5'])
-    parser.add_argument("--model_type", type=str, default='t2v', choices=['t2v', 'inpaint', 'i2v'])
+    parser.add_argument("--model_type", type=str, default='t2v', choices=['t2v', 'inpaint', 'i2v', 'transition'])
     parser.add_argument("--num_frames", type=int, default=1)
     parser.add_argument("--height", type=int, default=512)
     parser.add_argument("--width", type=int, default=512)

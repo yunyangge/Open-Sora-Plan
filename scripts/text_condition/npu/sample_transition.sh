@@ -1,7 +1,7 @@
 export TASK_QUEUE_ENABLE=0
 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29513 \
     -m opensora.sample.sample \
-    --model_type "inpaint" \
+    --model_type "transition" \
     --model_path "/home/save_dir/pretrained/i2v_ckpt14777_ema" \
     --version v1_3 \
     --num_frames 93 \
@@ -21,7 +21,8 @@ torchrun --nnodes=1 --nproc_per_node 8 --master_port 29513 \
     --num_sampling_steps 50 \
     --max_sequence_length 512 \
     --sample_method EulerAncestralDiscrete \
-    --seed 2514 \
+    --seed 519 \
     --num_samples_per_prompt 1 \
     --prediction_type "v_prediction" \
     --rescale_betas_zero_snr
+# 2>&1 | tee -a "logs/log_$(date +'%Y%m%d_%H%M%S').txt"
