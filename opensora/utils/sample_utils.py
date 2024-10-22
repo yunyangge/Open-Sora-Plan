@@ -414,29 +414,8 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
 
 
 def run_model_and_save_samples_npu(args, pipeline, caption_refiner_model=None, enhance_video_model=None):
-    
-    # experimental_config = torch_npu.profiler._ExperimentalConfig(
-    #     profiler_level=torch_npu.profiler.ProfilerLevel.Level1,
-    #     aic_metrics=torch_npu.profiler.AiCMetrics.PipeUtilization
-    # )
-    # profile_output_path = "/home/image_data/npu_profiling_t2v"
-    # os.makedirs(profile_output_path, exist_ok=True)
-    # with torch_npu.profiler.profile(
-    #         activities=[
-    #             torch_npu.profiler.ProfilerActivity.NPU, 
-    #             torch_npu.profiler.ProfilerActivity.CPU
-    #             ],
-    #         with_stack=True,
-    #         record_shapes=True,
-    #         profile_memory=True,
-    #         experimental_config=experimental_config,
-    #         schedule=torch_npu.profiler.schedule(
-    #             wait=10000, warmup=0, active=1, repeat=1, skip_first=0
-    #             ),
-    #         on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f"{profile_output_path}/")
-    # ) as prof:
     run_model_and_save_samples(args, pipeline, caption_refiner_model, enhance_video_model)
-        # prof.step()
+    
 
 
 def get_args():
