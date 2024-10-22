@@ -557,17 +557,17 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         return output
 
 
-def OpenSoraT2V_v1_5_2B_122(**kwargs):
+def OpenSoraT2V_v1_5_2B_122(**kwargs): # 2.15B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 22 layers
-        num_layers=[2, 2, 4, 6, 4, 2, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=96, num_attention_heads=24, 
-        timestep_embed_dim=512, patch_size_t=1, patch_size=2, 
+    return OpenSoraT2V_v1_5(  # 28 layers
+        num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=80, num_attention_heads=24, 
+        timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
-def OpenSoraT2V_v1_5_3B_122(**kwargs):
+def OpenSoraT2V_v1_5_3B_122(**kwargs): # 2.98B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
@@ -577,7 +577,7 @@ def OpenSoraT2V_v1_5_3B_122(**kwargs):
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
-def OpenSoraT2V_v1_5_6B_122(**kwargs):
+def OpenSoraT2V_v1_5_6B_122(**kwargs): # 6.05B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 32 layers
@@ -642,6 +642,13 @@ if __name__ == '__main__':
     from opensora.models.causalvideovae import ae_stride_config, ae_channel_config
     from opensora.models.causalvideovae import ae_norm, ae_denorm
     from opensora.models import CausalVAEModelWrapper
+
+    try:
+        import torch_npu
+        from opensora.npu_config import npu_config
+    except:
+        pass
+
     args = type('args', (), 
     {
         'ae': 'WFVAEModel_D32_8x8x8', 
@@ -668,7 +675,7 @@ if __name__ == '__main__':
 
     # device = torch.device('cpu')
     device = torch.device('cuda:0')
-    model = OpenSoraT2V_v1_5_8B_122(
+    model = OpenSoraT2V_v1_5_2B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 

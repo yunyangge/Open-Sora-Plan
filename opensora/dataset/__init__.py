@@ -32,7 +32,7 @@ def getdataset(args):
 
     # tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
     if torch_npu is not None:
-        tokenizer_1 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/mt5-xxl', cache_dir=args.cache_dir)
+        tokenizer_1 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/t5/t5-v1_1-xl', cache_dir=args.cache_dir)
     else:
         tokenizer_1 = AutoTokenizer.from_pretrained('/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl', cache_dir=args.cache_dir)
     tokenizer_2 = None

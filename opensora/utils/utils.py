@@ -249,33 +249,19 @@ def write_tensorboard(writer, *args):
     if dist.get_rank() == 0:  # real tensorboard
         writer.add_scalar(args[0], args[1], args[2])
 
-def get_npu_power():
-    result = subprocess.run(["npu-smi", "info"], stdout=subprocess.PIPE, text=True)
-    power_data = {}
-    npu_id = None
-
-    # 解析npu-smi的输出
-    for line in result.stdout.splitlines():
-        if line.startswith("| NPU"):
-            npu_id = 0  # 开始新NPU记录
-        elif line.startswith("|") and npu_id is not None:
-            parts = line.split("|")
-            if len(parts) > 4:
-                power = parts[4].strip().split()[0]  # 提取Power(W)
-                
-                # 记录每个NPU的功率信息
-                power_data[f"NPU_{npu_id}_Power_W"] = float(power)
-                
-                npu_id += 1
-
-    return power_data
-
 def monitor_npu_power():
-    while wandb.run is not None:
-        power_data = get_npu_power()
-        wandb.log(power_data)  # 实时记录NPU功率信息到wandb
-        time.sleep(10)  # 每10秒采集一次数据
+    result = subprocess.run(["npu-smi", "info"], stdout=subprocess.PIPE, text=True)
+    avg_power = 0
 
+    for line in result.stdout.splitlines():
+        if line.startswith('|'):
+            parts = line.split('|')
+            if '910' in parts[1]:
+                match = re.search(r'\d+\.\d+', parts[3])
+                avg_power += float(match.group())
+
+    avg_power /= 8
+    return avg_power
 #################################################################################
 #                      EMA Update/ DDP Training Utils                           #
 #################################################################################

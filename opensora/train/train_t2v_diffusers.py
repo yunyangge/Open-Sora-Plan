@@ -69,7 +69,7 @@ from opensora.dataset import getdataset
 from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
-from opensora.utils.utils import explicit_uniform_sampling
+from opensora.utils.utils import explicit_uniform_sampling, monitor_npu_power
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 
@@ -671,9 +671,11 @@ def main(args):
 
         if torch_npu is not None and npu_config is not None:
             npu_config.print_msg(f"Step: [{progress_info.global_step}], local_loss={loss.detach().item()}, "
-                                f"train_loss={train_loss}, grad_norm={progress_info.grad_norm}, grad_norm_clip={grad_norm_clip}, "
+                                f"train_loss={train_loss}, grad_norm={progress_info.grad_norm}, grad_norm_clip={progress_info.grad_norm_clip}, "
                                 f"weight_norm={progress_info.weight_norm}, time_cost={one_step_duration}",
                                 rank=0)
+            accelerator.log({"npu_power": monitor_npu_power()}, step=progress_info.global_step)
+
         progress_info.train_loss = 0.0
         progress_info.grad_norm = 0.0
         progress_info.weight_norm = 0.0
