@@ -286,7 +286,6 @@ def main(args):
         interpolation_scale_t=args.interpolation_scale_t,
         sparse1d=args.sparse1d, 
         sparse_n=args.sparse_n, 
-        skip_connection=args.skip_connection, 
     )
 
     # # use pretrained model?

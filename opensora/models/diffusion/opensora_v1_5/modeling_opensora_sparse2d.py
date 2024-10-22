@@ -539,7 +539,7 @@ def OpenSoraT2V_v1_5_5B_122(**kwargs): # 5.85B
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 32 layers
         num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=80, num_attention_heads=32, 
+        attention_head_dim=96, num_attention_heads=32, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
@@ -675,7 +675,7 @@ Opensora_Sparse_models = {
 
 
 OpenSora_v1_5_models_class = {
-    "OpenSoraT2V_v1_5-2B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-7B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-13B/122": OpenSoraT2V_v1_5,
@@ -734,7 +734,7 @@ if __name__ == '__main__':
 
     # device = torch.device('cpu')
     # device = torch.device('cuda:0')
-    model = OpenSoraT2V_v1_5_5B_122(
+    model = OpenSoraT2V_DiT_5B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 
