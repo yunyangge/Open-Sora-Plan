@@ -4,7 +4,7 @@ from .normalize import Normalize
 from .conv import CausalConv3d
 import torch
 from .block import Block
-
+import math
 try:
     import torch_npu
     from opensora.npu_config import npu_config, set_run_dtype
@@ -99,8 +99,12 @@ class AttnBlock3DFix(nn.Module):
                 dtype = None
             with set_run_dtype(q, dtype):
                 query, key, value = npu_config.set_current_run_dtype([q, k, v])
-                hidden_states = npu_config.run_attention(query, key, value, atten_mask=None, input_layout="BSH",
-                                                            head_dim=c, head_num=1)
+                try:
+                    hidden_states = npu_config.run_attention(query, key, value, atten_mask=None, input_layout="BSH",
+                                                                head_dim=c, head_num=1)
+                except:
+                    hidden_states = npu_config.scaled_dot_product_attention(query, key, value, atten_mask=None, input_layout="BSH",
+                                                                head_num=1, scale=1 / math.sqrt(c), is_causal=False)
 
                 attn_output = npu_config.restore_dtype(hidden_states)
 

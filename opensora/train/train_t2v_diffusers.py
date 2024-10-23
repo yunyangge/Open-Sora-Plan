@@ -69,11 +69,10 @@ from opensora.dataset import getdataset
 from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
-from opensora.utils.utils import explicit_uniform_sampling
+from opensora.utils.utils import explicit_uniform_sampling, wandb_log_npu_power
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 
-# from opensora.utils.utils import monitor_npu_power
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.24.0")
@@ -156,7 +155,8 @@ class ProgressInfo:
     def __init__(
         self, global_step, train_loss=0.0, max_grad_norm=0.0, weight_norm=0.0, 
         moving_avg_max_grad_norm=-1e6, moving_avg_max_grad_norm_var=3.0, 
-        clip_coef=1.0, max_grad_norm_clip=0.0, max_norm=1.0, max_grad_norm_var=0.0
+        clip_coef=1.0, max_grad_norm_clip=0.0, max_norm=1.0, max_grad_norm_var=0.0, 
+        detect_nan=0.0, max_timesteps=1000.0, min_timesteps=1.0, 
         ):
         self.global_step = global_step
         self.train_loss = train_loss
@@ -168,6 +168,9 @@ class ProgressInfo:
         self.max_grad_norm_clip = max_grad_norm_clip
         self.max_norm = max_norm
         self.max_grad_norm_var = max_grad_norm_var
+        self.detect_nan = detect_nan
+        self.max_timesteps = max_timesteps
+        self.min_timesteps = min_timesteps
 
 
 #################################################################################
@@ -207,10 +210,7 @@ def main(args):
     if accelerator.is_main_process:
         accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
                                   init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
-
-        # if accelerator.is_main_process:
-        #     from threading import Thread
-        #     Thread(target=monitor_npu_power, daemon=True).start()
+        wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -628,8 +628,8 @@ def main(args):
 
     
     def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
-        sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)
-        schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)
+        sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)  # 0.001, 1
+        schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)  # 1, 1000
         timesteps = timesteps.to(accelerator.device)
         step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps]
 
@@ -660,7 +660,13 @@ def main(args):
                     "moving_avg_max_grad_norm": progress_info.moving_avg_max_grad_norm, 
                     "moving_avg_max_grad_norm_var": progress_info.moving_avg_max_grad_norm_var, 
                     "max_norm": progress_info.max_norm, 
-                    "clip_coef": progress_info.clip_coef, 
+                    "clip_coef_min": progress_info.clip_coef_min, 
+                    "clip_coef_max": progress_info.clip_coef_max, 
+                    "clip_coef_avg": progress_info.clip_coef_avg, 
+                    "num_clip": progress_info.num_clip, 
+                    "detect_nan": progress_info.detect_nan, 
+                    "min_timesteps": progress_info.min_timesteps, 
+                    "max_timesteps": progress_info.max_timesteps, 
                     "max_grad_norm_var": progress_info.max_grad_norm_var, 
                     "lr": lr_scheduler.get_last_lr()[0]
                 }, step=progress_info.global_step
@@ -668,17 +674,23 @@ def main(args):
 
         if torch_npu is not None and npu_config is not None:
             npu_config.print_msg(f"Step: [{progress_info.global_step}], local_loss={loss.detach().item()}, "
-                                f"train_loss={train_loss}, max_grad_norm={progress_info.max_grad_norm}, max_grad_norm_clip={max_grad_norm_clip}, "
+                                f"train_loss={train_loss}, max_grad_norm={progress_info.max_grad_norm}, max_grad_norm_clip={progress_info.max_grad_norm_clip}, "
                                 f"weight_norm={progress_info.weight_norm}, time_cost={one_step_duration}",
                                 rank=0)
+
         progress_info.train_loss = 0.0
         progress_info.max_grad_norm = 0.0
         progress_info.weight_norm = 0.0
-        progress_info.clip_coef = 1.0
+        progress_info.clip_coef_min = 0.0
+        progress_info.clip_coef_max = 1.0
+        progress_info.clip_coef_avg = 0.5
+        progress_info.num_clip = 1.0
         progress_info.max_grad_norm_clip = 0.0
         progress_info.max_norm = 1.0
         progress_info.max_grad_norm_var = 0.0
-        
+        progress_info.detect_nan = 0.0
+        progress_info.min_timesteps = 1.0
+        progress_info.max_timesteps = 1000.0
 
         # DeepSpeed requires saving weights on every device; saving weights only on the main process would cause issues.
         if accelerator.distributed_type == DistributedType.DEEPSPEED or accelerator.is_main_process:
@@ -835,28 +847,39 @@ def main(args):
                 loss = (loss_mse * mask).sum() / mask.sum()
             else:
                 loss = loss_mse.mean()
-
         # Gather the losses across all processes for logging (if we use distributed training).
         # avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
         # progress_info.train_loss += avg_loss.detach().item() / args.gradient_accumulation_steps
         progress_info.train_loss += loss.detach().item() / args.gradient_accumulation_steps
+        timesteps_list = accelerator.gather(timesteps)
+        if torch.isnan(loss).any() or torch.isinf(loss).any():
+            raise ValueError(f'Detect loss error, timestep {timesteps_list}')
+        max_timesteps = timesteps_list.max().item()
+        min_timesteps = timesteps_list.min().item()
         # Backpropagate
         if args.skip_abnorml_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
             results = accelerator.deepspeed_engine_wrapped.engine.backward(
                 loss, process_index=accelerator.process_index, step_=step_, 
                 moving_avg_max_grad_norm=progress_info.moving_avg_max_grad_norm, 
                 ema_decay_grad_clipping=args.ema_decay_grad_clipping, 
-                moving_avg_max_grad_norm_var=progress_info.moving_avg_max_grad_norm_var, accelerator=accelerator
+                moving_avg_max_grad_norm_var=progress_info.moving_avg_max_grad_norm_var, accelerator=accelerator,
                 )
             _, max_grad_norm, weight_norm, moving_avg_max_grad_norm, max_grad_norm_clip, max_norm, \
-                moving_avg_max_grad_norm_var, max_grad_norm_var, clip_coef = results
+                moving_avg_max_grad_norm_var, max_grad_norm_var, clip_coef, detect_nan = results
+            clip_coef_min, clip_coef_max, clip_coef_avg, num_clip = clip_coef
             # print('rank {} | step {} | max_grad_norm {}'.format(accelerator.process_index, step_, max_grad_norm))
             progress_info.max_grad_norm += max_grad_norm / args.gradient_accumulation_steps
             progress_info.weight_norm += weight_norm / args.gradient_accumulation_steps
             progress_info.moving_avg_max_grad_norm = moving_avg_max_grad_norm / args.gradient_accumulation_steps
             progress_info.moving_avg_max_grad_norm_var = moving_avg_max_grad_norm_var / args.gradient_accumulation_steps
-            progress_info.clip_coef = clip_coef
+            progress_info.clip_coef_min = clip_coef_min
+            progress_info.clip_coef_max = clip_coef_max
+            progress_info.clip_coef_avg = clip_coef_avg
+            progress_info.num_clip = num_clip
             progress_info.max_norm = max_norm
+            progress_info.detect_nan = detect_nan
+            progress_info.max_timesteps = max_timesteps
+            progress_info.min_timesteps = min_timesteps
             progress_info.max_grad_norm_clip = max_grad_norm_clip / args.gradient_accumulation_steps
             progress_info.max_grad_norm_var += max_grad_norm_var / args.gradient_accumulation_steps
             

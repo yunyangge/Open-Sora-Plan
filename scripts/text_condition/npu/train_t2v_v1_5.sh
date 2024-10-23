@@ -20,7 +20,7 @@ accelerate launch \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_t2v_diffusers.py \
-    --model OpenSoraT2V_v1_5-6B/122 \
+    --model OpenSoraT2V_v1_5-3B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
@@ -36,7 +36,7 @@ accelerate launch \
     --max_width 768 \
     --gradient_checkpointing \
     --train_batch_size=1 \
-    --dataloader_num_workers 8 \
+    --dataloader_num_workers 12 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
@@ -59,7 +59,8 @@ accelerate launch \
     --rf_scheduler \
     --proj_name "$PROJECT" \
     --log_name "$PROJECT" \
-    --skip_abnorml_step --ema_decay_grad_clipping 0.99
+    --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
+    # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \
     # --min_hxw 36864 \
