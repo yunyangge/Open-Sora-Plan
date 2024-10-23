@@ -557,14 +557,14 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         return output
 
 
-def OpenSoraT2V_v1_5_2B_122(**kwargs): # 2.15B
+def OpenSoraT2V_v1_5_2B_122(**kwargs): # 2.4B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
-        num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=80, num_attention_heads=24, 
+        num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, **kwargs
+        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
 
 def OpenSoraT2V_v1_5_3B_122(**kwargs): # 2.98B
@@ -581,10 +581,10 @@ def OpenSoraT2V_v1_5_6B_122(**kwargs): # 6.05B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 32 layers
-        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=96, num_attention_heads=32, 
+        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
+        attention_head_dim=128, num_attention_heads=24, 
         timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, **kwargs
+        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
 
 def OpenSoraT2V_v1_5_9B_122(**kwargs):
@@ -643,6 +643,9 @@ if __name__ == '__main__':
     from opensora.models.causalvideovae import ae_norm, ae_denorm
     from opensora.models import CausalVAEModelWrapper
 
+    from tqdm import tqdm
+    import time
+
     try:
         import torch_npu
         from opensora.npu_config import npu_config
@@ -652,15 +655,14 @@ if __name__ == '__main__':
     args = type('args', (), 
     {
         'ae': 'WFVAEModel_D32_8x8x8', 
-        'model_max_length': 300, 
-        'max_height': 640,
-        'max_width': 640,
+        'model_max_length': 512, 
+        'max_height': 768,
+        'max_width': 768,
         'num_frames': 105,
         'compress_kv_factor': 1, 
         'interpolation_scale_t': 1,
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
-        "sparse1d": False, 
         "rank": 64, 
     }
     )
@@ -685,7 +687,6 @@ if __name__ == '__main__':
         interpolation_scale_t=args.interpolation_scale_t, 
         interpolation_scale_h=args.interpolation_scale_h, 
         interpolation_scale_w=args.interpolation_scale_w, 
-        sparse1d=args.sparse1d, 
         )
     print(model)
     total_cnt = len(list(model.named_parameters()))
@@ -708,8 +709,13 @@ if __name__ == '__main__':
     pooled_projections = torch.randn(b, 1, cond_c1).to(device)
     model_kwargs = dict(hidden_states=x, encoder_hidden_states=cond, attention_mask=attn_mask, pooled_projections=pooled_projections, 
                         encoder_attention_mask=cond_mask, timestep=timestep)
-    with torch.no_grad():
-        output = model(**model_kwargs)
+    
+    start_time = time.time()
+    for i in tqdm(range(10)):
+        with torch.no_grad():
+            output = model(**model_kwargs)
+    end_time = time.time()
     print(output[0].shape)
     # model.save_pretrained('./test_v1_5')
+    print('time', end_time - start_time)
 

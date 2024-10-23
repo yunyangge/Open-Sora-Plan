@@ -264,7 +264,8 @@ def backward(
         max_grad_norm_clip = max_grad_norm
     else:
         # out of 3 sigma mean abnormal step.
-        max_norm = min(moving_avg_max_grad_norm + 3.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
+        # max_norm = min(moving_avg_max_grad_norm + 3.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
+        max_norm = min(moving_avg_max_grad_norm + 1.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
         _, clip_coef = clip_grad_norm_(parameters=self.module.parameters(), max_norm=max_norm, mpu=self.mpu, accelerator=accelerator)
         grad_norm_clip = clip_grad_norm_(parameters=self.module.parameters(), max_norm=None, mpu=self.mpu, clip=False)
         grad_norm_clip_list = accelerator.gather(grad_norm_clip)

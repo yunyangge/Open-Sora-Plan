@@ -1,6 +1,7 @@
 import os
 
 import torch
+import threading
 
 import os
 import math
@@ -262,6 +263,25 @@ def monitor_npu_power():
 
     avg_power /= 8
     return avg_power
+
+def wandb_log_npu_power():
+    if wandb.run is None:
+        raise NotImplementedError("wandb is not initialized")
+    
+    def log():
+        
+        while True:
+            log_dict = {
+                "npu_power": monitor_npu_power(),
+            }
+            wandb.log(log_dict, commit=False)
+            time.sleep(1)
+            
+    log_thread = threading.Thread(target=log)
+    log_thread.daemon = True 
+    log_thread.start()
+
+    
 #################################################################################
 #                      EMA Update/ DDP Training Utils                           #
 #################################################################################

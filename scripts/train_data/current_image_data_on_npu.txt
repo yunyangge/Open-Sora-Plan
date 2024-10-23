@@ -1,0 +1,6 @@
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part0_2557988.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part1_2558320.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part2_2558374.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part3_2557917.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part4_2557938.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part5_2558179.pkl

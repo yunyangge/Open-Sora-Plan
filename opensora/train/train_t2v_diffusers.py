@@ -69,11 +69,10 @@ from opensora.dataset import getdataset
 from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
-from opensora.utils.utils import explicit_uniform_sampling, monitor_npu_power
+from opensora.utils.utils import explicit_uniform_sampling, wandb_log_npu_power
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 
-# from opensora.utils.utils import monitor_npu_power
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.24.0")
@@ -207,10 +206,7 @@ def main(args):
     if accelerator.is_main_process:
         accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
                                   init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
-
-        # if accelerator.is_main_process:
-        #     from threading import Thread
-        #     Thread(target=monitor_npu_power, daemon=True).start()
+        wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -308,9 +304,6 @@ def main(args):
         interpolation_scale_h=args.interpolation_scale_h,
         interpolation_scale_w=args.interpolation_scale_w,
         interpolation_scale_t=args.interpolation_scale_t,
-        sparse1d=args.sparse1d, 
-        sparse_n=args.sparse_n, 
-        skip_connection=args.skip_connection, 
     )
 
     # # use pretrained model?
@@ -674,7 +667,6 @@ def main(args):
                                 f"train_loss={train_loss}, max_grad_norm={progress_info.max_grad_norm}, max_grad_norm_clip={progress_info.max_grad_norm_clip}, "
                                 f"weight_norm={progress_info.weight_norm}, time_cost={one_step_duration}",
                                 rank=0)
-            accelerator.log({"npu_power": monitor_npu_power()}, step=progress_info.global_step)
 
         progress_info.train_loss = 0.0
         progress_info.max_grad_norm = 0.0
