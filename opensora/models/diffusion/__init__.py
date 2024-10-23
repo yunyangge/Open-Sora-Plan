@@ -1,9 +1,21 @@
-from .opensora_v1_5.modeling_opensora import OpenSora_v1_5_models
+from .opensora_v1_5.modeling_opensora import OpenSora_SUV_models
+from .opensora_v1_5.modeling_opensora import Opensora_DiT_models
+from .opensora_v1_5.modeling_opensora import Opensora_Sparse_models
+from .opensora_v1_5.modeling_opensora import Opensora_SUD_models
 
 Diffusion_models = {}
-Diffusion_models.update(OpenSora_v1_5_models)
+Diffusion_models.update(OpenSora_SUV_models)
+Diffusion_models.update(Opensora_DiT_models)
+Diffusion_models.update(Opensora_Sparse_models)
+Diffusion_models.update(Opensora_SUD_models)
 
-from .opensora_v1_5.modeling_opensora import OpenSora_v1_5_models_class
+from .opensora_v1_5.modeling_opensora import OpenSora_SUV_models_class
+from .opensora_v1_5.modeling_opensora import Opensora_DiT_models_class
+from .opensora_v1_5.modeling_opensora import Opensora_Sparse_models_class
+from .opensora_v1_5.modeling_opensora import Opensora_SUD_models_class
 
 Diffusion_models_class = {}
-Diffusion_models_class.update(OpenSora_v1_5_models_class)
+Diffusion_models_class.update(OpenSora_SUV_models_class)
+Diffusion_models_class.update(Opensora_DiT_models_class)
+Diffusion_models_class.update(Opensora_Sparse_models_class)
+Diffusion_models_class.update(Opensora_SUD_models_class)
