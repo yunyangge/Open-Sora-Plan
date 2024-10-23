@@ -677,7 +677,7 @@ if __name__ == '__main__':
 
     # device = torch.device('cpu')
     device = torch.device('cuda:0')
-    model = OpenSoraT2V_v1_5_2B_122(
+    model = OpenSoraT2V_v1_5_3B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 

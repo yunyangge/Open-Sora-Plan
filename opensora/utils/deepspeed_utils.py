@@ -466,7 +466,7 @@ def backward(
     else:
         # out of 3 sigma mean abnormal step.
         # max_norm = min(moving_avg_max_grad_norm + 3.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
-        max_norm = min(moving_avg_max_grad_norm + 1.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
+        max_norm = min(moving_avg_max_grad_norm + 2.0 * (moving_avg_max_grad_norm_var ** 0.5), self.gradient_clipping())
         _, clip_coef = clip_grad_norm_(parameters=self.module.parameters(), max_norm=max_norm, mpu=self.mpu, accelerator=accelerator)
         # 每个rank不一定都被裁，只有当这个rank的gradnorm比较大时候才被裁，统计log需要先gather
         clip_coef_list = accelerator.gather(clip_coef)

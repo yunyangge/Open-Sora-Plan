@@ -20,7 +20,7 @@ accelerate launch \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_t2v_diffusers.py \
-    --model OpenSoraT2V_v1_5-2B/122 \
+    --model OpenSoraT2V_v1_5-3B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
