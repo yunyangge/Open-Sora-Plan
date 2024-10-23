@@ -87,15 +87,7 @@ class DataSetProg(metaclass=SingletonMeta):
         self.n_elements = n_elements
         self.elements = list(range(n_elements))
         
-        print(f"n_elements: {len(self.elements)}", flush=True)
-        # if torch_npu is not None:
-        #     random.shuffle(self.elements)
-        #     for i in range(self.num_workers):
-        #         self.n_used_elements[i] = 0
-        #         per_worker = int(math.ceil(len(self.elements) / float(self.num_workers)))
-        #         start = i * per_worker
-        #         end = min(start + per_worker, len(self.elements))
-        #         self.worker_elements[i] = self.elements[start: end]
+        logger.info(f"n_elements: {len(self.elements)}")
 
     def get_item(self, work_info):
         if work_info is None:
@@ -166,7 +158,7 @@ class DecordDecoder(object):
             video_data = torch.from_numpy(video_data)
             return video_data
         except Exception as e:
-            print('get_batch execption:', e)
+            logger.info('get_batch execption:', e)
             return None
         
 class T2V_dataset(Dataset):
@@ -197,6 +189,8 @@ class T2V_dataset(Dataset):
         self.generator = torch.Generator().manual_seed(self.seed) 
         self.hw_aspect_thr = 2.0  # just a threshold
         self.too_long_factor = 5.0
+        self.random_data = args.random_data
+        self.force_5_ratio = args.force_5_ratio
 
         self.support_Chinese = False
         if 'mt5' in args.text_encoder_name_1:
@@ -207,12 +201,12 @@ class T2V_dataset(Dataset):
         s = time.time()
         cap_list, self.sample_size, self.shape_idx_dict = self.define_frame_index(self.data)
         e = time.time()
-        print(f'Build data time: {e-s}')
+        logger.info(f'Build data time: {e-s}')
         self.lengths = self.sample_size
 
         n_elements = len(cap_list)
         dataset_prog.set_cap_list(args.dataloader_num_workers, cap_list, n_elements)
-        print(f"Data length: {len(dataset_prog.cap_list)}")
+        logger.info(f"Data length: {len(dataset_prog.cap_list)}")
         self.executor = ThreadPoolExecutor(max_workers=1)
         self.timeout = 60
 
@@ -232,7 +226,7 @@ class T2V_dataset(Dataset):
         except Exception as e:
             if len(str(e)) < 2:
                 e = f"TimeoutError, {self.timeout}s timeout occur with {dataset_prog.cap_list[idx]['path']}"
-            print(f'Error with {e}')
+            logger.info(f'Error with {e}')
             index_cand = self.shape_idx_dict[self.sample_size[idx]]  # pick same shape
             return self.__getitem__(random.choice(index_cand))
 
@@ -249,17 +243,19 @@ class T2V_dataset(Dataset):
         assert os.path.exists(video_path), f"file {video_path} do not exist!"
         sample_h = video_data['resolution']['sample_height']
         sample_w = video_data['resolution']['sample_width']
-        if self.video_reader == 'decord':
-            video = self.decord_read(video_data)
-        elif self.video_reader == 'opencv':
-            video = self.opencv_read(video_data)
+
+        if self.random_data:
+            video = torch.rand(video_data['num_frames'], 3, sample_h, sample_w)
         else:
-            NotImplementedError(f'Found {self.video_reader}, but support decord or opencv')
-        # import ipdb;ipdb.set_trace()
-        video = self.transform(video)  # T C H W -> T C H W
+            if self.video_reader == 'decord':
+                video = self.decord_read(video_data)
+            elif self.video_reader == 'opencv':
+                video = self.opencv_read(video_data)
+            else:
+                NotImplementedError(f'Found {self.video_reader}, but support decord or opencv')
+            video = self.transform(video)  # T C H W -> T C H W
         assert video.shape[2] == sample_h and video.shape[3] == sample_w, f'sample_h ({sample_h}), sample_w ({sample_w}), video ({video.shape})'
 
-        # video = torch.rand(105, 3, 640, 640)
 
         video = video.transpose(0, 1)  # T C H W -> C T H W
         text = video_data['cap']
@@ -309,13 +305,17 @@ class T2V_dataset(Dataset):
         sample_h = image_data['resolution']['sample_height']
         sample_w = image_data['resolution']['sample_width']
 
-        image = Image.open(image_data['path']).convert('RGB')  # [h, w, c]
-        image = torch.from_numpy(np.array(image))  # [h, w, c]
-        image = rearrange(image, 'h w c -> c h w').unsqueeze(0)  #  [1 c h w]
 
-        image = self.transform(image) #  [1 C H W] -> num_img [1 C H W]
+        if self.random_data:
+            image = torch.rand(1, 3, sample_h, sample_w)
+        else:
+            image = Image.open(image_data['path']).convert('RGB')  # [h, w, c]
+            image = torch.from_numpy(np.array(image))  # [h, w, c]
+            image = rearrange(image, 'h w c -> c h w').unsqueeze(0)  #  [1 c h w]
+            image = self.transform(image) #  [1 C H W] -> num_img [1 C H W]
+            
         assert image.shape[2] == sample_h and image.shape[3] == sample_w, f"image_data: {image_data}, but found image {image.shape}"
-        # image = torch.rand(1, 3, sample_h, sample_w)
+        
         image = image.transpose(0, 1)  # [1 C H W] -> [C 1 H W]
 
         caps = image_data['cap'] if isinstance(image_data['cap'], list) else [image_data['cap']]
@@ -384,7 +384,7 @@ class T2V_dataset(Dataset):
         with open(data, 'r') as f:
             folder_anno = [i.strip().split(',') for i in f.readlines() if len(i.strip()) > 0]
         for sub_root, anno in tqdm(folder_anno):
-            print(f'Building {anno}...')
+            logger.info(f'Building {anno}...')
             if anno.endswith('.json'):
                 with open(anno, 'r') as f:
                     sub_list = json.load(f)
@@ -427,8 +427,8 @@ class T2V_dataset(Dataset):
                                 cnt_no_resolution += 1
                                 continue
                             
-                            tr_h, tr_w = maxhwresize(height, width, self.max_hxw)
-                            _, _, sample_h, sample_w = get_params(tr_h, tr_w, self.hw_stride)
+                            tr_h, tr_w = maxhwresize(height, width, self.max_hxw, self.force_5_ratio, self.hw_stride)
+                            _, _, sample_h, sample_w = get_params(tr_h, tr_w, self.hw_stride, self.force_5_ratio)
 
                             if sample_h <= 0 or sample_w <= 0:
                                 if path.endswith('.mp4'):

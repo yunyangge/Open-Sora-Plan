@@ -13,9 +13,11 @@ from opensora.dataset.t2v_datasets import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
 from opensora.dataset.dummy_dataset import Dummy_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
-from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
+from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize, MaxHWStrideResizeVideo
 
 
+from accelerate.logging import get_logger
+logger = get_logger(__name__)
 
 def getdataset(args):
     temporal_sample = TemporalRandomCrop(args.num_frames)  # 16 x
@@ -24,8 +26,8 @@ def getdataset(args):
         resize = [CenterCropResizeVideo((args.max_height, args.max_width)), ]
     else:
         resize = [
-            MaxHWResizeVideo(args.max_hxw), 
-            SpatialStrideCropVideo(stride=args.hw_stride), 
+            MaxHWStrideResizeVideo(max_hxw=args.max_hxw, force_5_ratio=args.force_5_ratio, hw_stride=args.hw_stride), 
+            SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio), 
         ]
 
     # tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
@@ -83,21 +85,21 @@ if __name__ == "__main__":
     from tqdm import tqdm
     args = type('args', (), 
     {
-        'ae': 'WFVAEModel_D32_4x8x8', 
+        'ae': 'WFVAEModel_D32_8x8x8', 
         'dataset': 't2v', 
         'model_max_length': 512, 
-        'max_height': 640,
-        'max_width': 640,
+        'max_height': 768,
+        'max_width': 768,
         'hw_stride': 16, 
-        'num_frames': 93,
+        'num_frames': 105,
         'compress_kv_factor': 1, 
         'interpolation_scale_t': 1,
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
         'cache_dir': '../cache_dir', 
-        'data': '/home/image_data/gyy/mmdit/Open-Sora-Plan/scripts/train_data/current_hq_on_npu.txt', 
+        'data': '/home/image_data/gyy/mmdit/Open-Sora-Plan/scripts/train_data/image_data_debug_on_npu.txt', 
         'train_fps': 18, 
-        'drop_short_ratio': 0.0, 
+        'drop_short_ratio': 1.0, 
         'speed_factor': 1.0, 
         'cfg': 0.1, 
         'text_encoder_name_1': 'google/mt5-xxl', 
@@ -109,51 +111,49 @@ if __name__ == "__main__":
         'train_batch_size': 1, 
         'gradient_accumulation_steps': 1, 
         'ae_stride': 8, 
-        'ae_stride_t': 4,  
+        'ae_stride_t': 8,  
         'patch_size': 2, 
         'patch_size_t': 1, 
         'total_batch_size': 256, 
         'sp_size': 1, 
-        'max_hxw': 384*384, 
-        'min_hxw': 384*288, 
-        # 'max_hxw': 236544, 
-        # 'min_hxw': 102400, 
+        'max_hxw': 256*256, 
+        'min_hxw': 192*192, 
+        'force_5_ratio': True, 
+        'random_data': False, 
     }
     )
-    # accelerator = Accelerator()
+    accelerator = Accelerator()
     dataset = getdataset(args)
-    # data = next(iter(dataset))
+    # print(dataset[0])
     # import ipdb;ipdb.set_trace()
-    # print()
-    sampler = LengthGroupedSampler(
-                args.train_batch_size,
-                world_size=1, 
-                gradient_accumulation_size=args.gradient_accumulation_steps, 
-                initial_global_step=0, 
-                lengths=dataset.lengths, 
-                group_data=args.group_data, 
-            )
-    train_dataloader = DataLoader(
-        dataset,
-        shuffle=False,
-        # pin_memory=True,
-        collate_fn=Collate(args),
-        batch_size=args.train_batch_size,
-        num_workers=args.dataloader_num_workers,
-        sampler=sampler, 
-        drop_last=False, 
-        prefetch_factor=4
-    )
-    import ipdb;ipdb.set_trace()
-    import imageio
-    import numpy as np
-    from einops import rearrange
-    while True:
-        for idx, i in enumerate(tqdm(train_dataloader)):
-            pixel_values = i[0][0]
-            pixel_values_ = (pixel_values+1)/2
-            pixel_values_ = rearrange(pixel_values_, 'c t h w -> t h w c') * 255.0
-            pixel_values_ = pixel_values_.numpy().astype(np.uint8)
-            imageio.mimwrite(f'output{idx}.mp4', pixel_values_, fps=args.train_fps)
-            dist.barrier()
-            pass
+    # sampler = LengthGroupedSampler(
+    #             args.train_batch_size,
+    #             world_size=1, 
+    #             gradient_accumulation_size=args.gradient_accumulation_steps, 
+    #             initial_global_step=0, 
+    #             lengths=dataset.lengths, 
+    #             group_data=args.group_data, 
+    #         )
+    # train_dataloader = DataLoader(
+    #     dataset,
+    #     shuffle=False,
+    #     # pin_memory=True,
+    #     collate_fn=Collate(args),
+    #     batch_size=args.train_batch_size,
+    #     num_workers=args.dataloader_num_workers,
+    #     sampler=sampler, 
+    #     drop_last=False, 
+    #     prefetch_factor=4
+    # )
+    # import imageio
+    # import numpy as np
+    # from einops import rearrange
+    # while True:
+    #     for idx, i in enumerate(tqdm(train_dataloader)):
+    #         pixel_values = i[0][0]
+    #         pixel_values_ = (pixel_values+1)/2
+    #         pixel_values_ = rearrange(pixel_values_, 'c t h w -> t h w c') * 255.0
+    #         pixel_values_ = pixel_values_.numpy().astype(np.uint8)
+    #         imageio.mimwrite(f'output{idx}.mp4', pixel_values_, fps=args.train_fps)
+    #         dist.barrier()
+    #         pass

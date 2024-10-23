@@ -1,7 +1,5 @@
-export WANDB_KEY="953e958793b218efb850fa194e85843e2c3bd88b"
+export WANDB_API_KEY="953e958793b218efb850fa194e85843e2c3bd88b"
 # export WANDB_MODE="offline"
-export ENTITY="linbin"
-export PROJECT="bs32x8x2_61x480p_lr1e-4_snr5_noioff0.02_opensora122_rope_mt5xxl_pandamovie_aes_mo_sucai_mo_speed1.2"
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 export PDSH_RCMD_TYPE=ssh
@@ -18,57 +16,66 @@ export NCCL_ALGO=Ring
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NCCL_IB_RETRY_CNT=32
+export TOKENIZERS_PARALLELISM=false
 # export NCCL_ALGO=Tree
 
+# MAIN_PROCESS_IP=${1}
+# MAIN_PROCESS_PORT=${2}
+# NUM_MACHINES=${3}
+# NUM_PROCESSES=${4}
+# MACHINE_RANK=${5}
+
+# accelerate launch \
+#     --config_file scripts/accelerate_configs/multi_node_example.k8s.yaml \
+#     --main_process_ip=${MAIN_PROCESS_IP} \
+#     --main_process_port=${MAIN_PROCESS_PORT} \
+#     --num_machines=${NUM_MACHINES} \
+#     --num_processes=${NUM_PROCESSES} \
+#     --machine_rank=${MACHINE_RANK} \
+
+# accelerate launch \
+#     --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+
 accelerate launch \
-    --config_file scripts/accelerate_configs/multi_node_example.yaml \
+    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
     opensora/train/train_t2v_diffusers.py \
-    --model OpenSoraT2V_v1_5-8B/122 \
+    --model OpenSoraT2V_v1_5-13B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data "scripts/train_data/image_data_stage1_part3.txt" \
+    --data "scripts/train_data/video_data_debug.txt" \
     --ae WFVAEModel_D32_8x8x8 \
-    --ae_path "/storage/lcm/WF-VAE/results/formal_888_lbstd" \
+    --ae_path "/storage/lcm/WF-VAE/results/Middle888" \
     --sample_rate 1 \
     --num_frames 1 \
     --max_hxw 147456 \
-    --min_hxw 36864 \
-    --interpolation_scale_t 1.0 \
-    --interpolation_scale_h 1.0 \
-    --interpolation_scale_w 1.0 \
+    --min_hxw 110592 \
     --gradient_checkpointing \
     --train_batch_size=8 \
     --dataloader_num_workers 16 \
-    --gradient_accumulation_steps=1 \
-    --max_train_steps=1000000 \
-    --learning_rate=5e-5 \
+    --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
-    --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
     --report_to="wandb" \
     --checkpointing_steps=1000 \
     --allow_tf32 \
     --model_max_length 512 \
-    --use_ema \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --speed_factor 1.0 \
     --ema_decay 0.9999 \
-    --drop_short_ratio 0.0 \
+    --drop_short_ratio 1.0 \
     --hw_stride 16 \
     --sparse1d \
     --train_fps 16 \
     --seed 1234 \
-    --trained_data_global_step 0 \
     --group_data \
     --use_decord \
-    --prediction_type "v_prediction" \
-    --output_dir="any1x384x384_min192x192_lr5e-5_wu5k_bs2048_mmdit8b_vpred_fp32vae888_snr5.0" \
+    --output_dir="mmdit13b_rf_bs1024_lr1e-4_max1x384x384_min1x384x288_noema_emaclip9999" \
     --vae_fp32 \
-    --snr_gamma 5.0 \
-    --lr_warmup_steps 5000 \
-    --v1_5_scheduler > test_log_img_5.txt
+    --rf_scheduler \
+    --proj_name "10.19_mmdit13b" \
+    --log_name "rf_bs1024_lr1e-4_max1x384x384_min1x384x288_emaclip9999" \
+    --skip_abnorml_step --ema_decay_grad_clipping 0.9999

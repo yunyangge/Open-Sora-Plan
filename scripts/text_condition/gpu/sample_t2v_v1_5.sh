@@ -1,18 +1,18 @@
 
-CUDA_VISIBLE_DEVICES=0 torchrun --nnodes=1 --nproc_per_node 1 --master_port 29512 \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29512 \
     -m opensora.sample.sample \
-    --model_path /storage/ongoing/9.29/mmdit/Open-Sora-Plan/any1x384x384_min288x384_lr1e-4_bs2048_mmdit2b_prenorm_rf_fp32vae888_wd0.1_gn0.3_notout_noskip/checkpoint-2000/model_ema \
+    --model_path /storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/mmdit13b_rf_bs2048_lr1e-4_max1x256x256_min1x256x192_noema_emaclip99/checkpoint-23000/model \
     --version v1_5 \
     --num_frames 1 \
-    --height 384 \
-    --width 384 \
+    --height 256 \
+    --width 256 \
     --cache_dir "../cache_dir" \
     --text_encoder_name_1 "/storage/cache_dir/t5-v1_1-xl" \
     --text_encoder_name_2 "/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k" \
-    --text_prompt examples/sora_refine.txt \
+    --text_prompt examples/sora.txt \
     --ae WFVAEModel_D32_8x8x8 \
-    --ae_path "/storage/lcm/WF-VAE/results/formal_888_lbstd" \
-    --save_img_path "./test_1x384x384_v1_5_2bprenorm_s28_ckpt2k_rf_wd_gn_noskip" \
+    --ae_path "/storage/lcm/WF-VAE/results/Middle888" \
+    --save_img_path "./rf_1x256x256_v1_5_13b_s28_ckpt21k_23k" \
     --fps 18 \
     --guidance_scale 7.0 \
     --num_sampling_steps 28 \

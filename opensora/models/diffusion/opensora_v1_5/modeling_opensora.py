@@ -68,16 +68,7 @@ def prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_n
             }
 
 
-def create_custom_forward(module, return_dict=None):
-    def custom_forward(*inputs):
-        if return_dict is not None:
-            return module(*inputs, return_dict=return_dict)
-        else:
-            return module(*inputs)
 
-    return custom_forward
-
-ckpt_kwargs: Dict[str, Any] = {"use_reentrant": False} if is_torch_version(">=", "1.11.0") else {}
                 
 
 class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
@@ -110,13 +101,13 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         pooled_projection_dim: int = 1024, 
         timestep_embed_dim: int = 512,
         norm_cls: str = 'rms_norm', 
-        skip_connection: bool = True
+        skip_connection: bool = False
     ):
         super().__init__()
         # Set some common variables used across the board.
         self.out_channels = in_channels if out_channels is None else out_channels
         self.config.hidden_size = self.config.num_attention_heads * self.config.attention_head_dim
-        self.gradient_checkpointing = True
+        self.gradient_checkpointing = False
         if norm_cls == 'rms_norm':
             self.norm_cls = RMSNorm
         elif norm_cls == 'layer_norm':
@@ -126,7 +117,14 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         assert len(self.config.num_layers) % 2 == 1
         assert all([i % 2 == 0 for i in self.config.num_layers])
 
+        if not self.config.sparse1d:
+            self.config.sparse_n = self.sparse_n = [1] * len(self.config.sparse_n)
+
         self._init_patched_inputs()
+
+    def _set_gradient_checkpointing(self, module, value=False):
+        if hasattr(module, "gradient_checkpointing"):
+            module.gradient_checkpointing = value
 
     def _init_patched_inputs(self):
 
@@ -228,8 +226,6 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
             self.config.hidden_size, self.config.patch_size_t * self.config.patch_size * self.config.patch_size * self.out_channels
         )
 
-    def _set_gradient_checkpointing(self, module, value=False):
-        self.gradient_checkpointing = value
 
     def forward(
         self,
@@ -349,6 +345,16 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                 #       f'sparse_mask {block.sparse_n}, sparse_group {block.sparse_group}')
                 attention_mask = self.sparse_mask[block.sparse_n][block.sparse_group]
                 if self.training and self.gradient_checkpointing:
+                    def create_custom_forward(module, return_dict=None):
+                        def custom_forward(*inputs):
+                            if return_dict is not None:
+                                return module(*inputs, return_dict=return_dict)
+                            else:
+                                return module(*inputs)
+
+                        return custom_forward
+
+                    ckpt_kwargs: Dict[str, Any] = {"use_reentrant": False} if is_torch_version(">=", "1.11.0") else {}
                     hidden_states, encoder_hidden_states = torch.utils.checkpoint.checkpoint(
                         create_custom_forward(block),
                         hidden_states,
@@ -391,6 +397,19 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
             #         f'sparse_mask {block.sparse_n}, sparse_group {block.sparse_group}')
             attention_mask = self.sparse_mask[block.sparse_n][block.sparse_group]
             if self.training and self.gradient_checkpointing:
+
+                
+                def create_custom_forward(module, return_dict=None):
+                    def custom_forward(*inputs):
+                        if return_dict is not None:
+                            return module(*inputs, return_dict=return_dict)
+                        else:
+                            return module(*inputs)
+
+                    return custom_forward
+
+                ckpt_kwargs: Dict[str, Any] = {"use_reentrant": False} if is_torch_version(">=", "1.11.0") else {}
+
                 hidden_states, encoder_hidden_states = torch.utils.checkpoint.checkpoint(
                     create_custom_forward(block),
                     hidden_states,
@@ -443,6 +462,19 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                 #       f'sparse_mask {block.sparse_n}, sparse_group {block.sparse_group}')
                 attention_mask = self.sparse_mask[block.sparse_n][block.sparse_group]
                 if self.training and self.gradient_checkpointing:
+
+                    
+                    def create_custom_forward(module, return_dict=None):
+                        def custom_forward(*inputs):
+                            if return_dict is not None:
+                                return module(*inputs, return_dict=return_dict)
+                            else:
+                                return module(*inputs)
+
+                        return custom_forward
+
+                    ckpt_kwargs: Dict[str, Any] = {"use_reentrant": False} if is_torch_version(">=", "1.11.0") else {}
+
                     hidden_states, encoder_hidden_states = torch.utils.checkpoint.checkpoint(
                         create_custom_forward(block),
                         hidden_states,
@@ -544,23 +576,32 @@ def OpenSoraT2V_v1_5_5B_122(**kwargs): # 5.85B
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
-def OpenSoraT2V_v1_5_7B_122(**kwargs):
+def OpenSoraT2V_v1_5_6B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 36 layers
-        num_layers=[2, 4, 8, 8, 8, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+    return OpenSoraT2V_v1_5(  # 32 layers
+        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
         attention_head_dim=96, num_attention_heads=32, 
+        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
+        caption_channels=2048, pooled_projection_dim=1280, **kwargs
+    )
+
+def OpenSoraT2V_v1_5_9B_122(**kwargs):
+    if kwargs.get('sparse_n', None) is not None:
+        kwargs.pop('sparse_n')
+    return OpenSoraT2V_v1_5(  # 32 layers
+        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=96, num_attention_heads=40, 
         timestep_embed_dim=1280, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
-
 def OpenSoraT2V_v1_5_13B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 44 layers
-        num_layers=[2, 6, 8, 12, 8, 6, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=96, num_attention_heads=40, 
+    return OpenSoraT2V_v1_5(  # 40 layers
+        num_layers=[2, 6, 8, 8, 8, 6, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=128, num_attention_heads=32, 
         timestep_embed_dim=1536, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
@@ -651,6 +692,7 @@ OpenSora_v1_5_models = {
     "OpenSoraT2V_v1_5-5B/122": OpenSoraT2V_v1_5_5B_122,
     "OpenSoraT2V_v1_5-7B/122": OpenSoraT2V_v1_5_7B_122, 
     "OpenSoraT2V_v1_5-13B/122": OpenSoraT2V_v1_5_13B_122, 
+    "OpenSoraT2V_v1_5-32B/122": OpenSoraT2V_v1_5_32B_122, 
 }
 
 OpenSora_v1_3_models = {
@@ -679,6 +721,7 @@ OpenSora_v1_5_models_class = {
     "OpenSoraT2V_v1_5-3B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-7B/122": OpenSoraT2V_v1_5,
     "OpenSoraT2V_v1_5-13B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_v1_5-32B/122": OpenSoraT2V_v1_5,
 }
 
 OpenSora_v1_3_models_class = {
@@ -719,7 +762,7 @@ if __name__ == '__main__':
         'interpolation_scale_t': 1,
         'interpolation_scale_h': 1,
         'interpolation_scale_w': 1,
-        "sparse1d": True, 
+        "sparse1d": False, 
         "rank": 64, 
     }
     )
@@ -746,8 +789,9 @@ if __name__ == '__main__':
         interpolation_scale_w=args.interpolation_scale_w, 
         sparse1d=args.sparse1d, 
         )
-    
     print(model)
+    total_cnt = len(list(model.named_parameters()))
+    print('total_cnt', total_cnt)
     print(f'{sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B')
     # import sys;sys.exit()
     # try:
