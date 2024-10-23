@@ -558,33 +558,13 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         # import sys;sys.exit()
         return output
 
-def OpenSoraT2V_SUV_2B_122(**kwargs): # 2.2B
+def OpenSoraT2V_SUV_2B_122(**kwargs): # 2.4B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
         num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=80, num_attention_heads=24, 
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=True, **kwargs
-    )
-
-def OpenSoraT2V_SUV_3B_122(**kwargs): # 2.2B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 28 layers
-        num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=96, num_attention_heads=24, 
-        timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=True, **kwargs
-    )
-
-def OpenSoraT2V_SUV_6B_122(**kwargs): # 6.05B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 32 layers
-        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=96, num_attention_heads=32, 
-        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=True, **kwargs
     )
 
@@ -609,26 +589,6 @@ def OpenSoraT2V_SUD_2B_122(**kwargs): # 2.15B
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
 
-def OpenSoraT2V_SUD_6B_122(**kwargs): # 2.15B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 28 layers
-        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=128, num_attention_heads=24, 
-        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
-    )
-
-def OpenSoraT2V_v1_5_6B_122(**kwargs): # 6.05B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 32 layers
-        num_layers=[2, 4, 6, 8, 6, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=96, num_attention_heads=32, 
-        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, **kwargs
-    )
-
 def OpenSoraT2V_DiT_2B_122(**kwargs): # 2.15 B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
@@ -636,36 +596,6 @@ def OpenSoraT2V_DiT_2B_122(**kwargs): # 2.15 B
         num_layers=[2, 24, 2], sparse_n=[1, 1, 1], sparse1d=False,
         attention_head_dim=80, num_attention_heads=24, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
-    )
-
-def OpenSoraT2V_DiT_2B_122(**kwargs): # 2.15 B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 28 layers
-        num_layers=[2, 24, 2], sparse_n=[1, 1, 1], sparse1d=False,
-        attention_head_dim=80, num_attention_heads=24, 
-        timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
-    )
-
-def OpenSoraT2V_DiT_3B_122(**kwargs): # 2.15 B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 28 layers
-        num_layers=[2, 24, 2], sparse_n=[1, 1, 1], sparse1d=False,
-        attention_head_dim=96, num_attention_heads=24, 
-        timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
-        caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
-    )
-
-def OpenSoraT2V_DiT_6B_122(**kwargs): # 6.05B
-    if kwargs.get('sparse_n', None) is not None:
-        kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 32 layers
-        num_layers=[2, 28, 2], sparse_n=[1, 1, 1], sparse1d=False,
-        attention_head_dim=96, num_attention_heads=32, 
-        timestep_embed_dim=1024, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
 
@@ -679,7 +609,6 @@ def OpenSoraT2V_Sparse_2B_122(**kwargs): # 2.15 B
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
-
 
 OpenSora_SUV_models = {
     "OpenSoraT2V_SUV_2B/122": OpenSoraT2V_SUV_2B_122,
@@ -761,7 +690,7 @@ if __name__ == '__main__':
     num_frames = (args.num_frames - 1) // ae_stride_t + 1
 
     device = torch.device('cuda:0')
-    model = OpenSoraT2V_DiT_2B_122(
+    model = OpenSoraT2V_SUV_2B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 

@@ -308,8 +308,6 @@ def main(args):
         interpolation_scale_h=args.interpolation_scale_h,
         interpolation_scale_w=args.interpolation_scale_w,
         interpolation_scale_t=args.interpolation_scale_t,
-        sparse1d=args.sparse1d, 
-        sparse_n=args.sparse_n, 
     )
 
     # # use pretrained model?
