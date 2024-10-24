@@ -20,23 +20,23 @@ accelerate launch \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_t2v_diffusers.py \
-    --model OpenSoraT2V_v1_5-3B/122 \
+    --model OpenSoraT2V_v1_5-6B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data scripts/train_data/video_data_debug_on_npu.txt \
+    --data scripts/train_data/current_image_data_on_npu.txt \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
     --sample_rate 1 \
-    --num_frames 105 \
-    --force_resolution \
-    --max_height 768 \
-    --max_width 768 \
+    --num_frames 1 \
+    --max_hxw 65536 \
+    --min_hxw 36864 \
+    --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=1 \
-    --dataloader_num_workers 12 \
+    --train_batch_size=16 \
+    --dataloader_num_workers 16 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
