@@ -77,7 +77,7 @@ from torch.utils.data import _utils
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.24.0")
-logger = get_logger('train.transition')
+logger = get_logger(os.path.relpath(__file__))
 
 _utils.MP_STATUS_CHECK_INTERVAL = 1800.0  # dataloader timeout (default is 5.0s), we increase it to 1800s.
 
@@ -85,7 +85,6 @@ class ProgressInfo:
     def __init__(self, global_step, train_loss=0.0):
         self.global_step = global_step
         self.train_loss = train_loss
-
 
 
 #################################################################################
@@ -96,7 +95,7 @@ def main(args):
     logging_dir = Path(args.output_dir, args.logging_dir)
 
     if torch_npu is not None and npu_config is not None:
-        npu_config.print_msg(args)
+        # npu_config.print_msg(args)
         npu_config.seed_everything(args.seed)
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)
 
@@ -115,12 +114,7 @@ def main(args):
             raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
 
     # Make one log on every process with the configuration for debugging.
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
-    logger.info(accelerator.state, main_process_only=False)
+    logger.info(accelerator.state)
     if accelerator.is_local_main_process:
         transformers.utils.logging.set_verbosity_warning()
         diffusers.utils.logging.set_verbosity_info()
@@ -464,7 +458,7 @@ def main(args):
             "run_name": run_name,
         }
         accelerator.init_trackers(project_name=project_name, config=vars(args), init_kwargs=init_kwargs)
-        wandb_log_npu_power()
+        # wandb_log_npu_power()
 
     # Train!
     print(f"  Args = {args}")

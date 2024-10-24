@@ -1,4 +1,3 @@
-from torchvision.transforms import Compose
 from transformers import AutoTokenizer, AutoImageProcessor
 
 from torchvision import transforms
@@ -9,8 +8,9 @@ try:
 except:
     torch_npu = None
 
-from opensora.dataset.t2v_datasets import T2V_dataset
+from opensora.dataset.t2v_dataset import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
+from opensora.dataset.transition_dataset import Transition_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
 from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
 
@@ -27,10 +27,17 @@ def getdataset(args):
             SpatialStrideCropVideo(stride=args.hw_stride), 
         ]
 
-    tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
+    if torch_npu is not None:
+        tokenizer_1 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/mt5-xxl', cache_dir=args.cache_dir)
+    else:    
+        tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
     tokenizer_2 = None
     if args.text_encoder_name_2 is not None:
-        tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
+        if torch_npu is not None:
+            tokenizer_2 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/clip/models--laion--CLIP-ViT-bigG-14-laion2B-39B-b160k/snapshots/bc7788f151930d91b58474715fdce5524ad9a189', cache_dir=args.cache_dir)
+        else:    
+            tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
+        
     if args.dataset == 't2v':
         transform = transforms.Compose([
             ToTensorVideo(),
@@ -42,12 +49,22 @@ def getdataset(args):
             tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
             )
     elif args.dataset == 'i2v' or args.dataset == 'inpaint':
-        resize_transform = Compose(resize)
-        transform = Compose([
+        resize_transform = transforms.Compose(resize)
+        transform = transforms.Compose([
             ToTensorAfterResize(),
             norm_fun,
         ])
         return Inpaint_dataset(
+            args, resize_transform=resize_transform, transform=transform, 
+            temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
+        )
+    elif args.dataset == 'transition':
+        resize_transform = transforms.Compose(resize)
+        transform = transforms.Compose([
+            ToTensorAfterResize(),
+            norm_fun,
+        ])
+        return Transition_dataset(
             args, resize_transform=resize_transform, transform=transform, 
             temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
         )

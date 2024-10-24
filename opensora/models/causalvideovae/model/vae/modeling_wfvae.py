@@ -30,6 +30,10 @@ from einops import rearrange
 from ..utils.module_utils import resolve_str_to_obj, Module
 from typing import List
 
+from opensora.utils.custom_logger import get_logger
+
+logger = get_logger(os.path.relpath(__file__))
+
 class Encoder(VideoBaseAE):
 
     @register_to_config
@@ -480,6 +484,7 @@ class WFVAEModel(VideoBaseAE):
                 result.append(chunk.clone())
             
         return torch.cat(result, dim=2)
+    
     def forward(self, input, sample_posterior=True):
         posterior = self.encode(input)
         if sample_posterior:
@@ -488,6 +493,7 @@ class WFVAEModel(VideoBaseAE):
             z = posterior.mode()
         dec = self.decode(z)
         return dec, posterior
+    
     def get_last_layer(self):
         if hasattr(self.decoder.conv_out, "conv"):
             return self.decoder.conv_out.conv.weight
@@ -499,19 +505,20 @@ class WFVAEModel(VideoBaseAE):
         
     def disable_tiling(self):
         self.enable_tiling(False)
+
     def init_from_ckpt(self, path, ignore_keys=list()):
         sd = torch.load(path, map_location="cpu")
-        print("init from " + path)
+        logger.debug("init from " + path)
         if (
             "ema_state_dict" in sd
             and len(sd["ema_state_dict"]) > 0
             and os.environ.get("NOT_USE_EMA_MODEL", 0) == 0
         ):
-            print("Load from ema model!")
+            logger.debug("Loading wfvae from ema model!")
             sd = sd["ema_state_dict"]
             sd = {key.replace("module.", ""): value for key, value in sd.items()}
         elif "state_dict" in sd:
-            print("Load from normal model!")
+            logger.debug("Loading wfvae from normal model!")
             if "gen_model" in sd["state_dict"]:
                 sd = sd["state_dict"]["gen_model"]
             else:
@@ -520,8 +527,8 @@ class WFVAEModel(VideoBaseAE):
         for k in keys:
             for ik in ignore_keys:
                 if k.startswith(ik):
-                    print("Deleting key {} from state_dict.".format(k))
+                    logger.debug("Deleting key {} from state_dict.".format(k))
                     del sd[k]
 
         missing_keys, unexpected_keys = self.load_state_dict(sd, strict=False)
-        print(missing_keys, unexpected_keys)
+        logger.debug(f"missing_keys: {missing_keys}, unexpected_keys: {unexpected_keys}")

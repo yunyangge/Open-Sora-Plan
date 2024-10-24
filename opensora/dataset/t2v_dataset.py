@@ -37,7 +37,7 @@ from opensora.dataset.transform import get_params, maxhwresize, add_masking_noti
 import decord
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
-logger = get_logger(__name__)
+logger = get_logger('dataset.t2v')
 
 def filter_json_by_existed_files(directory, data, postfix=".mp4"):
     # 构建搜索模式，以匹配指定后缀的文件
@@ -125,7 +125,7 @@ def find_closest_y(x, vae_stride_t=4, model_ds_t=1):
             return y
     return -1 
 
-def filter_resolution(h, w, max_h_div_w_ratio=17/16, min_h_div_w_ratio=8 / 16):
+def filter_resolution(h, w, max_h_div_w_ratio=17/16, min_h_div_w_ratio=8/16):
     if h / w <= max_h_div_w_ratio and h / w >= min_h_div_w_ratio:
         return True
     return False
@@ -383,6 +383,8 @@ class T2V_dataset(Dataset):
 
         with open(data, 'r') as f:
             folder_anno = [i.strip().split(',') for i in f.readlines() if len(i.strip()) > 0]
+        # folder_anno = [['/home/obs_data', '/home/image_data/chengxinhua/transition_data/sucai.json']]
+        
         for sub_root, anno in tqdm(folder_anno):
             print(f'Building {anno}...')
             if anno.endswith('.json'):
@@ -553,8 +555,7 @@ class T2V_dataset(Dataset):
                 f'cnt_vid: {cnt_vid}, cnt_vid_after_filter: {cnt_vid_after_filter}, use_ratio: {round(cnt_vid_after_filter/(cnt_vid+1e-6), 5)*100}%\n'
                 f'cnt_img: {cnt_img}, cnt_img_after_filter: {cnt_img_after_filter}, use_ratio: {round(cnt_img_after_filter/(cnt_img+1e-6), 5)*100}%\n'
                 f'before filter: {cnt}, after filter: {len(new_cap_list)}, use_ratio: {round(len(new_cap_list)/cnt, 5)*100}%')
-        # import ipdb;ipdb.set_trace()
-        
+
         if len(aesthetic_score) > 0:
             stats_aesthetic = calculate_statistics(aesthetic_score)
             print(f"before filter: {cnt}, after filter: {len(new_cap_list)}\n"

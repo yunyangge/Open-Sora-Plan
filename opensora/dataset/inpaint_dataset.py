@@ -35,7 +35,7 @@ from opensora.utils.utils import text_preprocessing
 from opensora.dataset.transform import get_params, maxhwresize, add_masking_notice, calculate_statistics, \
     add_aesthetic_notice_image, add_aesthetic_notice_video
 from opensora.utils.mask_utils import MaskProcessor, STR_TO_TYPE
-from opensora.dataset.t2v_datasets import T2V_dataset, DataSetProg
+from opensora.dataset.t2v_dataset import T2V_dataset, DataSetProg
 
 logger = get_logger(__name__)
 
@@ -98,6 +98,7 @@ class Inpaint_dataset(T2V_dataset):
             # return self.__getitem__(idx)
     
     def get_data(self, idx):
+        import ipdb; ipdb.set_trace()
         path = dataset_prog.cap_list[idx]['path']
         if not os.path.exists(path):
             print(f"file {path} do not exist, random choice a new one with same shape!")

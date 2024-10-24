@@ -113,7 +113,7 @@ class NPUConfig:
         else:
             self.rank = torch.cuda.current_device()
             self.world_size = self.N_NPU_PER_NODE
-        self.print_with_rank(f"The npu_config.on_npu is {self.on_npu}")
+        # self.print_with_rank(f"The npu_config.on_npu is {self.on_npu}")
         self.bind_thread_to_cpu()
         gc.set_threshold(700, 10, 10000)
 
