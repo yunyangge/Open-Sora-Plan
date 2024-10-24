@@ -568,12 +568,12 @@ def OpenSoraT2V_SUV_2B_122(**kwargs): # 2.4B
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=True, **kwargs
     )
 
-def OpenSoraT2V_v1_3_2B_122(**kwargs): # 2.15 B
+def OpenSoraT2V_v1_3_2B_122(**kwargs): # 2.3B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 32 layers
         num_layers=[2, 24, 2], sparse_n=[1, 4, 1], sparse1d=True,
-        attention_head_dim=80, num_attention_heads=24, 
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
@@ -584,17 +584,17 @@ def OpenSoraT2V_SUD_2B_122(**kwargs): # 2.15B
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
         num_layers=[2, 4, 4, 8, 4, 4, 2], sparse_n=[1, 2, 4, 8, 4, 2, 1], sparse1d=True,
-        attention_head_dim=80, num_attention_heads=24, 
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
 
-def OpenSoraT2V_DiT_2B_122(**kwargs): # 2.15 B
+def OpenSoraT2V_DiT_2B_122(**kwargs): # 2.3B
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
         num_layers=[2, 24, 2], sparse_n=[1, 1, 1], sparse1d=False,
-        attention_head_dim=80, num_attention_heads=24, 
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
@@ -605,7 +605,7 @@ def OpenSoraT2V_Sparse_2B_122(**kwargs): # 2.15 B
         kwargs.pop('sparse_n')
     return OpenSoraT2V_v1_5(  # 28 layers
         num_layers=[2, 24, 2], sparse_n=[4, 4, 4], sparse1d=True, 
-        attention_head_dim=80, num_attention_heads=24, 
+        attention_head_dim=128, num_attention_heads=16, 
         timestep_embed_dim=768, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, skip_connection=False, **kwargs
     )
@@ -615,19 +615,19 @@ OpenSora_SUV_models = {
 }
 
 Opensora_DiT_models = {
-    "OpenSoraT2V_DiT-2B/122": OpenSoraT2V_DiT_2B_122,
+    "OpenSoraT2V_DiT_2B/122": OpenSoraT2V_DiT_2B_122,
 }
 
 Opensora_SUD_models = {
-    "OpenSoraT2V_SUD-2B/122": OpenSoraT2V_SUD_2B_122,
+    "OpenSoraT2V_SUD_2B/122": OpenSoraT2V_SUD_2B_122,
 }
 
 Opensora_Sparse_models = {
-    "OpenSoraT2V_Sparse-2B/122": OpenSoraT2V_Sparse_2B_122,
+    "OpenSoraT2V_Sparse_2B/122": OpenSoraT2V_Sparse_2B_122,
 }
 
 OpenSora_v1_3_models = {
-    "OpenSoraT2V_v1_3-2B/122": OpenSoraT2V_v1_3_2B_122,
+    "OpenSoraT2V_v1_3_2B/122": OpenSoraT2V_v1_3_2B_122,
 }
 
 OpenSora_SUV_models_class = {
@@ -635,19 +635,19 @@ OpenSora_SUV_models_class = {
 }
 
 Opensora_DiT_models_class = {
-    "OpenSoraT2V_DiT-2B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_DiT_2B/122": OpenSoraT2V_v1_5,
 }
 
 Opensora_SUD_models_class = {
-    "OpenSoraT2V_SUD-2B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_SUD_2B/122": OpenSoraT2V_v1_5,
 }
 
 Opensora_Sparse_models_class = {
-    "OpenSoraT2V_Sparse-2B/122": OpenSoraT2V_v1_5,
+    "OpenSoraT2V_Sparse_2B/122": OpenSoraT2V_v1_5,
 }
 
 # OpenSora_v1_3_models_class = {
-#     "OpenSoraT2V_v1_3-2B/122": OpenSoraT2V_v1_5,
+#     "OpenSoraT2V_v1_3_2B/122": OpenSoraT2V_v1_5,
 # }
 
 
