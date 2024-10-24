@@ -466,7 +466,7 @@ def backward(
         max_grad_norm_clip = max_grad_norm  
     else:
         # out of 3 sigma mean abnormal step.
-        max_norm = moving_avg_max_grad_norm + 2.5 * (moving_avg_max_grad_norm_var ** 0.5)
+        max_norm = moving_avg_max_grad_norm + 3.0 * (moving_avg_max_grad_norm_var ** 0.5)
         _, zero_grad_list, clip_coef = zero_grad_abnormal_(parameters=self.module.parameters(), max_norm=max_norm, mpu=self.mpu, accelerator=accelerator)
         num_zero_grad = zero_grad_list.sum().item()
         grad_norm_clip = zero_grad_abnormal_(parameters=self.module.parameters(), max_norm=None, mpu=self.mpu, clip=False)
