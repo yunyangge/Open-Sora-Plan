@@ -1,4 +1,5 @@
 
+export PROJECT_NAME="chengxinhua_transition"
 export PROJECT=$PROJECT_NAME
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1

@@ -174,27 +174,11 @@ def main(args):
             'low_cpu_mem_usage': False
             }
         text_enc_1 = get_text_warpper(args.text_encoder_name_1)(args, **kwargs).eval()
-
         text_enc_2 = None
         if args.text_encoder_name_2 is not None:
             text_enc_2 = get_text_warpper(args.text_encoder_name_2)(args, **kwargs).eval()
     
-    # kwargs = {}
-    # # ae = ae_wrapper[args.ae](args.ae_path, cache_dir=args.cache_dir, **kwargs).eval()
     
-    # # if args.enable_tiling:
-    # #     ae.vae.enable_tiling()
-
-    # kwargs = {
-    #     'torch_dtype': weight_dtype, 
-    #     'low_cpu_mem_usage': False
-    #     }
-    # text_enc_1 = get_text_warpper(args.text_encoder_name_1)(args, **kwargs).eval()
-
-    # text_enc_2 = None
-    # if args.text_encoder_name_2 is not None:
-    #     text_enc_2 = get_text_warpper(args.text_encoder_name_2)(args, **kwargs).eval()
-
     ae_stride_t, ae_stride_h, ae_stride_w = ae_stride_config[args.ae]
     ae.vae_scale_factor = (ae_stride_t, ae_stride_h, ae_stride_w)
     assert ae_stride_h == ae_stride_w, f"Support only ae_stride_h == ae_stride_w now, but found ae_stride_h ({ae_stride_h}), ae_stride_w ({ae_stride_w})"
@@ -227,7 +211,7 @@ def main(args):
         interpolation_scale_h=args.interpolation_scale_h,
         interpolation_scale_w=args.interpolation_scale_w,
         interpolation_scale_t=args.interpolation_scale_t,
-        sparse1d=args.sparse1d, 
+        sparse1d=args.sparse1d,
         sparse_n=args.sparse_n,
         **model_kwargs,
     )
@@ -246,7 +230,6 @@ def main(args):
     # Set model as trainable.
     model.train()
 
-    assert not (args.cogvideox_scheduler and args.cogvideox_scheduler)
     kwargs = dict(
         prediction_type=args.prediction_type, 
         rescale_betas_zero_snr=args.rescale_betas_zero_snr
@@ -374,7 +357,7 @@ def main(args):
             use_bias_correction=args.prodigy_use_bias_correction,
             safeguard_warmup=args.prodigy_safeguard_warmup,
         )
-    logger.info(f"optimizer: {optimizer}")
+    logger.info(f"Optimizer: {optimizer}")
 
     # Setup data:
     if args.trained_data_global_step is not None:
@@ -386,6 +369,7 @@ def main(args):
     total_batch_size = args.train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
     total_batch_size = total_batch_size // args.sp_size * args.train_sp_batch_size
     args.total_batch_size = total_batch_size
+
     if args.min_hxw is None:
         args.min_hxw = args.max_hxw // 4
     train_dataset = getdataset(args)
@@ -408,7 +392,7 @@ def main(args):
         drop_last=True, 
         # prefetch_factor=4
     )
-    logger.info(f'after train_dataloader')
+    logger.info(f'Training dataloader is bulit.')
 
     # Scheduler and math around the number of training steps.
     overrode_max_train_steps = False
@@ -429,11 +413,11 @@ def main(args):
     # model.pos_embed.requires_grad_(True)
     # model.patch_embed.requires_grad_(True)
 
-    logger.info(f'before accelerator.prepare')
+    logger.info(f'Start accelerator.prepare')
     model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
         model, optimizer, train_dataloader, lr_scheduler
     )
-    logger.info(f'after accelerator.prepare')
+    logger.info(f'Finish accelerator.prepare')
     
     if args.use_ema:
         ema_model.to(accelerator.device)
@@ -449,19 +433,9 @@ def main(args):
     # The trackers initializes automatically on the main process.
     # NOTE wandb
     if accelerator.is_main_process:
-        logger.info("init trackers...")
-        project_name = os.getenv('PROJECT', os.path.basename(args.output_dir))
-        entity = os.getenv('ENTITY', None)
-        run_name = os.getenv('WANDB_NAME', None)
-        init_kwargs = {
-            "entity": entity,
-            "run_name": run_name,
-        }
-        accelerator.init_trackers(project_name=project_name, config=vars(args), init_kwargs=init_kwargs)
-        # wandb_log_npu_power()
+        accelerator.init_trackers(os.path.basename(args.output_dir), config=vars(args))
 
     # Train!
-    print(f"  Args = {args}")
     logger.info(f"  Args = {args}")
     logger.info("***** Running training *****")
     logger.info(f"  Model = {model}")
@@ -683,13 +657,10 @@ def main(args):
         return loss
 
     def train_one_step(step_, data_item_, prof_=None):
-        train_loss = 0.0
-        x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = data_item_
+        
+        x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, key_frame, key_frame_edge, key_frame_idx = data_item_
         if accelerator.is_main_process:
-            print(f'\nstep: {step_}, x: {x.shape}, dtype: {x.dtype}')
-        # assert not torch.any(torch.isnan(x)), 'torch.any(torch.isnan(x))'
-        # print('after data collate')
-        # print(f'x: {x.shape}, attn_mask: {attn_mask.shape}, input_ids_1: {input_ids_1.shape}, cond_mask_1: {cond_mask_1.shape}, input_ids_2: {input_ids_2.shape}, cond_mask_2: {cond_mask_2.shape}')
+            logger.info(f'\nstep: {step_}, x: {x.shape}, dtype: {x.dtype}')
 
         if args.extra_save_mem:
             torch.cuda.empty_cache()
@@ -699,12 +670,16 @@ def main(args):
                 text_enc_2.to(accelerator.device, dtype=weight_dtype)
 
         x = x.to(accelerator.device, dtype=ae.vae.dtype)  # B C T H W
-        # x = x.to(accelerator.device, dtype=torch.float32)  # B C T H W
+
         attn_mask = attn_mask.to(accelerator.device)  # B T H W
         input_ids_1 = input_ids_1.to(accelerator.device)  # B 1 L
         cond_mask_1 = cond_mask_1.to(accelerator.device)  # B 1 L
         input_ids_2 = input_ids_2.to(accelerator.device) if input_ids_2 is not None else input_ids_2 # B 1 L
         cond_mask_2 = cond_mask_2.to(accelerator.device) if cond_mask_2 is not None else cond_mask_2 # B 1 L
+
+        key_frame = key_frame.to(accelerator.device)
+        key_frame_edge = key_frame_edge.to(accelerator.device)
+        key_frame_idx = key_frame_idx.to(accelerator.device)
 
         with torch.no_grad():
             B, N, L = input_ids_1.shape  # B 1 L
@@ -726,7 +701,7 @@ def main(args):
             x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
             x, masked_x = ae.encode(x), ae.encode(masked_x)
             mask = mask_compressor(mask)
-            x = torch.cat([x, masked_x, mask], dim=1) 
+            x = torch.cat([x, masked_x, mask], dim=1) # [B, 2*ae_dim+ae_stride_t, T, H, W]
         
         if args.extra_save_mem:
             ae.vae.to('cpu')
@@ -772,10 +747,17 @@ def main(args):
             with accelerator.accumulate(model):
                 # assert not torch.any(torch.isnan(x)), 'after vae'
                 x = x.to(weight_dtype)
+                key_frame = key_frame.to(weight_dtype)
+                key_frame_edge = key_frame_edge.to(weight_dtype)
+                key_frame_idx = key_frame_idx.to(weight_dtype)
+
                 model_kwargs = dict(
                     encoder_hidden_states=cond_1, attention_mask=attn_mask, 
                     encoder_attention_mask=cond_mask_1, 
-                    pooled_projections=cond_2
+                    pooled_projections=cond_2,
+                    key_frame=key_frame,
+                    key_frame_edge=key_frame_edge,
+                    key_frame_idx=key_frame_idx
                     )
                 run(x, model_kwargs, prof_)
 
