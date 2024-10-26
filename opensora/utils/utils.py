@@ -269,17 +269,14 @@ def wandb_log_npu_power():
         raise NotImplementedError("wandb is not initialized")
     
     def log():
-        start = int(time.time())
-        wandb.define_metric("custom_time")
-        wandb.define_metric("npu_power", step_metric="custom_time")
         while True:
+            if wandb.run is None:
+                break
             log_dict = {
-                "custom_time": int(time.time()) - start,
                 "npu_power": monitor_npu_power(),
             }
             wandb.log(log_dict, commit=False)
-            time.sleep(1
-                       )
+            time.sleep(1)
             
     log_thread = threading.Thread(target=log)
     log_thread.daemon = True 

@@ -35,8 +35,8 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=16 \
-    --dataloader_num_workers 16 \
+    --train_batch_size=4 \
+    --dataloader_num_workers 8 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
