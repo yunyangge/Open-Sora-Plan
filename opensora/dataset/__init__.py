@@ -26,7 +26,7 @@ def getdataset(args):
         resize = [CenterCropResizeVideo((args.max_height, args.max_width)), ]
     else:
         resize = [
-            MaxHWStrideResizeVideo(max_hxw=args.max_hxw, force_5_ratio=args.force_5_ratio, hw_stride=args.hw_stride), 
+            MaxHWStrideResizeVideo(max_hxw=args.max_hxw, force_5_ratio=args.force_5_ratio, hw_stride=args.hw_stride, interpolation_mode="bicubic"), 
             SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio), 
         ]
 
