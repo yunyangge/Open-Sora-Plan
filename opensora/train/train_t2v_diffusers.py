@@ -525,7 +525,7 @@ def main(args):
     train_dataloader = DataLoader(
         train_dataset,
         shuffle=False,
-        pin_memory=True,
+        pin_memory=False,
         collate_fn=Collate(args),
         batch_size=args.train_batch_size,
         num_workers=args.dataloader_num_workers,

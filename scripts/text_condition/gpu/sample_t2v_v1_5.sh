@@ -15,10 +15,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --ma
     --save_img_path "./rf_1x256x256_v1_5_13b_s28_ckpt85k_dense25k_1k" \
     --fps 18 \
     --guidance_scale 7.0 \
-    --num_sampling_steps 28 \
+    --num_sampling_steps 100 \
     --max_sequence_length 512 \
     --sample_method FlowMatchEulerDiscrete \
     --seed 1234 \
-    --num_samples_per_prompt 1 \
-    --prediction_type "v_prediction" \
-    --v1_5_scheduler
+D
