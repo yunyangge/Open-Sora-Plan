@@ -37,7 +37,7 @@ accelerate launch \
     --gradient_checkpointing \
     --train_batch_size=32 \
     --dataloader_num_workers 16 \
-    --learning_rate=1e-4 \
+    --learning_rate=5e-5 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
@@ -60,7 +60,7 @@ accelerate launch \
     --proj_name "$PROJECT" \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
-    --trained_data_global_step 4000 \
+    # --use_ema \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \

@@ -950,15 +950,15 @@ if __name__ == '__main__':
     from torchvision import transforms
     import torch
 
-    max_hxw = 384 * 384
-    hw_stride = 64
+    max_hxw = 256 * 256
+    hw_stride = 16
 
     transform = transforms.Compose([
         MaxHWStrideResizeVideo(max_hxw=max_hxw, force_5_ratio=True, hw_stride=hw_stride), 
         SpatialStrideCropVideo(stride=hw_stride, force_5_ratio=True), 
     ])
 
-    image = torch.randn([1, 3, 352, 640])
+    image = torch.randn([1, 3, 180, 180])
     print(transform(image).shape)
 
 

@@ -85,6 +85,8 @@ class NPUConfig:
         self.pickle_save_path = f"{self.work_path}/pickles"
         self.mm = dict()
 
+        use_custom_engine = False
+
         # if self.on_npu:
         #     import deepspeed
         #     import sys
@@ -106,6 +108,9 @@ class NPUConfig:
         #     from opensora.adaptor.engine import DeepSpeedEngine
         #     self.replace_methods(engine.DeepSpeedEngine, DeepSpeedEngine, skip_fcns=['__init__', '_copy_recovery_script', '_change_recovery_script_permissions'])
 
+        #     use_custom_engine = True
+
+
         if "RANK" in os.environ:
             self.rank = int(os.environ["RANK"])
             self.world_size = int(os.environ["WORLD_SIZE"])
@@ -114,6 +119,11 @@ class NPUConfig:
             self.rank = torch.cuda.current_device()
             self.world_size = self.N_NPU_PER_NODE
         self.print_with_rank(f"The npu_config.on_npu is {self.on_npu}")
+        self.print_msg(f"The attention type is {'math' if not self.enable_FA else 'FA'}")
+        if use_custom_engine:
+            self.print_msg(f"use zp manager, zp_size is {self.zp_manager.zp_size}")
+        else:
+            self.print_msg("use deepspeed engine")
         self.bind_thread_to_cpu()
         gc.set_threshold(700, 10, 10000)
 
