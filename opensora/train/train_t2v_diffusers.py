@@ -525,7 +525,7 @@ def main(args):
     train_dataloader = DataLoader(
         train_dataset,
         shuffle=False,
-        pin_memory=False,
+        pin_memory=True,
         collate_fn=Collate(args),
         batch_size=args.train_batch_size,
         num_workers=args.dataloader_num_workers,
@@ -665,8 +665,7 @@ def main(args):
         progress_info.global_step += 1
         end_time = time.time()
         one_step_duration = end_time - start_time
-        if accelerator.is_main_process:
-            print('before wandb log...')
+        
         train_loss = progress_info.train_loss
         accelerator.log(
                 {
@@ -740,8 +739,7 @@ def main(args):
         # print("rank {} | step {} | cd run fun".format(accelerator.process_index, step_))
         global start_time
         start_time = time.time()
-        if accelerator.is_main_process:
-            print('before add noise...')
+
         noise = torch.randn_like(model_input)
         bsz = model_input.shape[0]
         if not args.rf_scheduler:
@@ -781,8 +779,7 @@ def main(args):
             # zt = (1 - texp) * x + texp * z1
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
-        if accelerator.is_main_process:
-            print('before model pred...')
+
         model_pred = model(
             noisy_model_input,
             timesteps,
@@ -863,8 +860,6 @@ def main(args):
                 loss = (loss_mse * mask).sum() / mask.sum()
             else:
                 loss = loss_mse.mean()
-        if accelerator.is_main_process:
-            print('before gather loss...')
         # Gather the losses across all processes for logging (if we use distributed training).
         # avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
         # progress_info.train_loss += loss.detach().item() / args.gradient_accumulation_steps
@@ -916,8 +911,6 @@ def main(args):
         progress_info.train_loss += avg_loss_list.mean().detach().item() / args.gradient_accumulation_steps
         optimizer.zero_grad()
         lr_scheduler.step()
-        if accelerator.is_main_process:
-            print('before sync grad...')
         if accelerator.sync_gradients:
             sync_gradients_info(loss)
 
@@ -947,10 +940,8 @@ def main(args):
 
     def train_one_step(step_, data_item_, prof_=None):
         train_loss = 0.0
-        if accelerator.is_main_process:
-            print('read data...')
         x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = data_item_
-        print(f'step: {step_}, rank: {accelerator.process_index}, x: {x.shape}, dtype: {x.dtype}')
+        # print(f'step: {step_}, rank: {accelerator.process_index}, x: {x.shape}, dtype: {x.dtype}')
         if args.extra_save_mem:
             torch.cuda.empty_cache()
             ae.vae.to(accelerator.device, dtype=torch.float32 if args.vae_fp32 else weight_dtype)
@@ -965,8 +956,6 @@ def main(args):
         input_ids_2 = input_ids_2.to(accelerator.device, non_blocking=True) if input_ids_2 is not None else input_ids_2 # B 1 L
         cond_mask_2 = cond_mask_2.to(accelerator.device, non_blocking=True) if cond_mask_2 is not None else cond_mask_2 # B 1 L
         
-        if accelerator.is_main_process:
-            print('encode condition...')
         with torch.no_grad():
             B, N, L = input_ids_1.shape  # B 1 L
             # use batch inference
@@ -1063,8 +1052,6 @@ def main(args):
                     encoder_attention_mask=cond_mask_1, 
                     pooled_projections=cond_2
                     )
-                if accelerator.is_main_process:
-                    print('before run...')
                 run(step_, x, model_kwargs, prof_)
 
         set_sequence_parallel_state(current_step_sp_state)  # in case the next step use sp, which need broadcast(timesteps)
