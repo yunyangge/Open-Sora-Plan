@@ -275,11 +275,11 @@ def wandb_log_npu_power():
     
     def log():
         while True:
-            if wandb.run is None:
-                break
             log_dict = {
                 "npu_power": monitor_npu_power(),
             }
+            if wandb.run is None:
+                break
             wandb.log(log_dict, commit=False)
             time.sleep(1)
             

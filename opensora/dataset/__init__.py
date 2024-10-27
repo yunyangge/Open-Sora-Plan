@@ -13,7 +13,7 @@ from opensora.dataset.t2v_datasets import T2V_dataset
 from opensora.dataset.inpaint_dataset import Inpaint_dataset
 from opensora.dataset.dummy_dataset import Dummy_dataset
 from opensora.models.causalvideovae import ae_norm, ae_denorm
-from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize, MaxHWStrideResizeVideo
+from opensora.dataset.transform import ToTensorVideo, TemporalRandomCrop, MaxHWStrideResizeVideo, CenterCropResizeVideo, LongSideResizeVideo, SpatialStrideCropVideo, NormalizeVideo, ToTensorAfterResize
 
 
 from accelerate.logging import get_logger

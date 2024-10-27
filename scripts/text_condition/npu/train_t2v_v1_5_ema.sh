@@ -19,7 +19,9 @@ accelerate launch \
     --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
-    opensora/train/train_t2v_diffusers.py \
+    opensora/train/train_t2v_diffusers_ema.py \
+    --train_deepspeed_config_file scripts/accelerate_configs/zero2_npu.json \
+    --eval_deepspeed_config_file scripts/accelerate_configs/zero3.json \
     --model OpenSoraT2V_v1_5-6B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
@@ -41,13 +43,12 @@ accelerate launch \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=500 \
+    --checkpointing_steps=1000 \
     --allow_tf32 \
     --model_max_length 512 \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --ema_decay 0.9999 \
     --drop_short_ratio 1.0 \
     --hw_stride 16 \
     --train_fps 16 \
@@ -61,6 +62,9 @@ accelerate launch \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
+    --use_ema \
+    --ema_update_freq 50 \
+    --ema_decay 0.999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \

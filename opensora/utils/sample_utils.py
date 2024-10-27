@@ -380,7 +380,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 shape[0] *= args.world_size
                 gathered_tensor = torch.zeros(shape, dtype=video_grids.dtype).cuda()
                 dist.all_gather_into_tensor(gathered_tensor, video_grids.contiguous())
-                video_grids = gathered_tensor.cpu()
+                video_grids = gathered_tensor.to('cpu')
                 dist.barrier()
             else:
                 video_grids = torch.cat(video_grids, dim=0)

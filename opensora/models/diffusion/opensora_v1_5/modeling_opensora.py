@@ -665,6 +665,7 @@ if __name__ == '__main__':
         import torch_npu
         from opensora.npu_config import npu_config
 
+    from opensora.utils.ema_utils import EMAModel
     args = type('args', (), 
     {
         'ae': 'WFVAEModel_D32_8x8x8', 
@@ -705,6 +706,14 @@ if __name__ == '__main__':
     total_cnt = len(list(model.named_parameters()))
     print('total_cnt', total_cnt)
     print(f'{sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B')
+    # import sys;sys.exit()
+    try:
+        # path = "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x1_anyx93x640x640_fps16_lr1e-5_snr5_ema9999_sparse1d4_dit_l_mt5xxl_vpred_zerosnr/checkpoint-43000/model_ema/diffusion_pytorch_model.safetensors"
+        # ckpt = torch.load(path, map_location="cpu")
+        # msg = model.load_state_dict(ckpt, strict=True)
+        print(msg)
+    except Exception as e:
+        print(e)
     model = model.to(device)
     x = torch.randn(b, c,  1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w).to(device)
     cond = torch.randn(b, 1, args.model_max_length, cond_c).to(device)
