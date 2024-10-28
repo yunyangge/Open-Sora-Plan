@@ -21,7 +21,7 @@ accelerate launch \
     --cache_dir "../cache_dir" \
     --text_encoder_name_1 "google/mt5-xxl" \
     --dataset transition \
-    --data "/home/image_data/chengxinhua/transition_data" \
+    --data "/home/save_dir/projects/chengxinhua/transition_data" \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/home/save_dir/lzj/formal_8dim/latent8" \
     --vae_fp32 \
@@ -35,7 +35,7 @@ accelerate launch \
     --interpolation_scale_w 1.0 \
     --gradient_checkpointing \
     --train_batch_size=1 \
-    --dataloader_num_workers 8 \
+    --dataloader_num_workers 1 \
     --gradient_accumulation_steps=1 \
     --max_train_steps=1000000 \
     --learning_rate=1e-5 \
@@ -46,7 +46,6 @@ accelerate launch \
     --checkpointing_steps=500 \
     --allow_tf32 \
     --model_max_length 512 \
-    --use_ema \
     --ema_start_step 0 \
     --cfg 0.1 \
     --speed_factor 1.0 \
@@ -64,3 +63,5 @@ accelerate launch \
     --mask_config scripts/train_configs/mask_config.yaml \
     --default_text_ratio 0.5 \
     --resume_from_checkpoint="latest" \
+    2>&1 | tee -a "logs/log_$(date +'%Y%m%d_%H%M%S').txt"
+    # --use_ema \

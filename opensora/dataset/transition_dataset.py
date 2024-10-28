@@ -145,7 +145,7 @@ class Transition_dataset(T2V_dataset):
             index_cand = self.shape_idx_dict[self.sample_size[idx]]
             return self.__getitem__(random.choice(index_cand))
         
-        key_frame_selected_index = random.randint(0, len(video_data['key_idx']))
+        key_frame_selected_index = random.randint(0, len(video_data['key_idx'])-1)
 
         key_frame_path = os.path.join(video_data['video_dir'], f'key_frame_{key_frame_selected_index}.jpg')
         key_frame_edge_path = os.path.join(video_data['video_dir'], f'key_frame_{key_frame_selected_index}_edge.jpg')
@@ -161,7 +161,7 @@ class Transition_dataset(T2V_dataset):
         frame_indice = video_data['sample_frame_index']
         decord_vr = DecordDecoder(video_path)
         frames = decord_vr.get_batch(frame_indice)
-        # import ipdb; ipdb.set_trace()
+        
         if frames is not None:
             frames = frames.permute(0, 3, 1, 2)  # (T, H, W, C) -> (T C H W)
         else:
@@ -170,7 +170,7 @@ class Transition_dataset(T2V_dataset):
         video = self.resize_transform(frames)  # T C H W -> T C H W
         assert video.shape[2] == sample_h and video.shape[3] == sample_w, f'sample_h ({sample_h}), sample_w ({sample_w}), video_shape ({video.shape}), video_path ({video_path})'
 
-        transition_visible_mask = torch.ones_like(video, device=video.device, dtype=video.dtype)[:, 0] # [T, 1, H, W]
+        transition_visible_mask = torch.ones_like(video, device=video.device, dtype=video.dtype)[:, :1] # [T, 1, H, W]
         transition_visible_mask[0, ...] = 0
         transition_visible_mask[-1, ...] = 0
 
@@ -178,7 +178,6 @@ class Transition_dataset(T2V_dataset):
         
         video = self.transform(video)  # T C H W -> T C H W
         masked_video = self.transform(masked_video)  # T C H W -> T C H W
-
         video = torch.cat([video, masked_video, transition_visible_mask], dim=1)  # T 2C+1 H W
 
         video = video.transpose(0, 1)  # T C H W -> C T H W
@@ -199,7 +198,7 @@ class Transition_dataset(T2V_dataset):
         key_frame_edge = torch.from_numpy(np.array(key_frame_edge))  # [h, w, c]
         key_frame_edge = rearrange(key_frame_edge, 'h w c -> c h w')[None, ...]  #  [1 c h w]
 
-        key_frame_edge = self.resize_transform(key_frame_edge).convert('RGB')  # [1 c h w]
+        key_frame_edge = self.resize_transform(key_frame_edge)  # [1 c h w]
         assert key_frame.shape[2] == sample_h, key_frame.shape[3] == sample_w
         key_frame_edge = self.transform(key_frame_edge).transpose(0, 1)  # [1 C H W] -> [C 1 H W]
 
