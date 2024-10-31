@@ -1,20 +1,6 @@
-1/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part45_2557047.pkl
-2/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part46_2557099.pkl
-3/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part47_2556831.pkl
-4/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part48_2557062.pkl
-5/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part49_2556543.pkl
-6/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part50_2557265.pkl
-7/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part51_2556758.pkl
-8/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part52_2556989.pkl
-9/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part53_2557654.pkl
-10/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part54_2557674.pkl
-11/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part55_2557215.pkl
-12/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part56_2557722.pkl
-13/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part57_2557789.pkl
-14/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part58_2557837.pkl
-15/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part59_2557773.pkl
-16/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part60_2557728.pkl
-17/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part61_2557463.pkl
-18/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part62_2557422.pkl
-19/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part63_2557658.pkl
-20/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part64_2053961.pkl
+1/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part0_0_1957951.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part0_1_1957951.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part0_2557988.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part1_2558320.pkl
+2/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part1_0_1957917.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part1_1_1957917.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part2_2558374.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part3_2557917.pkl
+3/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part2_0_1957989.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part2_1_1957989.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part4_2557938.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part5_2558179.pkl
+4/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part3_0_1957992.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part3_1_1957992.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part6_2558342.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part7_2557526.pkl
+5/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part4_0_1957963.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part4_1_1957963.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part8_2557389.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part9_2557619.pkl
+6/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part5_0_1957979.pkl /mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part5_1_1957980.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part10_2557372.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part11_2556856.pkl

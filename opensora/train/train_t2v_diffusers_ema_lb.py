@@ -73,7 +73,7 @@ from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.utils.ema_utils import EMAModel
-from opensora.utils.utils import explicit_uniform_sampling, get_common_weights
+from opensora.utils.utils import explicit_uniform_sampling, get_common_weights, wandb_log_npu_power
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
@@ -263,6 +263,8 @@ def main(args):
     if accelerator.is_main_process:
         accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
                                   init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
+        if torch_npu is not None:
+            wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -400,9 +402,6 @@ def main(args):
             interpolation_scale_h=args.interpolation_scale_h,
             interpolation_scale_w=args.interpolation_scale_w,
             interpolation_scale_t=args.interpolation_scale_t,
-            sparse1d=args.sparse1d, 
-            sparse_n=args.sparse_n, 
-            skip_connection=args.skip_connection, 
         )
 
     # use pretrained model?

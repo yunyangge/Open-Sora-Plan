@@ -7,7 +7,7 @@ export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 export TASK_QUEUE_ENABLE=0
-export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
+# export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
@@ -19,9 +19,8 @@ accelerate launch \
     --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
-    opensora/train/train_t2v_diffusers_ema.py \
-    --train_deepspeed_config_file scripts/accelerate_configs/zero2_npu.json \
-    --eval_deepspeed_config_file scripts/accelerate_configs/zero3.json \
+    opensora/train/train_t2v_diffusers_ema_lb.py \
+    --ema_deepspeed_config_file scripts/accelerate_configs/zero3_npu.json \
     --model OpenSoraT2V_v1_5-6B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
@@ -37,8 +36,8 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=16 \
-    --dataloader_num_workers 16 \
+    --train_batch_size=32 \
+    --dataloader_num_workers 20 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
@@ -62,9 +61,9 @@ accelerate launch \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
-    # --use_ema \
-    # --ema_update_freq 50 \
-    # --ema_decay 0.999 \
+    --use_ema \
+    --ema_update_freq 1 \
+    --ema_decay 0.999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \
