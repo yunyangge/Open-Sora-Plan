@@ -75,14 +75,19 @@ def getdataset(args):
 if __name__ == "__main__":
     '''
     python opensora/dataset/__init__.py
+    accelerate launch --num_processes 1 opensora/dataset/__init__.py
     '''
     from accelerate import Accelerator
-    from opensora.dataset.t2v_datasets import dataset_prog
     from opensora.utils.dataset_utils import LengthGroupedSampler, Collate
     from torch.utils.data import DataLoader
     import random
     from torch import distributed as dist
     from tqdm import tqdm
+    import imageio
+    import numpy as np
+    from einops import rearrange
+    # from opensora.dataset.t2v_datasets_cp import T2V_dataset
+
     args = type('args', (), 
     {
         'ae': 'WFVAEModel_D32_8x8x8', 
