@@ -45,7 +45,7 @@ def type_ratio_normalize(mask_type_ratio_dict):
     return {k: v / total for k, v in mask_type_ratio_dict.items()}
 
 class Transition_dataset(T2V_dataset):
-    def __init__(self, args, resize_transform, transform, temporal_sample, tokenizer_1, tokenizer_2):
+    def __init__(self, args, transform, condition_transform, temporal_sample, tokenizer_1, tokenizer_2):
         super().__init__(
             args=args, 
             transform=transform,  
@@ -54,7 +54,7 @@ class Transition_dataset(T2V_dataset):
             tokenizer_2=tokenizer_2
         )
 
-        self.resize_transform = resize_transform
+        self.condition_transform = condition_transform
 
     def __getitem__(self, idx):
         try:
@@ -74,9 +74,9 @@ class Transition_dataset(T2V_dataset):
         
         with open(json_path, 'r') as f:
             sub_list = json.load(f)
-        ### for debug
-        sub_list = sub_list * 64
-        ###
+        # ### for debug
+        # sub_list = sub_list*64
+        # ###
         logger.info(f'Start to build transition.json, including {len(sub_list)} items in total.')
         for index, i in enumerate(tqdm(sub_list)):
             # get path
@@ -126,8 +126,7 @@ class Transition_dataset(T2V_dataset):
             assert all([np.prod(np.array(k.split('x')[1:]).astype(np.int32)) <= self.max_hxw for k in counter_sample_size.keys()])
             assert all([np.prod(np.array(k.split('x')[1:]).astype(np.int32)) >= self.min_hxw for k in counter_sample_size.keys()])
         
-        filter_major_num = 4 * self.total_batch_size
-        new_cap_list, sample_size = zip(*[[i, j] for i, j in zip(new_cap_list, sample_size) if counter_sample_size[j] >= filter_major_num])
+        new_cap_list, sample_size = zip(*[[i, j] for i, j in zip(new_cap_list, sample_size)])
         for idx, shape in enumerate(sample_size):
             if shape_idx_dict.get(shape, None) is None:
                 shape_idx_dict[shape] = [idx]
@@ -152,6 +151,9 @@ class Transition_dataset(T2V_dataset):
         key_frame_cap = video_data['key_frame_caption'][key_frame_selected_index]
         key_frame_idx = video_data['key_idx'][key_frame_selected_index] - video_data['start_frame_idx']
 
+        text = [key_frame_cap]
+        text = text_preprocessing(text, support_Chinese=self.support_Chinese)
+
         sample_h = video_data['resolution']['sample_height']
         sample_w = video_data['resolution']['sample_width']
 
@@ -163,44 +165,35 @@ class Transition_dataset(T2V_dataset):
         frames = decord_vr.get_batch(frame_indice)
         
         if frames is not None:
-            frames = frames.permute(0, 3, 1, 2)  # (T, H, W, C) -> (T C H W)
+            frames = frames.permute(0, 3, 1, 2)  # (T H W C) -> (T C H W)
         else:
             raise ValueError(f'Get video frames {frames}')
         
-        video = self.resize_transform(frames)  # T C H W -> T C H W
-        assert video.shape[2] == sample_h and video.shape[3] == sample_w, f'sample_h ({sample_h}), sample_w ({sample_w}), video_shape ({video.shape}), video_path ({video_path})'
-
-        transition_visible_mask = torch.ones_like(video, device=video.device, dtype=video.dtype)[:, :1] # [T, 1, H, W]
-        transition_visible_mask[0, ...] = 0
-        transition_visible_mask[-1, ...] = 0
-
-        masked_video = video * ~transition_visible_mask
+        video = self.transform(frames)  # T C H W -> T C H W
         
-        video = self.transform(video)  # T C H W -> T C H W
-        masked_video = self.transform(masked_video)  # T C H W -> T C H W
-        video = torch.cat([video, masked_video, transition_visible_mask], dim=1)  # T 2C+1 H W
+        transition_invisible_mask = torch.ones_like(video, device=video.device, dtype=video.dtype)[:, :1] 
+        transition_invisible_mask[0, ...] = 0
+        transition_invisible_mask[-1, ...] = 0  # [T, 1, H, W]
 
-        video = video.transpose(0, 1)  # T C H W -> C T H W
-        text = [key_frame_cap]
-        text = text_preprocessing(text, support_Chinese=self.support_Chinese)
+        masked_video = video * (1-transition_invisible_mask)
+        # # load key_frame
+        # key_frame = Image.open(key_frame_path).convert('RGB')  # [h, w, c]
+        # key_frame = torch.from_numpy(np.array(key_frame))  # [h, w, c]
+        # key_frame = rearrange(key_frame, 'h w c -> c h w')[None, ...]  #  [1 c h w]
 
-        # load key_frame
-        key_frame = Image.open(key_frame_path).convert('RGB')  # [h, w, c]
-        key_frame = torch.from_numpy(np.array(key_frame))  # [h, w, c]
-        key_frame = rearrange(key_frame, 'h w c -> c h w')[None, ...]  #  [1 c h w]
-
-        key_frame = self.resize_transform(key_frame)  # [1 c h w]
-        assert key_frame.shape[2] == sample_h, key_frame.shape[3] == sample_w
-        key_frame = self.transform(key_frame).transpose(0, 1)  # [1 C H W] -> [C 1 H W]
+        # key_frame = self.resize_transform(key_frame)  # [1 c h w]
+        # assert key_frame.shape[2] == sample_h, key_frame.shape[3] == sample_w
+        # key_frame = self.transform(key_frame).transpose(0, 1)  # [1 C H W] -> [C 1 H W]
 
         # load key_frame_edge
-        key_frame_edge = Image.open(key_frame_edge_path).convert('RGB')  # [h, w, c]
-        key_frame_edge = torch.from_numpy(np.array(key_frame_edge))  # [h, w, c]
-        key_frame_edge = rearrange(key_frame_edge, 'h w c -> c h w')[None, ...]  #  [1 c h w]
+        key_frame_edge = Image.open(key_frame_edge_path).convert('L')  # [h, w]
+        key_frame_edge = torch.from_numpy(np.array(key_frame_edge))[None, None, ...] # [1, 1, h, w]
+        key_frame_edge = self.condition_transform(key_frame_edge)
+        
+        transition_invisible_mask[key_frame_idx, 0, ...] = key_frame_edge[0, 0, ...] # [T, 1, H, W]
 
-        key_frame_edge = self.resize_transform(key_frame_edge)  # [1 c h w]
-        assert key_frame.shape[2] == sample_h, key_frame.shape[3] == sample_w
-        key_frame_edge = self.transform(key_frame_edge).transpose(0, 1)  # [1 C H W] -> [C 1 H W]
+        video = torch.cat([video, masked_video, transition_invisible_mask], dim=1)  # T 2C+1 H W
+        video = video.transpose(0, 1)  # T C H W -> C T H W
 
         text_tokens_and_mask_1 = self.tokenizer_1(
             text,
@@ -233,10 +226,7 @@ class Transition_dataset(T2V_dataset):
             "input_ids_1": input_ids_1,
             "cond_mask_1": cond_mask_1,
             "input_ids_2": input_ids_2,
-            "cond_mask_2": cond_mask_2,
-            "key_frame": key_frame,
-            "key_frame_edge": key_frame_edge,
-            "key_frame_idx": key_frame_idx,
+            "cond_mask_2": cond_mask_2
         }
 
 

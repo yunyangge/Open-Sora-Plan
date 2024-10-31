@@ -62,6 +62,7 @@ accelerate launch \
     --output_dir="/home/save_dir/runs/$PROJECT" \
     --mask_config scripts/train_configs/mask_config.yaml \
     --default_text_ratio 0.5 \
-    --resume_from_checkpoint="latest" \
+    
     2>&1 | tee -a "logs/log_$(date +'%Y%m%d_%H%M%S').txt"
     # --use_ema \
+    # --resume_from_checkpoint="latest" \

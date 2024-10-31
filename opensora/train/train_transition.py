@@ -658,7 +658,7 @@ def main(args):
 
     def train_one_step(step_, data_item_, prof_=None):
         
-        x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2, key_frame, key_frame_edge, key_frame_idx = data_item_
+        x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = data_item_
         if accelerator.is_main_process:
             logger.info(f'\nstep: {step_}, x: {x.shape}, dtype: {x.dtype}')
 
@@ -677,9 +677,6 @@ def main(args):
         input_ids_2 = input_ids_2.to(accelerator.device) if input_ids_2 is not None else input_ids_2 # B 1 L
         cond_mask_2 = cond_mask_2.to(accelerator.device) if cond_mask_2 is not None else cond_mask_2 # B 1 L
 
-        key_frame = key_frame.to(accelerator.device)
-        key_frame_edge = key_frame_edge.to(accelerator.device)
-        key_frame_idx = key_frame_idx.to(accelerator.device)
 
         with torch.no_grad():
             B, N, L = input_ids_1.shape  # B 1 L
@@ -699,8 +696,20 @@ def main(args):
 
             # Map input images to latent space + normalize latents
             x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
+            
+            # mask: [1, 1, t, h, w]
+            tmp_mask = rearrange(mask, 'b c t h w -> (b c t) (h w)')
+            mask_value = torch.sum(tmp_mask[1:-1, ...], dim=-1)
+
+            _, key_frame_idx = torch.min(mask_value, dim=0)
+            key_frame_idx = key_frame_idx + 1 # Add start frame
+            
+            key_frame_edge = mask[:, 0, key_frame_idx: key_frame_idx+1, ...].clone()
+            mask[:, :, key_frame_idx: key_frame_idx+1, ...] = 1.
+
             x, masked_x = ae.encode(x), ae.encode(masked_x)
             mask = mask_compressor(mask)
+            
             x = torch.cat([x, masked_x, mask], dim=1) # [B, 2*ae_dim+ae_stride_t, T, H, W]
         
         if args.extra_save_mem:
@@ -747,7 +756,6 @@ def main(args):
             with accelerator.accumulate(model):
                 # assert not torch.any(torch.isnan(x)), 'after vae'
                 x = x.to(weight_dtype)
-                key_frame = key_frame.to(weight_dtype)
                 key_frame_edge = key_frame_edge.to(weight_dtype)
                 key_frame_idx = key_frame_idx.to(weight_dtype)
 
@@ -755,7 +763,6 @@ def main(args):
                     encoder_hidden_states=cond_1, attention_mask=attn_mask, 
                     encoder_attention_mask=cond_mask_1, 
                     pooled_projections=cond_2,
-                    key_frame=key_frame,
                     key_frame_edge=key_frame_edge,
                     key_frame_idx=key_frame_idx
                     )

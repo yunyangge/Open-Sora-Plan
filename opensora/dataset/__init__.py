@@ -59,13 +59,20 @@ def getdataset(args):
             temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
         )
     elif args.dataset == 'transition':
-        resize_transform = transforms.Compose(resize)
         transform = transforms.Compose([
-            ToTensorAfterResize(),
-            norm_fun,
+            ToTensorVideo(),
+            MaxHWResizeVideo(args.max_hxw), 
+            SpatialStrideCropVideo(stride=args.hw_stride), 
+            norm_fun
+        ])
+        condition_transform = transforms.Compose([
+            ToTensorVideo(),
+            MaxHWResizeVideo(args.max_hxw), 
+            SpatialStrideCropVideo(stride=args.hw_stride), 
+            norm_fun
         ])
         return Transition_dataset(
-            args, resize_transform=resize_transform, transform=transform, 
+            args, transform=transform, condition_transform=condition_transform, 
             temporal_sample=temporal_sample, tokenizer_1=tokenizer_1, tokenizer_2=tokenizer_2
         )
     raise NotImplementedError(args.dataset)

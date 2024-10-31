@@ -360,6 +360,4 @@ class LengthGroupedSampler(Sampler):
         indices = get_length_grouped_indices(self.lengths, self.batch_size, self.world_size, 
                                              self.gradient_accumulation_size, self.initial_global_step, 
                                              group_data=self.group_data, generator=self.generator)
-        # print(len(indices), indices[23640:23690])
-        # import sys;sys.exit()
         return iter(indices)
