@@ -610,10 +610,10 @@ def OpenSoraT2V_v1_5_13B_122(**kwargs):
 def OpenSoraT2V_v1_5_32B_122(**kwargs):
     if kwargs.get('sparse_n', None) is not None:
         kwargs.pop('sparse_n')
-    return OpenSoraT2V_v1_5(  # 48 layers
-        num_layers=[4, 8, 8, 8, 8, 8, 4], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
-        attention_head_dim=144, num_attention_heads=40, 
-        timestep_embed_dim=2048, patch_size_t=1, patch_size=2, 
+    return OpenSoraT2V_v1_5(  # 40 layers
+        num_layers=[4, 6, 8, 12, 8, 6, 4], sparse_n=[1, 2, 4, 8, 4, 2, 1], 
+        attention_head_dim=128, num_attention_heads=40, 
+        timestep_embed_dim=1536, patch_size_t=1, patch_size=2, 
         caption_channels=2048, pooled_projection_dim=1280, **kwargs
     )
 
@@ -678,7 +678,7 @@ if __name__ == '__main__':
 
     # device = torch.device('cpu')
     device = torch.device('cuda:0')
-    model = OpenSoraT2V_v1_5_3B_122(
+    model = OpenSoraT2V_v1_5_32B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 
@@ -694,35 +694,35 @@ if __name__ == '__main__':
     print('total_cnt', total_cnt)
     print(f'{sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B')
     # import sys;sys.exit()
-    try:
-        path = "/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/debug/checkpoint-10/pytorch_model.bin"
-        import ipdb;ipdb.set_trace()
-        ckpt = torch.load(path, map_location="cpu")
-        # msg = model.load_state_dict(ckpt, strict=True) # OpenSoraT2V_v1_5.from_pretrained('/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/test_ckpt')
+    # try:
+    #     path = "/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/debug/checkpoint-10/pytorch_model.bin"
+    #     import ipdb;ipdb.set_trace()
+    #     ckpt = torch.load(path, map_location="cpu")
+    #     # msg = model.load_state_dict(ckpt, strict=True) # OpenSoraT2V_v1_5.from_pretrained('/storage/ongoing/9.29/mmdit/1.5/Open-Sora-Plan/test_ckpt')
         
-        # ema_model = EMAModel.from_pretrained('./test_v1_5', OpenSoraT2V_v1_5)
-        # ema_model.save_pretrained('./test_v1_5_ema')
-        # with open('config.json', "w", encoding="utf-8") as writer:
-        #     writer.write(model.to_json_string())
-        print(msg)
-    except Exception as e:
-        print(e)
-    model = model.to(device)
-    x = torch.randn(b, c,  1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w).to(device)
-    cond = torch.randn(b, 1, args.model_max_length, cond_c).to(device)
-    attn_mask = torch.randint(0, 2, (b, 1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w)).to(device)  # B L or B 1+num_images L
-    cond_mask = torch.randint(0, 2, (b, 1, args.model_max_length)).to(device)  # B 1 L
-    timestep = torch.randint(0, 1000, (b,), device=device)
-    pooled_projections = torch.randn(b, 1, cond_c1).to(device)
-    model_kwargs = dict(hidden_states=x, encoder_hidden_states=cond, attention_mask=attn_mask, pooled_projections=pooled_projections, 
-                        encoder_attention_mask=cond_mask, timestep=timestep)
+    #     # ema_model = EMAModel.from_pretrained('./test_v1_5', OpenSoraT2V_v1_5)
+    #     # ema_model.save_pretrained('./test_v1_5_ema')
+    #     # with open('config.json', "w", encoding="utf-8") as writer:
+    #     #     writer.write(model.to_json_string())
+    #     print(msg)
+    # except Exception as e:
+    #     print(e)
+    # model = model.to(device)
+    # x = torch.randn(b, c,  1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w).to(device)
+    # cond = torch.randn(b, 1, args.model_max_length, cond_c).to(device)
+    # attn_mask = torch.randint(0, 2, (b, 1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w)).to(device)  # B L or B 1+num_images L
+    # cond_mask = torch.randint(0, 2, (b, 1, args.model_max_length)).to(device)  # B 1 L
+    # timestep = torch.randint(0, 1000, (b,), device=device)
+    # pooled_projections = torch.randn(b, 1, cond_c1).to(device)
+    # model_kwargs = dict(hidden_states=x, encoder_hidden_states=cond, attention_mask=attn_mask, pooled_projections=pooled_projections, 
+    #                     encoder_attention_mask=cond_mask, timestep=timestep)
     
-    start_time = time.time()
-    for i in tqdm(range(10)):
-        with torch.no_grad():
-            output = model(**model_kwargs)
-    end_time = time.time()
-    print(output[0].shape)
-    # model.save_pretrained('./test_v1_5')
-    print('time', end_time - start_time)
+    # start_time = time.time()
+    # for i in tqdm(range(10)):
+    #     with torch.no_grad():
+    #         output = model(**model_kwargs)
+    # end_time = time.time()
+    # print(output[0].shape)
+    # # model.save_pretrained('./test_v1_5')
+    # print('time', end_time - start_time)
 

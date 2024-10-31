@@ -41,13 +41,12 @@ accelerate launch \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=500 \
+    --checkpointing_steps=1000 \
     --allow_tf32 \
     --model_max_length 512 \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --ema_decay 0.9999 \
     --drop_short_ratio 1.0 \
     --hw_stride 16 \
     --train_fps 16 \
@@ -61,6 +60,8 @@ accelerate launch \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
+    --use_ema \
+    --ema_decay 0.9999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \

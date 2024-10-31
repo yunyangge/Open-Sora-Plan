@@ -62,9 +62,9 @@ accelerate launch \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
-    --use_ema \
-    --ema_update_freq 50 \
-    --ema_decay 0.999 \
+    # --use_ema \
+    # --ema_update_freq 50 \
+    # --ema_decay 0.999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \

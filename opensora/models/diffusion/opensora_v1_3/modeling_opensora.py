@@ -295,6 +295,14 @@ def OpenSoraT2V_v1_3_2B_122(**kwargs):
         caption_channels=4096, cross_attention_dim=2304, activation_fn="gelu-approximate", **kwargs
         )
 
+
+def OpenSoraT2V_v1_3_30B_122(**kwargs):
+    kwargs.pop('skip_connection', None)
+    return OpenSoraT2V_v1_3(
+        num_layers=40, attention_head_dim=128, num_attention_heads=48, patch_size_t=1, patch_size=2,
+        caption_channels=2048, cross_attention_dim=6144, activation_fn="gelu-approximate", **kwargs
+        )
+
 OpenSora_v1_3_models = {
     "OpenSoraT2V_v1_3-2B/122": OpenSoraT2V_v1_3_2B_122,  # 2.7B
 }
@@ -333,13 +341,12 @@ if __name__ == '__main__':
     num_frames = (args.num_frames - 1) // ae_stride_t + 1
 
     device = torch.device('cuda:0')
-    model = OpenSoraT2V_v1_3_2B_122(
+    model = OpenSoraT2V_v1_3_30B_122(
         in_channels=c, 
         out_channels=c, 
         sample_size_h=latent_size, 
         sample_size_w=latent_size, 
         sample_size_t=num_frames, 
-        activation_fn="gelu-approximate",
         attention_bias=True,
         double_self_attention=False,
         norm_elementwise_affine=False,
@@ -353,29 +360,29 @@ if __name__ == '__main__':
         sparse_n=args.sparse_n
     )
     
-    try:
-        path = "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x1_anyx93x640x640_fps16_lr1e-5_snr5_ema9999_sparse1d4_dit_l_mt5xxl_vpred_zerosnr/checkpoint-43000/model_ema/diffusion_pytorch_model.safetensors"
-        # ckpt = torch.load(path, map_location="cpu")
-        from safetensors.torch import load_file as safe_load
-        ckpt = safe_load(path, device="cpu")
-        msg = model.load_state_dict(ckpt, strict=True)
-        print(msg)
-    except Exception as e:
-        print(e)
+    # try:
+    #     path = "/storage/ongoing/new/7.19anyres/Open-Sora-Plan/bs32x8x1_anyx93x640x640_fps16_lr1e-5_snr5_ema9999_sparse1d4_dit_l_mt5xxl_vpred_zerosnr/checkpoint-43000/model_ema/diffusion_pytorch_model.safetensors"
+    #     # ckpt = torch.load(path, map_location="cpu")
+    #     from safetensors.torch import load_file as safe_load
+    #     ckpt = safe_load(path, device="cpu")
+    #     msg = model.load_state_dict(ckpt, strict=True)
+    #     print(msg)
+    # except Exception as e:
+    #     print(e)
     print(model)
     print(f'{sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e9} B')
     # import sys;sys.exit()
-    model = model.to(device)
-    x = torch.randn(b, c,  1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w).to(device)
-    cond = torch.randn(b, 1, args.model_max_length, cond_c).to(device)
-    attn_mask = torch.randint(0, 2, (b, 1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w)).to(device)  # B L or B 1+num_images L
-    cond_mask = torch.randint(0, 2, (b, 1, args.model_max_length)).to(device)  # B L or B 1+num_images L
-    timestep = torch.randint(0, 1000, (b,), device=device)
-    model_kwargs = dict(
-        hidden_states=x, encoder_hidden_states=cond, attention_mask=attn_mask, 
-        encoder_attention_mask=cond_mask, timestep=timestep
-        )
-    with torch.no_grad():
-        output = model(**model_kwargs)
-    print(output[0].shape)
+    # model = model.to(device)
+    # x = torch.randn(b, c,  1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w).to(device)
+    # cond = torch.randn(b, 1, args.model_max_length, cond_c).to(device)
+    # attn_mask = torch.randint(0, 2, (b, 1+(args.num_frames-1)//ae_stride_t, args.max_height//ae_stride_h, args.max_width//ae_stride_w)).to(device)  # B L or B 1+num_images L
+    # cond_mask = torch.randint(0, 2, (b, 1, args.model_max_length)).to(device)  # B L or B 1+num_images L
+    # timestep = torch.randint(0, 1000, (b,), device=device)
+    # model_kwargs = dict(
+    #     hidden_states=x, encoder_hidden_states=cond, attention_mask=attn_mask, 
+    #     encoder_attention_mask=cond_mask, timestep=timestep
+    #     )
+    # with torch.no_grad():
+    #     output = model(**model_kwargs)
+    # print(output[0].shape)
 
