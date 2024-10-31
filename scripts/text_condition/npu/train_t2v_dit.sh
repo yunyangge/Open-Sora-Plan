@@ -26,7 +26,7 @@ accelerate launch \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data scripts/train_data/current_image_data_on_npu.txt \
+    --data scripts/train_data/current_hq_on_npu_dit.txt \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
     --sample_rate 1 \
@@ -35,9 +35,9 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=32 \
+    --train_batch_size=64 \
     --dataloader_num_workers 16 \
-    --learning_rate=5e-5 \
+    --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
@@ -47,7 +47,6 @@ accelerate launch \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --ema_decay 0.9999 \
     --drop_short_ratio 1.0 \
     --hw_stride 16 \
     --train_fps 16 \
@@ -60,7 +59,9 @@ accelerate launch \
     --proj_name "$PROJECT" \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
-    # --use_ema \
+    --trained_data_global_step 0 \
+    --use_ema \
+    --ema_decay 0.9999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \
