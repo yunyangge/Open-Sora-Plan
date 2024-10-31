@@ -7,7 +7,7 @@ export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 export TASK_QUEUE_ENABLE=0
-export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
+# export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
@@ -35,8 +35,8 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=16 \
-    --dataloader_num_workers 16 \
+    --train_batch_size=32 \
+    --dataloader_num_workers 20 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \

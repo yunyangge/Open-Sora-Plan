@@ -151,3 +151,4 @@ class ValidationLossProfiler:
         return total_loss
 
 if __name__ == "__main__":
+    pass
