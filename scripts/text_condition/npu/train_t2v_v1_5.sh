@@ -7,7 +7,7 @@ export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 
 export TASK_QUEUE_ENABLE=0
-export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
+# export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
@@ -35,19 +35,18 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=16 \
-    --dataloader_num_workers 16 \
+    --train_batch_size=32 \
+    --dataloader_num_workers 20 \
     --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
-    --checkpointing_steps=500 \
+    --checkpointing_steps=1000 \
     --allow_tf32 \
     --model_max_length 512 \
     --ema_start_step 0 \
     --cfg 0.1 \
     --resume_from_checkpoint="latest" \
-    --ema_decay 0.9999 \
     --drop_short_ratio 1.0 \
     --hw_stride 16 \
     --train_fps 16 \
@@ -61,6 +60,8 @@ accelerate launch \
     --log_name "$PROJECT" \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
+    --use_ema \
+    --ema_decay 0.9999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \
