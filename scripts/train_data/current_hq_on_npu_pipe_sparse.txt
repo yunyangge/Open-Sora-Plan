@@ -1,7 +1,6 @@
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part10_2557372.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part11_2556856.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part12_2557007.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part13_2556958.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part14_2557173.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part15_2557725.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part16_2557441.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part0_0_1957951.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part0_2557988.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part0_1_1957951.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part1_2558320.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part1_0_1957917.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part2_2558374.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part1_1_1957917.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part3_2557917.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part2_0_1957989.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part4_2557938.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part2_1_1957989.pkl /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part5_2558179.pkl

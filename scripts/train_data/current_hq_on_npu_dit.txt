@@ -1,1 +1,2 @@
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part15_2557725.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part2_0_1957989.pkl
+/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part4_2557938.pkl
