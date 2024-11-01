@@ -62,7 +62,7 @@ accelerate launch \
     --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
     --use_ema \
-    --ema_update_freq 1 \
+    --ema_update_freq 10 \
     --ema_decay 0.999 \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
