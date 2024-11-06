@@ -17,7 +17,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 accelerate launch \
     --config_file scripts/accelerate_configs/docker_config.yaml \
     opensora/train/train_transition.py \
-    --model OpenSoraInpaint_v1_3-2B/122 \
+    --model OpenSoraTransition-2B/122 \
     --cache_dir "../cache_dir" \
     --text_encoder_name_1 "google/mt5-xxl" \
     --dataset transition \

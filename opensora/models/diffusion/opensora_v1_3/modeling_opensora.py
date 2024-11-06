@@ -11,7 +11,7 @@ from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.normalization import AdaLayerNormSingle
 from diffusers.models.embeddings import PixArtAlphaTextProjection
-from opensora.models.diffusion.opensora_v1_3.modules import BasicTransformerBlock, Attention
+from opensora.models.diffusion.opensora_v1_3.modules import BasicTransformerBlock, TransitionTransformerBlock, Attention
 from opensora.models.diffusion.common import PatchEmbed2D
 from opensora.utils.utils import to_2tuple
 try:
@@ -83,7 +83,7 @@ class OpenSoraT2V_v1_3(ModelMixin, ConfigMixin):
         
         self.transformer_blocks = nn.ModuleList(
             [
-                BasicTransformerBlock(
+                TransitionTransformerBlock(
                     self.config.hidden_size,
                     self.config.num_attention_heads,
                     self.config.attention_head_dim,

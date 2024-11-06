@@ -446,3 +446,169 @@ class BasicTransformerBlock(nn.Module):
         hidden_states = ff_output + hidden_states
 
         return hidden_states
+
+
+@maybe_allow_in_graph
+class TransitionTransformerBlock(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        num_attention_heads: int,
+        attention_head_dim: int,
+        dropout=0.0,
+        cross_attention_dim: Optional[int] = None,
+        activation_fn: str = "geglu",
+        attention_bias: bool = False,
+        only_cross_attention: bool = False,
+        double_self_attention: bool = False,
+        upcast_attention: bool = False,
+        norm_elementwise_affine: bool = True,
+        norm_eps: float = 1e-5,
+        final_dropout: bool = False,
+        ff_inner_dim: Optional[int] = None,
+        ff_bias: bool = True,
+        attention_out_bias: bool = True,
+        interpolation_scale_thw: Tuple[int] = (1, 1, 1), 
+        sparse1d: bool = False,
+        sparse_n: int = 2,
+        sparse_group: bool = False,
+    ):
+        super().__init__()
+
+        # Define 3 blocks. Each block has its own normalization layer.
+        # 1. Self-Attn
+        self.norm1 = nn.LayerNorm(dim, elementwise_affine=norm_elementwise_affine, eps=norm_eps)
+
+        self.attn1 = Attention(
+            query_dim=dim,
+            heads=num_attention_heads,
+            dim_head=attention_head_dim,
+            dropout=dropout,
+            bias=attention_bias,
+            cross_attention_dim=cross_attention_dim if only_cross_attention else None,
+            upcast_attention=upcast_attention,
+            out_bias=attention_out_bias,
+            interpolation_scale_thw=interpolation_scale_thw, 
+            sparse1d=sparse1d,
+            sparse_n=sparse_n,
+            sparse_group=sparse_group,
+            is_cross_attn=False,
+        )
+
+        # 2. Cross-Attn
+        self.norm2 = nn.LayerNorm(dim, norm_eps, norm_elementwise_affine)
+
+        self.attn2 = Attention(
+            query_dim=dim,
+            cross_attention_dim=cross_attention_dim if not double_self_attention else None,
+            heads=num_attention_heads,
+            dim_head=attention_head_dim,
+            dropout=dropout,
+            bias=attention_bias,
+            upcast_attention=upcast_attention,
+            out_bias=attention_out_bias,
+            interpolation_scale_thw=interpolation_scale_thw, 
+            sparse1d=sparse1d,
+            sparse_n=sparse_n,
+            sparse_group=sparse_group,
+            is_cross_attn=True,
+        )  # is self-attn if encoder_hidden_states is none
+
+        self.attn3 = Attention(
+            query_dim=dim,
+            cross_attention_dim=cross_attention_dim if not double_self_attention else None,
+            heads=num_attention_heads,
+            dim_head=attention_head_dim,
+            dropout=dropout,
+            bias=attention_bias,
+            upcast_attention=upcast_attention,
+            out_bias=attention_out_bias,
+            interpolation_scale_thw=interpolation_scale_thw, 
+            sparse1d=sparse1d,
+            sparse_n=sparse_n,
+            sparse_group=sparse_group,
+            is_cross_attn=True,
+        )
+
+        # 3. Feed-forward
+        self.ff = FeedForward(
+            dim,
+            dropout=dropout,
+            activation_fn=activation_fn,
+            final_dropout=final_dropout,
+            inner_dim=ff_inner_dim,
+            bias=ff_bias,
+        )
+
+        # 4. Scale-shift.
+        self.scale_shift_table = nn.Parameter(torch.randn(6, dim) / dim**0.5)
+
+
+    def forward(
+        self,
+        hidden_states: torch.FloatTensor,
+        attention_mask: Optional[torch.FloatTensor] = None,
+        encoder_hidden_states: Optional[torch.FloatTensor] = None,
+        encoder_attention_mask: Optional[torch.FloatTensor] = None,
+        timestep: Optional[torch.LongTensor] = None,
+        frame: int = None, 
+        height: int = None, 
+        width: int = None, 
+        key_encoder_hidden_states: Optional[torch.FloatTensor] = None,
+        key_encoder_attention_mask: Optional[torch.FloatTensor] = None,
+        weighted_embedded_edge: Optional[torch.FloatTensor] = None,
+
+    ) -> torch.FloatTensor:
+        
+        # -1. Add control info
+        hidden_states += weighted_embedded_edge
+        # 0. Self-Attention
+        batch_size = hidden_states.shape[1]
+        shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
+                self.scale_shift_table[:, None] + timestep.reshape(6, batch_size, -1)
+        ).chunk(6, dim=0)
+
+        norm_hidden_states = self.norm1(hidden_states)
+
+        norm_hidden_states = norm_hidden_states * (1 + scale_msa) + shift_msa
+
+        attn_output = self.attn1(
+            norm_hidden_states,
+            encoder_hidden_states=None,
+            attention_mask=attention_mask, frame=frame, height=height, width=width, 
+        )
+
+        attn_output = gate_msa * attn_output
+
+        hidden_states = attn_output + hidden_states
+
+        # 3. Cross-Attention
+        norm_hidden_states = hidden_states
+
+        attn_output = self.attn2(
+            norm_hidden_states,
+            encoder_hidden_states=encoder_hidden_states,
+            attention_mask=encoder_attention_mask, frame=frame, height=height, width=width,
+        )
+        ## JUST FOR DEBUG
+        key_encoder_attention_mask = encoder_attention_mask
+        ##
+        attn_output2 = self.attn3(
+            norm_hidden_states,
+            encoder_hidden_states=key_encoder_hidden_states,
+            attention_mask=key_encoder_attention_mask, frame=frame, height=height, width=width,
+        )
+        hidden_states = attn_output + attn_output2 + hidden_states
+
+        # 4. Feed-forward
+        norm_hidden_states = self.norm2(hidden_states)
+
+        norm_hidden_states = norm_hidden_states * (1 + scale_mlp) + shift_mlp
+
+        ff_output = self.ff(norm_hidden_states)
+
+        ff_output = gate_mlp * ff_output
+
+        hidden_states = ff_output + hidden_states
+
+        return hidden_states

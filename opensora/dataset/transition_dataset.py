@@ -151,8 +151,11 @@ class Transition_dataset(T2V_dataset):
         key_frame_cap = video_data['key_frame_caption'][key_frame_selected_index]
         key_frame_idx = video_data['key_idx'][key_frame_selected_index] - video_data['start_frame_idx']
 
-        text = [key_frame_cap]
-        text = text_preprocessing(text, support_Chinese=self.support_Chinese)
+        key_text = [key_frame_cap]
+        key_text = text_preprocessing(key_text, support_Chinese=self.support_Chinese)
+
+        global_text = ["A creative transition video."]
+        global_text = text_preprocessing(global_text, support_Chinese=self.support_Chinese)
 
         sample_h = video_data['resolution']['sample_height']
         sample_w = video_data['resolution']['sample_width']
@@ -196,7 +199,7 @@ class Transition_dataset(T2V_dataset):
         video = video.transpose(0, 1)  # T C H W -> C T H W
 
         text_tokens_and_mask_1 = self.tokenizer_1(
-            text,
+            global_text,
             max_length=self.model_max_length,
             padding='max_length',
             truncation=True,
@@ -207,19 +210,23 @@ class Transition_dataset(T2V_dataset):
         input_ids_1 = text_tokens_and_mask_1['input_ids']
         cond_mask_1 = text_tokens_and_mask_1['attention_mask']
         
-        input_ids_2, cond_mask_2 = None, None
-        if self.tokenizer_2 is not None:
-            text_tokens_and_mask_2 = self.tokenizer_2(
-                text,
-                max_length=self.tokenizer_2.model_max_length,
-                padding='max_length',
-                truncation=True,
-                return_attention_mask=True,
-                add_special_tokens=True,
-                return_tensors='pt'
-            )
-            input_ids_2 = text_tokens_and_mask_2['input_ids']
-            cond_mask_2 = text_tokens_and_mask_2['attention_mask']
+        text_tokens_and_mask_2 = self.tokenizer_1(
+            key_text,
+            max_length=self.model_max_length,
+            padding='max_length',
+            truncation=True,
+            return_attention_mask=True,
+            add_special_tokens=True,
+            return_tensors='pt'
+        )
+        input_ids_2 = text_tokens_and_mask_2['input_ids'] # [1, 512]
+        cond_mask_2 = text_tokens_and_mask_2['attention_mask'] # [1, 512]
+
+        # print(f"global_text: {global_text}, key_text: {global_text}")
+        # print(f"input_ids_1: {input_ids_1}, input_ids_2: {input_ids_2}")
+        # print(f"input_ids_1.shape: {input_ids_1.shape}, input_ids_2.shape: {input_ids_2.shape}")
+        # print(f"cond_mask_1: {cond_mask_1}, cond_mask_2: {cond_mask_2}")
+        # print(f"cond_mask_1.shape: {cond_mask_1.shape}, cond_mask_2.shape: {cond_mask_2.shape}")
 
         return {
             "pixel_values": video,

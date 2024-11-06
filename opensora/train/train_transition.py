@@ -653,7 +653,6 @@ def main(args):
         if prof is not None:
             prof.step()
 
-
         return loss
 
     def train_one_step(step_, data_item_, prof_=None):
@@ -686,13 +685,12 @@ def main(args):
             cond_1 = text_enc_1(input_ids_1, cond_mask_1)  # B L D
             cond_1 = cond_1.reshape(B, N, L, -1)
             cond_mask_1 = cond_mask_1.reshape(B, N, L)
-            if text_enc_2 is not None:
-                B_, N_, L_ = input_ids_2.shape  # B 1 L
-                input_ids_2 = input_ids_2.reshape(-1, L_)
-                cond_2 = text_enc_2(input_ids_2, cond_mask_2)  # B D
-                cond_2 = cond_2.reshape(B_, 1, -1)  # B 1 D
-            else:
-                cond_2 = None
+            # use text_enc_1 to encode key_text
+            input_ids_2 = input_ids_2.reshape(-1, L)
+            cond_mask_2 = cond_mask_2.reshape(-1, L)
+            cond_2 = text_enc_1(input_ids_2, cond_mask_2)  # B L D
+            cond_2 = cond_2.reshape(B, N, L, -1) # [b, 1, l, d]
+            cond_mask_2 = cond_mask_2.reshape(B, N, L) # [b, 1, l]
 
             # Map input images to latent space + normalize latents
             x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
@@ -704,12 +702,15 @@ def main(args):
             _, key_frame_idx = torch.min(mask_value, dim=0)
             key_frame_idx = key_frame_idx + 1 # Add start frame
             
-            key_frame_edge = mask[:, 0, key_frame_idx: key_frame_idx+1, ...].clone()
-            mask[:, :, key_frame_idx: key_frame_idx+1, ...] = 1.
-
-            x, masked_x = ae.encode(x), ae.encode(masked_x)
-            mask = mask_compressor(mask)
+            key_frame_edge = mask[:, :, key_frame_idx: key_frame_idx+1, ...].clone()
+            key_frame_edge = key_frame_edge.repeat(1, 3, 1, 1, 1) # key_frame_edge: [1, 3, 1, h, w]
             
+            mask[:, :, key_frame_idx: key_frame_idx+1, ...].fill_(1.)
+
+            x, masked_x, key_frame_edge = ae.encode(x), ae.encode(masked_x), ae.encode(key_frame_edge)
+            mask = mask_compressor(mask)
+            key_frame_idx = (key_frame_idx - 1) // ae_stride_t + 1
+            # key_frame_edge: [1, ae_dim, 1, h, w]
             x = torch.cat([x, masked_x, mask], dim=1) # [B, 2*ae_dim+ae_stride_t, T, H, W]
         
         if args.extra_save_mem:
@@ -760,9 +761,11 @@ def main(args):
                 key_frame_idx = key_frame_idx.to(weight_dtype)
 
                 model_kwargs = dict(
-                    encoder_hidden_states=cond_1, attention_mask=attn_mask, 
+                    attention_mask=attn_mask,
+                    encoder_hidden_states=cond_1,
                     encoder_attention_mask=cond_mask_1, 
-                    pooled_projections=cond_2,
+                    key_encoder_hidden_states=cond_2,
+                    key_encoder_attention_mask=cond_mask_2,
                     key_frame_edge=key_frame_edge,
                     key_frame_idx=key_frame_idx
                     )
