@@ -19,6 +19,7 @@ from diffusers.utils.torch_utils import randn_tensor
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 
 from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3
+from opensora.schedulers.sigma_schedule import opensora_linear_quadratic_schedule
 try:
     import torch_npu
     from opensora.acceleration.parallel_states import get_sequence_parallel_state, hccl_info
@@ -469,6 +470,7 @@ class OpenSoraPipeline(DiffusionPipeline):
         height: Optional[int] = None,
         width: Optional[int] = None,
         num_inference_steps: Optional[int] = 50,
+        use_linear_quadratic_schedule: bool = True,
         timesteps: List[int] = None,
         guidance_scale: Optional[float] = 5.0,
         negative_prompt: Optional[Union[str, List[str]]] = None,
@@ -589,7 +591,12 @@ class OpenSoraPipeline(DiffusionPipeline):
             num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
             self._num_timesteps = len(timesteps)
         else:
-            timesteps, num_inference_steps = retrieve_timesteps(self.scheduler, num_inference_steps, device, timesteps)
+            sigmas = None
+            if use_linear_quadratic_schedule:
+                sigmas = opensora_linear_quadratic_schedule(num_inference_steps=num_inference_steps, approximate_steps=min(num_inference_steps * 10, 1000))
+                sigmas = np.array(sigmas)
+                print(f"use linear quadratic schedule, sigmas: {sigmas}, approximate_steps: {min(num_inference_steps * 10, 1000)}")
+            timesteps, num_inference_steps = retrieve_timesteps(self.scheduler, num_inference_steps, device, timesteps, sigmas)
             num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
             self._num_timesteps = len(timesteps)
         # 5. Prepare latent variables

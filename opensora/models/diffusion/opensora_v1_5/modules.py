@@ -1,24 +1,17 @@
 
 import torch
 from torch import nn
-from typing import Optional, Tuple
+import torch.nn.functional as F
+from typing import Any, Dict, Optional, Tuple
 from diffusers.utils import logging
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 from diffusers.models.attention import FeedForward
-from torch.nn import functional as F
 from diffusers.models.normalization import RMSNorm, AdaLayerNorm
 from diffusers.models.attention_processor import Attention
 from diffusers.models.embeddings import PixArtAlphaTextProjection, Timesteps, TimestepEmbedding
 
-logger = logging.get_logger(__name__)
-
-
-import torch
 from einops import rearrange, repeat
-from typing import Any, Dict, Optional, Tuple
-import torch
-import torch.nn.functional as F
-from torch import nn
+
 try:
     import torch_npu
     from opensora.npu_config import npu_config, set_run_dtype
@@ -31,6 +24,7 @@ except:
     from opensora.utils.parallel_states import get_sequence_parallel_state, nccl_info as xccl_info
     from opensora.utils.communications import all_to_all_SBH
 
+logger = logging.get_logger(__name__)
 
 class PositionGetter3D(object):
     """ return positions of patches """

@@ -1,4 +1,4 @@
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part3_0_1957992.pkl
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_exists_1031_split/part3_1_1957992.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part3_0_2329198.pkl
+/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part3_1_2329199.pkl
 /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part6_2558342.pkl
 /home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part7_2557526.pkl
