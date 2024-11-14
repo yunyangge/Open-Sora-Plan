@@ -14,20 +14,19 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # --machine_rank=${MACHINE_RANK} \ 
 # --main_process_ip=${MAIN_PROCESS_IP_VALUE} \ 
 # --multi_node_example_by_deepspeed.yaml
+# --deepspeed_zero2_config_npu.yaml
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
-    --machine_rank=${MACHINE_RANK} \
-    --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
-    opensora/train/train_t2v_diffusers_ema_lb.py \
+    --config_file scripts/accelerate_configs/deepspeed_zero2_config_npu.yaml \
+    opensora/train/train_t2v_diffusers_ema_new_loss.py \
     --ema_deepspeed_config_file scripts/accelerate_configs/zero3_npu.json \
-    --model OpenSoraT2V_SUD_2B/122 \
+    --model OpenSoraT2V_DiT_2B/122 \
     --text_encoder_name_1 google/t5-v1_1-xl \
     --cache_dir "../../cache_dir/" \
     --text_encoder_name_2 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k \
     --cache_dir "../../cache_dir/" \
     --dataset t2v \
-    --data scripts/train_data/current_hq_on_npu_sud.txt \
+    --data scripts/train_data/current_hq_on_npu_dit_new_loss.txt \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
     --sample_rate 1 \
@@ -38,7 +37,7 @@ accelerate launch \
     --gradient_checkpointing \
     --train_batch_size=32 \
     --dataloader_num_workers 20 \
-    --learning_rate=1e-4 \
+    --learning_rate=2e-5 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
@@ -54,12 +53,12 @@ accelerate launch \
     --seed 1024 \
     --group_data \
     --use_decord \
-    --output_dir="/home/save_dir/runs/SUV/sud/$PROJECT" \
+    --output_dir="/home/save_dir/runs/SUV/dit_new_loss/$PROJECT" \
     --vae_fp32 \
     --rf_scheduler \
     --proj_name "$PROJECT" \
     --log_name "$PROJECT" \
-    --skip_abnormal_step --ema_decay_grad_clipping 0.99 \
+    --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
     --use_ema \
     --ema_update_freq 50 \

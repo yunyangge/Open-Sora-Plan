@@ -36,9 +36,9 @@ accelerate launch \
     --min_hxw 36864 \
     --force_5_ratio \
     --gradient_checkpointing \
-    --train_batch_size=64 \
+    --train_batch_size=32 \
     --dataloader_num_workers 20 \
-    --learning_rate=4e-5 \
+    --learning_rate=1e-4 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
@@ -59,7 +59,7 @@ accelerate launch \
     --rf_scheduler \
     --proj_name "$PROJECT" \
     --log_name "$PROJECT" \
-    --skip_abnorml_step --ema_decay_grad_clipping 0.99 \
+    --skip_abnormal_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
     --use_ema \
     --ema_update_freq 50 \

@@ -21,7 +21,6 @@ from einops import rearrange
 import torch.utils
 import torch.utils.data
 from tqdm import tqdm
-from enum import Enum, auto
 import time
 
 from opensora.adaptor.modules import replace_with_fp32_forwards
@@ -74,7 +73,7 @@ from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.utils.ema_utils import EMAModel
-from opensora.utils.utils import explicit_uniform_sampling, get_common_weights
+from opensora.utils.utils import explicit_uniform_sampling, get_common_weights, wandb_log_npu_power
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
@@ -85,11 +84,6 @@ from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 check_min_version("0.24.0")
 logger = get_logger(__name__)
 GB = 1024 * 1024 * 1024
-
-class RuningType(Enum):
-    over = auto()
-    normal = auto()
-    abnormal = auto()
 
 @torch.inference_mode()
 def log_validation(args, model, vae, text_encoder, tokenizer, accelerator, weight_dtype, global_step, ema=False):
@@ -276,7 +270,7 @@ def main(args):
         project_config=accelerator_project_config,
     )
 
-    if args.skip_abnormal_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
+    if args.skip_abnorml_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
         from opensora.utils.deepspeed_utils import backward
         deepspeed.runtime.engine.DeepSpeedEngine.backward = backward
 
@@ -293,8 +287,8 @@ def main(args):
     if accelerator.is_main_process:
         accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
                                   init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
-        # if torch_npu is not None:
-        #     wandb_log_npu_power()
+        if torch_npu is not None:
+            wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -757,20 +751,18 @@ def main(args):
                                 f"train_loss={train_loss}, max_grad_norm={progress_info.max_grad_norm}, max_grad_norm_clip={progress_info.max_grad_norm_clip}, "
                                 f"weight_norm={progress_info.weight_norm}, time_cost={one_step_duration}",
                                 rank=0)
-
-        logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
-        progress_bar.set_postfix(**logs)
-
-        if args.skip_abnormal_step:
-            if progress_info.num_zero_grad > args.world_size // 2:
-            # if progress_info.global_step % 5 == 0: # for test
-                print('----------------------------------------------------------------------')
-                print('too many abnormal batchs, stop training!!')
-                print('----------------------------------------------------------------------')
-                accelerator.log({'extreme_abnormal_step': 1}, step=progress_info.global_step)
-                return RuningType.abnormal
-            else:
-                accelerator.log({'extreme_abnormal_step': 0}, step=progress_info.global_step)
+        progress_info.train_loss = 0.0
+        progress_info.max_grad_norm = 0.0
+        progress_info.weight_norm = 0.0
+        progress_info.num_zero_grad = 1.0
+        progress_info.max_grad_norm_clip = 0.0
+        progress_info.clip_coef = 1.0
+        progress_info.max_norm = 1.0
+        progress_info.max_grad_norm_var = 0.0
+        progress_info.detect_nan = 0.0
+        progress_info.max_train_loss = 0.0
+        progress_info.min_timesteps = 1.0
+        progress_info.max_timesteps = 1000.0
 
         # DeepSpeed requires saving weights on every device; saving weights only on the main process would cause issues.
         if accelerator.distributed_type == DistributedType.DEEPSPEED or accelerator.is_main_process:
@@ -799,20 +791,8 @@ def main(args):
                 accelerator.save_state(save_path)
                 logger.info(f"Saved state to {save_path}")
 
-        progress_info.train_loss = 0.0
-        progress_info.max_grad_norm = 0.0
-        progress_info.weight_norm = 0.0
-        progress_info.num_zero_grad = 1.0
-        progress_info.max_grad_norm_clip = 0.0
-        progress_info.clip_coef = 1.0
-        progress_info.max_norm = 1.0
-        progress_info.max_grad_norm_var = 0.0
-        progress_info.detect_nan = 0.0
-        progress_info.max_train_loss = 0.0
-        progress_info.min_timesteps = 1.0
-        progress_info.max_timesteps = 1000.0
-
-        return RuningType.normal
+        logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
+        progress_bar.set_postfix(**logs)
 
     def run(step_, model_input, model_kwargs, prof):
         # print("rank {} | step {} | cd run fun".format(accelerator.process_index, step_))
@@ -858,6 +838,11 @@ def main(args):
             # zt = (1 - texp) * x + texp * z1
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
+
+        # =============================NOTE: for reg loss===============================
+        noisy_model_input.requires_grad_(True)
+        timesteps.requires_grad_(True)
+        # =============================NOTE: for reg loss===============================
 
         model_pred = model(
             noisy_model_input,
@@ -935,20 +920,31 @@ def main(args):
 
             # Compute regular loss.
             loss_mse = (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1)
+
+            # ========================================Second derivative regularization term==================================
+            dv_dsigma_1 = torch.autograd.grad(outputs=model_pred, inputs=noisy_model_input, grad_outputs=torch.ones_like(model_pred))[0] * target
+            dv_dsigma_2 = torch.autograd.grad(outputs=model_pred, inputs=timesteps, grad_outputs=torch.ones_like(model_pred))[0]
+            dv_dsigma = dv_dsigma_1 + dv_dsigma_2
+            del dv_dsigma_1, dv_dsigma_2
+            loss_reg = (weighting.float() * dv_dsigma.float() ** 2).reshape(target.shape[0], -1)
+
+            loss_mse = loss_mse + loss_reg
+            # ================================================================================================================
+
             if mask is not None:
                 loss = (loss_mse * mask).sum() / mask.sum()
             else:
                 loss = loss_mse.mean()
-                
-            print(f"loss: {loss}, device: {accelerator.device}")
-                
+
+
+            
         timesteps_list = accelerator.gather(timesteps)
         if torch.isnan(loss).any() or torch.isinf(loss).any():
             raise ValueError(f'Detect loss error, timestep {timesteps_list}')
         max_timesteps = timesteps_list.max().item()
         min_timesteps = timesteps_list.min().item()
         # Backpropagate
-        if args.skip_abnormal_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
+        if args.skip_abnorml_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
             results = accelerator.deepspeed_engine_wrapped.engine.backward(
                 loss, 
                 moving_avg_max_grad_norm=progress_info.moving_avg_max_grad_norm, 
@@ -972,7 +968,7 @@ def main(args):
             progress_info.min_timesteps = min_timesteps
             progress_info.max_grad_norm_clip = max_grad_norm_clip / args.gradient_accumulation_steps
             progress_info.max_grad_norm_var += max_grad_norm_var / args.gradient_accumulation_steps
-
+            
             accelerator.deepspeed_engine_wrapped.engine.step()
 
             avg_loss_list = accelerator.gather(loss).detach()
@@ -991,8 +987,7 @@ def main(args):
         optimizer.zero_grad()
         lr_scheduler.step()
         if accelerator.sync_gradients:
-            if sync_gradients_info(loss) == RuningType.abnormal:
-                return RuningType.abnormal
+            sync_gradients_info(loss)
 
         if accelerator.is_main_process:
             if progress_info.global_step % args.checkpointing_steps == 0:
@@ -1016,7 +1011,7 @@ def main(args):
         if prof is not None:
             prof.step()
 
-        return RuningType.normal
+        return loss
 
     def train_one_step(step_, data_item_, prof_=None):
         train_loss = 0.0
@@ -1110,8 +1105,7 @@ def main(args):
                         encoder_attention_mask=cond_mask_1[st_idx: ed_idx], 
                         pooled_projections=cond_2[st_idx: ed_idx] if cond_2 is not None else None, 
                         )
-                    if run(step_, x[st_idx: ed_idx], model_kwargs, prof_) == RuningType.abnormal:
-                        return RuningType.abnormal
+                    run(step_, x[st_idx: ed_idx], model_kwargs, prof_)
         else:
             with accelerator.accumulate(model):
                 # assert not torch.any(torch.isnan(x)), 'after vae'
@@ -1121,33 +1115,28 @@ def main(args):
                     encoder_attention_mask=cond_mask_1, 
                     pooled_projections=cond_2
                     )
-                if run(step_, x, model_kwargs, prof_) == RuningType.abnormal:
-                    return RuningType.abnormal
+                run(step_, x, model_kwargs, prof_)
 
         set_sequence_parallel_state(current_step_sp_state)  # in case the next step use sp, which need broadcast(timesteps)
 
         if progress_info.global_step >= args.max_train_steps:
-            return RuningType.over
+            return True
 
-        return RuningType.normal
+        return False
 
     def train_one_epoch(prof_=None):
         # for epoch in range(first_epoch, args.num_train_epochs):
         progress_info.train_loss = 0.0
         if progress_info.global_step >= args.max_train_steps:
-            return RuningType.over
+            return True
         for step, data_item in enumerate(train_dataloader):
             # print("rank {} | step {} | get data".format(accelerator.process_index, step))
-            step_runing_type = train_one_step(step, data_item, prof_)
-            if step_runing_type != RuningType.normal:
-                return step_runing_type
+            if train_one_step(step, data_item, prof_):
+                break
 
             if step >= 2 and torch_npu is not None and npu_config is not None:
                 npu_config.free_mm()
 
-        return RuningType.over
-
-    epoch_runing_type = RuningType.normal
     if npu_config is not None and npu_config.on_npu and npu_config.profiling:
         experimental_config = torch_npu.profiler._ExperimentalConfig(
             profiler_level=torch_npu.profiler.ProfilerLevel.Level1,
@@ -1170,7 +1159,7 @@ def main(args):
                     ),
                 on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f"{profile_output_path}/")
         ) as prof:
-            epoch_runing_type = train_one_epoch(prof)
+            train_one_epoch(prof)
     else:
         if args.enable_profiling:
             with torch.profiler.profile(
@@ -1184,25 +1173,12 @@ def main(args):
                 profile_memory=True,
                 with_stack=True
             ) as prof:
-                epoch_runing_type = train_one_epoch(prof)
+                train_one_epoch(prof)
         else:
-            epoch_runing_type = train_one_epoch()
+            train_one_epoch()
 
-    if args.skip_abnormal_step:
-        if accelerator.is_main_process:
-            if epoch_runing_type == RuningType.abnormal:
-                abnormal_step_backup = 0
-                if os.path.exists(os.path.join(args.output_dir, 'abnormal_step.txt')):
-                    with open(os.path.join(args.output_dir, 'abnormal_step.txt'), 'r') as f:
-                        abnormal_step_backup = int(f.read())
-                with open(os.path.join(args.output_dir, 'abnormal_step.txt'), 'w') as f:
-                    f.write(f'{abnormal_step_backup + progress_info.global_step - global_step}')
-            elif epoch_runing_type == RuningType.over:
-                if os.path.exists(os.path.join(args.output_dir, 'abnormal_step.txt')):
-                    os.remove(os.path.join(args.output_dir, 'abnormal_step.txt'))
 
-        accelerator.wait_for_everyone()
-
+    
     # DeepSpeed requires saving weights on every device; saving weights only on the main process would cause issues.
     if accelerator.distributed_type == DistributedType.DEEPSPEED or accelerator.is_main_process:
         save_path = os.path.join(args.output_dir, f"checkpoint-{progress_info.global_step}")
@@ -1271,7 +1247,7 @@ if __name__ == "__main__":
     parser.add_argument('--cogvideox_scheduler', action='store_true')
     parser.add_argument('--v1_5_scheduler', action='store_true')
     parser.add_argument('--rf_scheduler', action='store_true')
-    parser.add_argument('--skip_abnormal_step', action='store_true')
+    parser.add_argument('--skip_abnorml_step', action='store_true')
     parser.add_argument("--post_to_device", action="store_true")
     parser.add_argument("--ema_bf16", action="store_true")
     parser.add_argument("--weighting_scheme", type=str, default="logit_normal", choices=["sigma_sqrt", "logit_normal", "mode", "cosmap"])
