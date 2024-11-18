@@ -4,7 +4,6 @@ from typing import Any, Dict, Optional, Tuple
 import torch.nn.functional as F
 from torch import nn
 from typing import Optional, Tuple
-from diffusers.utils import logging
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 from diffusers.models.attention import FeedForward
 
@@ -24,7 +23,9 @@ except:
 
 from ..common import RoPE3D, PositionGetter3D
 
-logger = logging.get_logger(__name__)
+import os
+from opensora.utils.custom_logger import get_logger
+logger = get_logger(os.path.relpath(__file__))
 
 
 class Attention(Attention_):
@@ -39,9 +40,11 @@ class Attention(Attention_):
         super().__init__(processor=processor, **kwags)
 
     @staticmethod
-    def prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_num):
+    def prepare_sparse_mask(attention_mask, encoder_attention_mask, key_encoder_attention_mask, sparse_n, head_num):
         attention_mask = attention_mask.unsqueeze(1)
         encoder_attention_mask = encoder_attention_mask.unsqueeze(1)
+        key_encoder_attention_mask = key_encoder_attention_mask.unsqueeze(1)
+
         l = attention_mask.shape[-1]
         if l % (sparse_n * sparse_n) == 0:
             pad_len = 0
@@ -61,6 +64,8 @@ class Attention(Attention_):
             k=sparse_n
             )
         encoder_attention_mask_sparse = encoder_attention_mask.repeat(sparse_n, 1, 1, 1)
+        key_encoder_attention_mask_sparse = key_encoder_attention_mask.repeat(sparse_n, 1, 1, 1)
+        
         if npu_config is not None:
             attention_mask_sparse_1d = npu_config.get_attention_mask(
                 attention_mask_sparse_1d, attention_mask_sparse_1d.shape[-1]
@@ -72,7 +77,12 @@ class Attention(Attention_):
             encoder_attention_mask_sparse_1d = npu_config.get_attention_mask(
                 encoder_attention_mask_sparse, attention_mask_sparse_1d.shape[-1]
                 )
+            key_encoder_attention_mask_sparse_1d = npu_config.get_attention_mask(
+                key_encoder_attention_mask_sparse, attention_mask_sparse_1d.shape[-1]
+                )
+            
             encoder_attention_mask_sparse_1d_group = encoder_attention_mask_sparse_1d
+            key_encoder_attention_mask_sparse_1d_group = key_encoder_attention_mask_sparse_1d
         else:
             attention_mask_sparse_1d = attention_mask_sparse_1d.repeat_interleave(head_num, dim=1)
             attention_mask_sparse_1d_group = attention_mask_sparse_1d_group.repeat_interleave(head_num, dim=1)
@@ -80,9 +90,12 @@ class Attention(Attention_):
             encoder_attention_mask_sparse_1d = encoder_attention_mask_sparse.repeat_interleave(head_num, dim=1)
             encoder_attention_mask_sparse_1d_group = encoder_attention_mask_sparse_1d
 
+            key_encoder_attention_mask_sparse_1d = key_encoder_attention_mask_sparse.repeat_interleave(head_num, dim=1)
+            key_encoder_attention_mask_sparse_1d_group = key_encoder_attention_mask_sparse_1d
+
         return {
-                    False: (attention_mask_sparse_1d, encoder_attention_mask_sparse_1d),
-                    True: (attention_mask_sparse_1d_group, encoder_attention_mask_sparse_1d_group)
+                    False: (attention_mask_sparse_1d, encoder_attention_mask_sparse_1d, key_encoder_attention_mask_sparse_1d),
+                    True: (attention_mask_sparse_1d_group, encoder_attention_mask_sparse_1d_group, key_encoder_attention_mask_sparse_1d_group)
                 }
 
     def prepare_attention_mask(
@@ -113,7 +126,7 @@ class Attention(Attention_):
 
         current_length: int = attention_mask.shape[-1]
         if current_length != target_length:
-            print(f'attention_mask.shape, {attention_mask.shape}, current_length, {current_length}, target_length, {target_length}')
+            logger.debug(f'attention_mask.shape, {attention_mask.shape}, current_length, {current_length}, target_length, {target_length}')
             attention_mask = F.pad(attention_mask, (0, target_length), value=0.0)
 
         if out_dim == 3:
@@ -557,11 +570,10 @@ class TransitionTransformerBlock(nn.Module):
         key_encoder_hidden_states: Optional[torch.FloatTensor] = None,
         key_encoder_attention_mask: Optional[torch.FloatTensor] = None,
         weighted_embedded_edge: Optional[torch.FloatTensor] = None,
-
     ) -> torch.FloatTensor:
-        
         # -1. Add control info
-        hidden_states += weighted_embedded_edge
+        hidden_states = hidden_states + weighted_embedded_edge
+
         # 0. Self-Attention
         batch_size = hidden_states.shape[1]
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
@@ -585,19 +597,21 @@ class TransitionTransformerBlock(nn.Module):
         # 3. Cross-Attention
         norm_hidden_states = hidden_states
 
+        # hidden_states: [thw, b, dim]
+        # encoder_hidden_states: [l, b, dim]
+        # encoder_attention_mask: [b, 1, thw, l]
         attn_output = self.attn2(
             norm_hidden_states,
             encoder_hidden_states=encoder_hidden_states,
             attention_mask=encoder_attention_mask, frame=frame, height=height, width=width,
         )
-        ## JUST FOR DEBUG
-        key_encoder_attention_mask = encoder_attention_mask
-        ##
+        
         attn_output2 = self.attn3(
             norm_hidden_states,
             encoder_hidden_states=key_encoder_hidden_states,
             attention_mask=key_encoder_attention_mask, frame=frame, height=height, width=width,
         )
+
         hidden_states = attn_output + attn_output2 + hidden_states
 
         # 4. Feed-forward

@@ -154,7 +154,7 @@ class Transition_dataset(T2V_dataset):
         key_text = [key_frame_cap]
         key_text = text_preprocessing(key_text, support_Chinese=self.support_Chinese)
 
-        global_text = ["A creative transition video."]
+        global_text = ["A coherent creative transition video."]
         global_text = text_preprocessing(global_text, support_Chinese=self.support_Chinese)
 
         sample_h = video_data['resolution']['sample_height']

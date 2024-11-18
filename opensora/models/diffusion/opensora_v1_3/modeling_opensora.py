@@ -75,6 +75,7 @@ class OpenSoraT2V_v1_3(ModelMixin, ConfigMixin):
             in_features=self.config.caption_channels, hidden_size=self.config.hidden_size
         )
 
+
         self.pos_embed = PatchEmbed2D(
             patch_size=self.config.patch_size,
             in_channels=self.config.in_channels,
@@ -160,7 +161,6 @@ class OpenSoraT2V_v1_3(ModelMixin, ConfigMixin):
         if encoder_attention_mask is not None and encoder_attention_mask.ndim == 3:  
             # b, 1, l
             encoder_attention_mask = (1 - encoder_attention_mask.to(self.dtype)) * -10000.0
-
 
         # 1. Input
         frame = ((frame - 1) // self.config.patch_size_t + 1) if frame % 2 == 1 else frame // self.config.patch_size_t  # patchfy

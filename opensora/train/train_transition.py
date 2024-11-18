@@ -87,6 +87,11 @@ class ProgressInfo:
         self.train_loss = train_loss
 
 
+import subprocess
+def get_gpu_info():
+    result = subprocess.run(["npu-smi", "info"], stdout=subprocess.PIPE, text=True)
+    return result
+
 #################################################################################
 #                                  Training Loop                                #
 #################################################################################
@@ -394,6 +399,8 @@ def main(args):
     )
     logger.info(f'Training dataloader is bulit.')
 
+    # print(f"line 400: {get_gpu_info()}")
+
     # Scheduler and math around the number of training steps.
     overrode_max_train_steps = False
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
@@ -412,6 +419,7 @@ def main(args):
     # model.requires_grad_(False)
     # model.pos_embed.requires_grad_(True)
     # model.patch_embed.requires_grad_(True)
+    # print(f"line 420: {get_gpu_info()}")
 
     logger.info(f'Start accelerator.prepare')
     model, optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
@@ -422,6 +430,7 @@ def main(args):
     if args.use_ema:
         ema_model.to(accelerator.device)
 
+    # print(f"line 430: {get_gpu_info()}")
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
     if overrode_max_train_steps:
@@ -656,7 +665,7 @@ def main(args):
         return loss
 
     def train_one_step(step_, data_item_, prof_=None):
-        
+        # print(get_gpu_info())
         x, attn_mask, input_ids_1, cond_mask_1, input_ids_2, cond_mask_2 = data_item_
         if accelerator.is_main_process:
             logger.info(f'\nstep: {step_}, x: {x.shape}, dtype: {x.dtype}')
@@ -673,9 +682,8 @@ def main(args):
         attn_mask = attn_mask.to(accelerator.device)  # B T H W
         input_ids_1 = input_ids_1.to(accelerator.device)  # B 1 L
         cond_mask_1 = cond_mask_1.to(accelerator.device)  # B 1 L
-        input_ids_2 = input_ids_2.to(accelerator.device) if input_ids_2 is not None else input_ids_2 # B 1 L
-        cond_mask_2 = cond_mask_2.to(accelerator.device) if cond_mask_2 is not None else cond_mask_2 # B 1 L
-
+        input_ids_2 = input_ids_2.to(accelerator.device) # B 1 L
+        cond_mask_2 = cond_mask_2.to(accelerator.device) # B 1 L
 
         with torch.no_grad():
             B, N, L = input_ids_1.shape  # B 1 L
@@ -685,6 +693,7 @@ def main(args):
             cond_1 = text_enc_1(input_ids_1, cond_mask_1)  # B L D
             cond_1 = cond_1.reshape(B, N, L, -1)
             cond_mask_1 = cond_mask_1.reshape(B, N, L)
+
             # use text_enc_1 to encode key_text
             input_ids_2 = input_ids_2.reshape(-1, L)
             cond_mask_2 = cond_mask_2.reshape(-1, L)
@@ -706,8 +715,9 @@ def main(args):
             key_frame_edge = key_frame_edge.repeat(1, 3, 1, 1, 1) # key_frame_edge: [1, 3, 1, h, w]
             
             mask[:, :, key_frame_idx: key_frame_idx+1, ...].fill_(1.)
-
+            
             x, masked_x, key_frame_edge = ae.encode(x), ae.encode(masked_x), ae.encode(key_frame_edge)
+            
             mask = mask_compressor(mask)
             key_frame_idx = (key_frame_idx - 1) // ae_stride_t + 1
             # key_frame_edge: [1, ae_dim, 1, h, w]
@@ -727,6 +737,7 @@ def main(args):
                 set_sequence_parallel_state(False)
             else:
                 set_sequence_parallel_state(True)
+        # get_sequence_parallel_state() is false
         if get_sequence_parallel_state():
             x, cond_1, attn_mask, cond_mask_1, cond_2 = prepare_parallel_data(
                 x, cond_1, attn_mask, cond_mask_1, cond_2

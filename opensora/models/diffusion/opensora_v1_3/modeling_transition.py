@@ -26,6 +26,9 @@ except:
 from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3 as OpenSoraT2V
 import glob
 
+from opensora.utils.custom_logger import get_logger
+logger = get_logger(os.path.relpath(__file__))
+
 def zero_module(module):
     for p in module.parameters():
         nn.init.zeros_(p)
@@ -181,7 +184,11 @@ class OpenSoraTransition(OpenSoraT2V):
             ]
         )
 
-    def _operate_on_patched_inputs(self, hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx):
+        self.key_caption_projection = PixArtAlphaTextProjection(
+            in_features=self.config.caption_channels, hidden_size=self.config.hidden_size
+        )
+
+    def _operate_on_patched_inputs(self, hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx, key_encoder_hidden_states):
         b, c, t, h, w = hidden_states.shape
         assert hidden_states.shape[1] == 2 * self.config.in_channels + self.vae_scale_factor_t
         in_channels = self.config.in_channels
@@ -215,7 +222,11 @@ class OpenSoraTransition(OpenSoraT2V):
         assert encoder_hidden_states.shape[1] == 1
         encoder_hidden_states = rearrange(encoder_hidden_states, 'b 1 l d -> (b 1) l d')
 
-        return hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights
+        key_encoder_hidden_states = self.key_caption_projection(key_encoder_hidden_states)  # b, 1, l, d or b, 1, l, d
+        assert key_encoder_hidden_states.shape[1] == 1
+        key_encoder_hidden_states = rearrange(key_encoder_hidden_states, 'b 1 l d -> (b 1) l d')
+
+        return hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights, key_encoder_hidden_states
 
     def transformer_model_custom_load_state_dict(self, pretrained_model_path):
         pretrained_model_path = os.path.join(pretrained_model_path, 'diffusion_pytorch_model.*')
@@ -223,8 +234,8 @@ class OpenSoraTransition(OpenSoraT2V):
         assert len(pretrained_model_path) > 0, f"Cannot find pretrained model in {pretrained_model_path}"
         pretrained_model_path = pretrained_model_path[0]
 
-        print(f'Loading {self.__class__.__name__} pretrained weights...')
-        print(f'Loading pretrained model from {pretrained_model_path}...')
+        logger.debug(f'Loading {self.__class__.__name__} pretrained weights...')
+        logger.debug(f'Loading pretrained model from {pretrained_model_path}...')
         model_state_dict = self.state_dict()
         if 'safetensors' in pretrained_model_path:  # pixart series
             from safetensors.torch import load_file as safe_load
@@ -235,14 +246,14 @@ class OpenSoraTransition(OpenSoraT2V):
             if 'model' in pretrained_checkpoint:
                 pretrained_checkpoint = pretrained_checkpoint['model']
         checkpoint = reconstitute_checkpoint(pretrained_checkpoint, model_state_dict)
-
-        if not 'pos_embed_masked_hidden_states.0.weight' in checkpoint:
+        logger.debug(checkpoint)
+        if not 'pos_embed_masked_hidden_states.0.proj' in checkpoint:
             checkpoint['pos_embed_masked_hidden_states.0.proj.weight'] = checkpoint['pos_embed.proj.weight']
             checkpoint['pos_embed_masked_hidden_states.0.proj.bias'] = checkpoint['pos_embed.proj.bias']
 
         missing_keys, unexpected_keys = self.load_state_dict(checkpoint, strict=False)
-        print(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
-        print(f'Successfully load {len(self.state_dict()) - len(missing_keys)}/{len(model_state_dict)} keys from {pretrained_model_path}!')
+        logger.debug(f'missing_keys {len(missing_keys)} {missing_keys}, unexpected_keys {len(unexpected_keys)}')
+        logger.debug(f'Successfully load {len(self.state_dict()) - len(missing_keys)}/{len(model_state_dict)} keys from {pretrained_model_path}!')
 
     def custom_load_state_dict(self, pretrained_model_path):
         assert isinstance(pretrained_model_path, dict), "pretrained_model_path must be a dict"
@@ -265,7 +276,6 @@ class OpenSoraTransition(OpenSoraT2V):
         return_dict: bool = True,
         **kwargs, 
     ):
-        
         batch_size, c, frame, h, w = hidden_states.shape
         # ensure attention_mask is a bias, and give it a singleton query_tokens dimension.
         #   we may have done this conversion already, e.g. if we came here via UNet2DConditionModel#forward.
@@ -285,8 +295,8 @@ class OpenSoraTransition(OpenSoraT2V):
             # b, frame, h, w -> a video
             # b, 1, h, w -> only images
             attention_mask = attention_mask.to(self.dtype)
-            attention_mask = attention_mask.unsqueeze(1)  # b 1 t h w
-            print(f"attention_before_pool: {attention_mask}, {attention_mask.shape}")
+            attention_mask = attention_mask.unsqueeze(1)
+            # attention_mask.shape: [b 1 t h w]
             attention_mask = F.max_pool3d(
                 attention_mask, 
                 kernel_size=(self.config.patch_size_t, self.config.patch_size, self.config.patch_size), 
@@ -294,31 +304,32 @@ class OpenSoraTransition(OpenSoraT2V):
                 )
             attention_mask = rearrange(attention_mask, 'b 1 t h w -> (b 1) 1 (t h w)') 
             attention_mask = (1 - attention_mask.bool().to(self.dtype)) * -10000.0
-            print(f"attention_after_pool: {attention_mask}, {attention_mask.shape}")
-
+            # attention_mask: [b, 1, thw]
 
         # convert encoder_attention_mask to a bias the same way we do for attention_mask
         if encoder_attention_mask is not None and encoder_attention_mask.ndim == 3:  
-            # b, 1, l
+            # encoder_attention_mask: [b, 1, thw]
             encoder_attention_mask = (1 - encoder_attention_mask.to(self.dtype)) * -10000.0
             key_encoder_attention_mask = (1 - key_encoder_attention_mask.to(self.dtype)) * -10000.0
-        print(f"encoder_attention_mask: {encoder_attention_mask}")
 
         # 1. Input
         frame = ((frame - 1) // self.config.patch_size_t + 1) if frame % 2 == 1 else frame // self.config.patch_size_t  # patchfy
         height, width = hidden_states.shape[-2] // self.config.patch_size, hidden_states.shape[-1] // self.config.patch_size
 
-
-        hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights = self._operate_on_patched_inputs(
-            hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx
+        hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights, key_encoder_hidden_states = self._operate_on_patched_inputs(
+            hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx, key_encoder_hidden_states
         )
+        # embedded_edge: [b, thw, dim], weights: [b, thw, 1]
+        
         weighted_embedded_edge = embedded_edge * weights
+        
         # To
         # x            (t*h*w b d) or (t//sp*h*w b d)
         # cond_1       (l b d) or (l//sp b d)
         hidden_states = rearrange(hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
         encoder_hidden_states = rearrange(encoder_hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
         key_encoder_hidden_states = rearrange(key_encoder_hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
+        weighted_embedded_edge = rearrange(weighted_embedded_edge, 'b s h -> s b h', b=batch_size).contiguous()
         timestep = timestep.view(batch_size, 6, -1).transpose(0, 1).contiguous()
 
         sparse_mask = {}
@@ -329,16 +340,19 @@ class OpenSoraTransition(OpenSoraT2V):
                 head_num = self.config.num_attention_heads
         else:
             head_num = None
+        
         for sparse_n in [1, 4]:
-            sparse_mask[sparse_n] = Attention.prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_num)
+            sparse_mask[sparse_n] = Attention.prepare_sparse_mask(attention_mask, encoder_attention_mask, key_encoder_attention_mask, sparse_n, head_num)
+        
         # 2. Blocks
         for i, block in enumerate(self.transformer_blocks):
             if i > 1 and i < 30:
-                attention_mask, encoder_attention_mask = sparse_mask[block.attn1.processor.sparse_n][block.attn1.processor.sparse_group]
+                attention_mask, encoder_attention_mask, key_encoder_attention_mask = sparse_mask[block.attn1.processor.sparse_n][block.attn1.processor.sparse_group]
             else:
-                attention_mask, encoder_attention_mask = sparse_mask[1][block.attn1.processor.sparse_group]
+                attention_mask, encoder_attention_mask, key_encoder_attention_mask = sparse_mask[1][block.attn1.processor.sparse_group]
+            
+            # self.training = true, self.gradient_checkpointing = true
             if self.training and self.gradient_checkpointing:
-
                 def create_custom_forward(module, return_dict=None):
                     def custom_forward(*inputs):
                         if return_dict is not None:
@@ -360,6 +374,9 @@ class OpenSoraTransition(OpenSoraT2V):
                     frame, 
                     height, 
                     width, 
+                    key_encoder_hidden_states,
+                    key_encoder_attention_mask,
+                    weighted_embedded_edge,
                     **ckpt_kwargs,
                 )
             else:

@@ -8,6 +8,7 @@ export TASK_QUEUE_ENABLE=0
 export HCCL_OP_BASE_FFTS_MODE_ENABLE=TRUE
 export MULTI_STREAM_MEMORY_REUSE=1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+export ASCEND_LAUNCH_BLOCKING=1
 # export HCCL_ALGO="level0:NA;level1:H-D_R"
 # --machine_rank=${MACHINE_RANK} \
 # --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
