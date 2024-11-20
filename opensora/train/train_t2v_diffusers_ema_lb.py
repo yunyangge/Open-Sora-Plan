@@ -74,7 +74,8 @@ from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.utils.ema_utils import EMAModel
-from opensora.utils.utils import explicit_uniform_sampling, get_common_weights, wandb_log_npu_power
+from opensora.utils.utils import explicit_uniform_sampling, get_common_weights
+from opensora.utils.tracker_utils import is_swanlab_available, is_wandb_available, WandBTracker, SwanLabTracker
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
@@ -272,9 +273,27 @@ def main(args):
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         mixed_precision=args.mixed_precision,
-        log_with=args.report_to,
+        log_with=None,
         project_config=accelerator_project_config,
     )
+
+    # We need to initialize the trackers we use, and also store our configuration.
+    # The trackers initializes automatically on the main process.
+    if args.report_to == "wandb":
+        if not is_wandb_available():
+            raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
+        project_name = os.path.basename(args.proj_name or args.output_dir)
+        run_name = args.log_name or args.proj_name or args.output_dir
+        tracker = WandBTracker(project_name, config=vars(args), name=run_name)
+    elif args.report_to == "swanlab":
+        if not is_swanlab_available():
+            raise ImportError("Make sure to install swanlab if you want to use it for logging during training.")
+        project_name = os.path.basename(args.proj_name or args.output_dir)
+        experiment_name = args.log_name or args.proj_name or args.output_dir
+        tracker = SwanLabTracker(project_name, experiment_name=experiment_name)
+        tracker.store_init_configuration(vars(args))
+
+    accelerator.trackers = [tracker]
 
     if args.skip_abnormal_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
         from opensora.utils.deepspeed_utils import backward
@@ -282,19 +301,6 @@ def main(args):
 
     if args.num_frames != 1:
         initialize_sequence_parallel_state(args.sp_size)
-
-    if args.report_to == "wandb":
-        if not is_wandb_available():
-            raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
-        wandb_init_kwargs = {"wandb": {"name": args.log_name or args.proj_name or args.output_dir}}
-
-    # We need to initialize the trackers we use, and also store our configuration.
-    # The trackers initializes automatically on the main process.
-    if accelerator.is_main_process:
-        accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
-                                  init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
-        if torch_npu is not None:
-            wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -751,6 +757,11 @@ def main(args):
         if args.use_ema and (progress_info.global_step - 1) % args.ema_update_freq == 0:
             log_dict.update(dict(cur_decay_value=cur_decay_value))
         accelerator.log(log_dict, step=progress_info.global_step)
+        if torch_npu is not None:
+            if args.report_to == "wandb":
+                accelerator.get_tracker('wandb').log_npu_infos(step=progress_info.global_step)
+            elif args.report_to == "swanlab":
+                accelerator.get_tracker('swanlab').log_npu_infos(step=progress_info.global_step)
 
         if torch_npu is not None and npu_config is not None:
             npu_config.print_msg(f"Step: [{progress_info.global_step}], local_loss={loss.detach().item()}, "
@@ -811,7 +822,6 @@ def main(args):
         progress_info.max_train_loss = 0.0
         progress_info.min_timesteps = 1.0
         progress_info.max_timesteps = 1000.0
-
         return RuningType.normal
 
     def run(step_, model_input, model_kwargs, prof):
