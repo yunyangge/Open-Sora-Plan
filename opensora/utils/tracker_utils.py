@@ -208,11 +208,11 @@ class WandBTracker(AceWandBTracker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        npu_moniter_run_mode = kwargs.get('npu_moniter_run_mode', 'delay_time')
+        npu_monitor_run_mode = kwargs.get('npu_monitor_run_mode', 'delay_time')
         delay_time_interval = kwargs.get('delay_time_interval', 1)
         delay_time_max_num = kwargs.get('delay_time_max_num', 5)
         self.npu_monitor = NPUMonitor(
-            run_mode=npu_moniter_run_mode,
+            run_mode=npu_monitor_run_mode,
             delay_time_interval=delay_time_interval,
             delay_time_max_num=delay_time_max_num
         )
@@ -226,11 +226,11 @@ class SwanLabTracker(AceSwanLabTracker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        npu_moniter_run_mode = kwargs.get('npu_moniter_run_mode', 'delay_time')
+        npu_monitor_run_mode = kwargs.get('npu_monitor_run_mode', 'delay_time')
         delay_time_interval = kwargs.get('delay_time_interval', 1)
         delay_time_max_num = kwargs.get('delay_time_max_num', 5)
         self.npu_monitor = NPUMonitor(
-            run_mode=npu_moniter_run_mode,
+            run_mode=npu_monitor_run_mode,
             delay_time_interval=delay_time_interval,
             delay_time_max_num=delay_time_max_num
         )
