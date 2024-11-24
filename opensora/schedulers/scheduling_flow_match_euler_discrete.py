@@ -28,7 +28,7 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 
 @dataclass
-class FlowMatchEulerDiscreteSchedulerOutput(BaseOutput):
+class FlowMatchEulerSchedulerOutput(BaseOutput):
     """
     Output class for the scheduler's `step` function output.
 
@@ -41,7 +41,7 @@ class FlowMatchEulerDiscreteSchedulerOutput(BaseOutput):
     prev_sample: torch.FloatTensor
 
 
-class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
+class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
     """
     Euler scheduler.
 
@@ -64,60 +64,48 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
     @register_to_config
     def __init__(
         self,
-        num_train_timesteps: int = 1000,
         shift: float = 1.0,
-        use_dynamic_shifting=False,
+        use_dynamic_shifting: Optional[bool] = False,
         base_shift: Optional[float] = 0.5,
         max_shift: Optional[float] = 1.15,
         base_image_seq_len: Optional[int] = 256,
         max_image_seq_len: Optional[int] = 4096,
+        weighting_scheme: str = 'logit_norm',
+        sigma_eps: Optional[float] = None,
     ):
-        timesteps = np.linspace(1, num_train_timesteps, num_train_timesteps, dtype=np.float32)[::-1].copy()
-        timesteps = torch.from_numpy(timesteps).to(dtype=torch.float32)
 
-        sigmas = timesteps / num_train_timesteps
-        if not use_dynamic_shifting:
-            # when use_dynamic_shifting is True, we apply the timestep shifting on the fly based on the image resolution
-            sigmas = shift * sigmas / (1 + (shift - 1) * sigmas)
+        self.shift = shift
+        self.use_dynamic_shifting = use_dynamic_shifting
+        self.weighting_scheme = weighting_scheme
 
-        self.timesteps = sigmas * num_train_timesteps
+        if sigma_eps is not None:
+            if not (sigma_eps >= 0 and sigma_eps <= 1e-2):
+                return ValueError("sigma_eps should be in the range of [0, 1e-2]") 
+        else:
+            sigma_eps = 0.0
 
-        self._step_index = None
-        self._begin_index = None
+        self._sigma_eps = sigma_eps
+        self._sigma_min = 0.0 
+        self._sigma_max = 1.0  
 
-        self.sigmas = sigmas.to("cpu")  # to avoid too much CPU/GPU communication
-        self.sigma_min = self.sigmas[-1].item()
-        self.sigma_max = self.sigmas[0].item()
-
-    @property
-    def step_index(self):
-        """
-        The index counter for current timestep. It will increase 1 after each scheduler step.
-        """
-        return self._step_index
+        self.sigmas = None
 
     @property
-    def begin_index(self):
-        """
-        The index for the first timestep. It should be set from pipeline with `set_begin_index` method.
-        """
-        return self._begin_index
+    def sigma_eps(self):
+        return self._sigma_eps
 
-    # Copied from diffusers.schedulers.scheduling_dpmsolver_multistep.DPMSolverMultistepScheduler.set_begin_index
-    def set_begin_index(self, begin_index: int = 0):
-        """
-        Sets the begin index for the scheduler. This function should be run from pipeline before the inference.
+    @property
+    def sigma_min(self):
+        return self._sigma_min
 
-        Args:
-            begin_index (`int`):
-                The begin index for the scheduler.
-        """
-        self._begin_index = begin_index
+    @property
+    def sigma_max(self):
+        return self._sigma_max
 
-    def scale_noise(
+    def add_noise(
         self,
         sample: torch.FloatTensor,
-        timestep: Union[float, torch.FloatTensor],
+        sigmas: torch.FloatTensor,
         noise: Optional[torch.FloatTensor] = None,
     ) -> torch.FloatTensor:
         """
@@ -125,55 +113,93 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
 
         Args:
             sample (`torch.FloatTensor`):
-                The input sample.
-            timestep (`int`, *optional*):
-                The current timestep in the diffusion chain.
+                The input sample.1
+            sigma (`float` or `torch.FloatTensor`):
+                sigma value in flow matching.
 
         Returns:
             `torch.FloatTensor`:
                 A scaled input sample.
         """
-        # Make sure sigmas and timesteps have the same device and dtype as original_samples
-        sigmas = self.sigmas.to(device=sample.device, dtype=sample.dtype)
 
-        if sample.device.type == "mps" and torch.is_floating_point(timestep):
-            # mps does not support float64
-            schedule_timesteps = self.timesteps.to(sample.device, dtype=torch.float32)
-            timestep = timestep.to(sample.device, dtype=torch.float32)
+        if sigmas.shape[0] != sample.shape[0]:
+            raise ValueError("sigmas should have the same batch size as the sample")
+        
+        while sigmas.ndim < sample.ndim:
+            sigmas = sigmas.unsqueeze(-1)
+
+        noised_sample = sigmas * noise + (1.0 - sigmas) * sample
+
+        return noised_sample
+    
+    def compute_density_for_sigma_sampling(
+        self, 
+        batch_size: int, 
+        logit_mean: float = None, 
+        logit_std: float = None, 
+        mode_scale: float = None
+    ):
+        """Compute the density for sampling the sigmas when doing SD3 training.
+
+        Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.
+
+        SD3 paper reference: https://arxiv.org/abs/2403.03206v1.
+        """
+        if self.weighting_scheme == "logit_normal":
+            # See 3.1 in the SD3 paper ($rf/lognorm(0.00,1.00)$).
+            sigmas = torch.normal(mean=logit_mean, std=logit_std, size=(batch_size,), device="cpu")
+            sigmas = torch.nn.functional.sigmoid(sigmas)
+        elif self.weighting_scheme == "mode":
+            sigmas = torch.rand(size=(batch_size,), device="cpu")
+            sigmas = 1 - sigmas - mode_scale * (torch.cos(math.pi * sigmas / 2) ** 2 - 1 + sigmas)
         else:
-            schedule_timesteps = self.timesteps.to(sample.device)
-            timestep = timestep.to(sample.device)
+            sigmas = torch.rand(size=(batch_size,), device="cpu")
 
-        # self.begin_index is None when scheduler is used for training, or pipeline does not implement set_begin_index
-        if self.begin_index is None:
-            step_indices = [self.index_for_timestep(t, schedule_timesteps) for t in timestep]
-        elif self.step_index is not None:
-            # add_noise is called after first denoising step (for inpainting)
-            step_indices = [self.step_index] * timestep.shape[0]
+        sigmas = torch.where(sigmas > self.sigma_eps, sigmas, torch.ones_like(sigmas) * self.sigma_eps)
+        return sigmas
+    
+    def compute_loss_weighting_for_sd3(self, sigmas=None):
+        """Computes loss weighting scheme for SD3 training.
+
+        Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.
+
+        SD3 paper reference: https://arxiv.org/abs/2403.03206v1.
+        """
+        if self.weighting_scheme == "sigma_sqrt":
+            weighting = (sigmas**-2.0).float()
+        elif self.weighting_scheme == "cosmap":
+            bot = 1 - 2 * sigmas + 2 * sigmas**2
+            weighting = 2 / (math.pi * bot)
         else:
-            # add noise is called before first denoising step to create initial latent(img2img)
-            step_indices = [self.begin_index] * timestep.shape[0]
+            weighting = torch.ones_like(sigmas)
+        return weighting
 
-        sigma = sigmas[step_indices].flatten()
-        while len(sigma.shape) < len(sample.shape):
-            sigma = sigma.unsqueeze(-1)
+    def sigma_shift(
+        self, 
+        sigmas: Union[float, torch.FloatTensor], 
+        shift: float, 
+        dynamic: Optional[bool] = False, 
+        mu: Optional[float] = None,
+        gamma: Optional[float] = 1.0
+    ):
+        if not dynamic:
+            sigmas_ = shift * sigmas / (1 + (shift - 1) * sigmas)
+        else:
+            sigmas_ = math.exp(mu) / (math.exp(mu) + (1 / sigmas - 1) ** gamma)
+        if isinstance(sigmas_, torch.FloatTensor):
+            sigmas_ = torch.where(sigmas_ > self.sigma_eps, sigmas_, torch.ones_like(sigmas_) * self.sigma_eps)
+        else:
+            sigmas_ = max(sigmas_, self.sigma_eps)
+        return sigmas_
 
-        sample = sigma * noise + (1.0 - sigma) * sample
-
-        return sample
-
-    def _sigma_to_t(self, sigma):
-        return sigma * self.config.num_train_timesteps
-
-    def time_shift(self, mu: float, sigma: float, t: torch.Tensor):
-        return math.exp(mu) / (math.exp(mu) + (1 / t - 1) ** sigma)
-
-    def set_timesteps(
+    def set_sigmas(
         self,
         num_inference_steps: int = None,
         device: Union[str, torch.device] = None,
         sigmas: Optional[List[float]] = None,
         mu: Optional[float] = None,
+        inversion: Optional[bool] = False,
+        **kwargs,
     ):
         """
         Sets the discrete timesteps used for the diffusion chain (to be run before inference).
@@ -190,52 +216,26 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
 
         if sigmas is None:
             self.num_inference_steps = num_inference_steps
-            timesteps = np.linspace(
-                self._sigma_to_t(self.sigma_max), self._sigma_to_t(self.sigma_min), num_inference_steps
-            )
+            sigmas = np.linspace(self._sigma_max, self._sigma_min, num_inference_steps + 1)
 
-            sigmas = timesteps / self.config.num_train_timesteps
-
-        if self.config.use_dynamic_shifting:
-            sigmas = self.time_shift(mu, 1.0, sigmas)
-        else:
-            sigmas = self.config.shift * sigmas / (1 + (self.config.shift - 1) * sigmas)
+        if inversion:
+            sigmas = sigmas[::-1]
 
         sigmas = torch.from_numpy(sigmas).to(dtype=torch.float32, device=device)
-        timesteps = sigmas * self.config.num_train_timesteps
 
-        self.timesteps = timesteps.to(device=device)
-        self.sigmas = torch.cat([sigmas, torch.zeros(1, device=sigmas.device)])
-
-        self._step_index = None
-        self._begin_index = None
-
-    def index_for_timestep(self, timestep, schedule_timesteps=None):
-        if schedule_timesteps is None:
-            schedule_timesteps = self.timesteps
-
-        indices = (schedule_timesteps == timestep).nonzero()
-
-        # The sigma index that is taken for the **very** first `step`
-        # is always the second index (or the last index if there is only 1)
-        # This way we can ensure we don't accidentally skip a sigma in
-        # case we start in the middle of the denoising schedule (e.g. for image-to-image)
-        pos = 1 if len(indices) > 1 else 0
-
-        return indices[pos].item()
-
-    def _init_step_index(self, timestep):
-        if self.begin_index is None:
-            if isinstance(timestep, torch.Tensor):
-                timestep = timestep.to(self.timesteps.device)
-            self._step_index = self.index_for_timestep(timestep)
+        if self.config.use_dynamic_shifting:
+            sigmas = self.sigma_shift(sigmas, self.config.shift, dynamic=True, mu=mu)
         else:
-            self._step_index = self._begin_index
+            sigmas = self.sigma_shift(sigmas, self.config.shift)
+
+        self.sigmas = sigmas
+
+        return sigmas
 
     def step(
         self,
         model_output: torch.FloatTensor,
-        timestep: Union[float, torch.FloatTensor],
+        step_index: int,
         sample: torch.FloatTensor,
         s_churn: float = 0.0,
         s_tmin: float = 0.0,
@@ -243,7 +243,7 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
         s_noise: float = 1.0,
         generator: Optional[torch.Generator] = None,
         return_dict: bool = True,
-    ) -> Union[FlowMatchEulerDiscreteSchedulerOutput, Tuple]:
+    ) -> Union[FlowMatchEulerSchedulerOutput, Tuple]:
         """
         Predict the sample from the previous timestep by reversing the SDE. This function propagates the diffusion
         process from the learned model outputs (most often the predicted noise).
@@ -251,8 +251,8 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
         Args:
             model_output (`torch.FloatTensor`):
                 The direct output from learned diffusion model.
-            timestep (`float`):
-                The current discrete timestep in the diffusion chain.
+            step_index (`float`):
+                The current step index.
             sample (`torch.FloatTensor`):
                 A current instance of a sample created by the diffusion process.
             s_churn (`float`):
@@ -272,40 +272,29 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
                 returned, otherwise a tuple is returned where the first element is the sample tensor.
         """
 
-        if (
-            isinstance(timestep, int)
-            or isinstance(timestep, torch.IntTensor)
-            or isinstance(timestep, torch.LongTensor)
-        ):
-            raise ValueError(
-                (
-                    "Passing integer indices (e.g. from `enumerate(timesteps)`) as timesteps to"
-                    " `EulerDiscreteScheduler.step()` is not supported. Make sure to pass"
-                    " one of the `scheduler.timesteps` as a timestep."
-                ),
-            )
+        if not (
+            isinstance(step_index, int)
+            or isinstance(step_index, torch.IntTensor)
+            or isinstance(step_index, torch.LongTensor)
+        ): 
+            raise ValueError("step_index should be an integer or a tensor of integer")
 
-        if self.step_index is None:
-            self._init_step_index(timestep)
-
+        if not (step_index >= 0 and step_index < len(self.sigmas)):
+            raise ValueError("step_index should be in the range of [0, len(sigmas)]")
+                             
         # Upcast to avoid precision issues when computing prev_sample
         sample = sample.to(torch.float32)
 
-        sigma = self.sigmas[self.step_index]
-        sigma_next = self.sigmas[self.step_index + 1]
+        sigma = self.sigmas[step_index]
+        sigma_next = self.sigmas[step_index + 1]
 
         prev_sample = sample + (sigma_next - sigma) * model_output
 
         # Cast sample back to model compatible dtype
         prev_sample = prev_sample.to(model_output.dtype)
 
-        # upon completion increase step index by one
-        self._step_index += 1
 
         if not return_dict:
             return (prev_sample,)
 
-        return FlowMatchEulerDiscreteSchedulerOutput(prev_sample=prev_sample)
-
-    def __len__(self):
-        return self.config.num_train_timesteps
+        return FlowMatchEulerSchedulerOutput(prev_sample=prev_sample)

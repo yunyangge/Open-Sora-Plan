@@ -59,11 +59,10 @@ from tqdm.auto import tqdm
 import json
 import copy
 import diffusers
-from diffusers import DDPMScheduler, PNDMScheduler, DPMSolverMultistepScheduler, CogVideoXDDIMScheduler, FlowMatchEulerDiscreteScheduler
+from diffusers import DDPMScheduler, PNDMScheduler, DPMSolverMultistepScheduler, CogVideoXDDIMScheduler
 from diffusers.optimization import get_scheduler
 from diffusers.training_utils import compute_snr
 from diffusers.utils import check_min_version, is_wandb_available
-from diffusers.training_utils import compute_density_for_timestep_sampling, compute_loss_weighting_for_sd3
 
 from opensora.models.causalvideovae import ae_stride_config, ae_channel_config
 from opensora.models.causalvideovae import ae_norm, ae_denorm
@@ -79,7 +78,7 @@ from opensora.utils.tracker_utils import is_swanlab_available, is_wandb_availabl
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
-
+from opensora.schedulers.scheduling_flow_match_euler_discrete import FlowMatchEulerScheduler
 # from opensora.utils.utils import monitor_npu_power
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
@@ -242,9 +241,14 @@ def create_ema_model(
             
     if checkpoint_path:
         ema_model_path = os.path.join(checkpoint_path, "model_ema")
-        if os.path.exists(ema_model_path):
-            ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
-            logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
+    elif args.pretrained_ema:
+        ema_model_path = args.pretrained_ema
+    else:
+        ema_model_path = None
+
+    if ema_model_path:
+        ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
+        logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
     else:
         # we load weights from original model instead of deepcopy
         model = model_cls.from_config(model_config)
@@ -522,8 +526,7 @@ def main(args):
         kwargs['beta_schedule'] = "scaled_linear"
         noise_scheduler = DDPMScheduler(**kwargs)
     elif args.rf_scheduler:
-        noise_scheduler = FlowMatchEulerDiscreteScheduler()
-        noise_scheduler_copy = copy.deepcopy(noise_scheduler)
+        noise_scheduler = FlowMatchEulerScheduler(weighting_scheme=args.weighting_scheme, sigma_eps=1e-5)
     else:
         noise_scheduler = DDPMScheduler(**kwargs)
     # =======================================================================================================
@@ -715,18 +718,6 @@ def main(args):
     )
     progress_info = ProgressInfo(global_step, train_loss=0.0, max_grad_norm=0.0)
 
-    
-    def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
-        sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)  # 0.001, 1
-        schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)  # 1, 1000
-        timesteps = timesteps.to(accelerator.device)
-        step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps]
-
-        sigma = sigmas[step_indices].flatten()
-        while len(sigma.shape) < n_dim:
-            sigma = sigma.unsqueeze(-1)
-        return sigma
-
     def sync_gradients_info(loss):
         # Checks if the accelerator has performed an optimization step behind the scenes
         if args.use_ema and progress_info.global_step % args.ema_update_freq == 0:
@@ -854,20 +845,15 @@ def main(args):
         else:
             # Sample a random timestep for each image
             # for weighting schemes where we sample timesteps non-uniformly
-            u = compute_density_for_timestep_sampling(
-                weighting_scheme=args.weighting_scheme,
+            sigmas = noise_scheduler.compute_density_for_sigma_sampling(
                 batch_size=bsz,
                 logit_mean=args.logit_mean,
                 logit_std=args.logit_std,
                 mode_scale=args.mode_scale,
             )
-            indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
-            timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
 
             # Add noise according to flow matching.
-            # zt = (1 - texp) * x + texp * z1
-            sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
-            noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
+            noisy_model_input = noise_scheduler.add_noise(sample=model_input, sigmas=sigmas, noise=noise)
 
         model_pred = model(
             noisy_model_input,
@@ -938,7 +924,7 @@ def main(args):
 
             # these weighting schemes use a uniform timestep sampling
             # and instead post-weight the loss
-            weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
+            weighting = noise_scheduler.compute_loss_weighting_for_sd3(sigmas=sigmas)
 
             # flow matching loss
             target = noise - model_input
@@ -1273,6 +1259,7 @@ if __name__ == "__main__":
     parser.add_argument("--text_encoder_name_2", type=str, default=None)
     parser.add_argument("--cache_dir", type=str, default='./cache_dir')
     parser.add_argument("--pretrained", type=str, default=None)
+    parser.add_argument("--pretrained_ema", type=str, default=None)
     parser.add_argument('--sparse1d', action='store_true')
     parser.add_argument('--sparse_n', type=int, default=2)
     parser.add_argument('--skip_connection', action='store_true')

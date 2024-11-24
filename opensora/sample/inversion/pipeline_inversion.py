@@ -410,11 +410,12 @@ class OpenSoraInversionPipeline(OpenSoraPipeline):
                 sigmas = np.array(sigmas)
                 print(f"use linear quadratic schedule, sigmas: {sigmas}, approximate_steps: {min(num_inference_steps * 10, 1000)}")
             timesteps, num_inference_steps = retrieve_timesteps(self.scheduler, num_inference_steps, device, timesteps, sigmas)
+            timesteps = self.scheduler.sigmas[:num_inference_steps] * self.scheduler.num_train_timesteps
             self.scheduler.sigmas = reversed(self.scheduler.sigmas)
-            self.scheduler.timesteps = reversed(self.scheduler.timesteps)   
-            print(f"self.scheduler.timesteps: {self.scheduler.timesteps}")
             print(f"self.scheduler.sigmas: {self.scheduler.sigmas}")
-            inverse_timesteps = reversed(timesteps)
+            inverse_timesteps = self.scheduler.sigmas[:num_inference_steps] * self.scheduler.num_train_timesteps
+            self.scheduler.timesteps = inverse_timesteps
+            print(f"self.scheduler.timesteps: {self.scheduler.timesteps}")
             num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
             self._num_timesteps = len(timesteps)
         
@@ -491,8 +492,8 @@ class OpenSoraInversionPipeline(OpenSoraPipeline):
         self.scheduler._step_index = 0
         if num_inverse_steps is not None:
             assert num_inverse_steps <= num_inference_steps
-            inverse_timesteps = timesteps[:num_inverse_steps]
-            timesteps = timesteps[num_inference_steps-num_inverse_steps:]
+            inverse_t = inverse_timesteps[:num_inverse_steps]
+            t = reversed(inverse_t)
         else:
             num_inverse_steps = num_inference_steps
         with self.progress_bar(total=num_inverse_steps) as progress_bar:
@@ -501,7 +502,7 @@ class OpenSoraInversionPipeline(OpenSoraPipeline):
                 prompt_embeds=prompt_embeds,
                 prompt_embeds_2=prompt_embeds_2,
                 prompt_attention_mask=prompt_attention_mask,
-                timesteps=inverse_timesteps,
+                timesteps=inverse_t,
                 num_warmup_steps=num_warmup_steps,
                 guidance_scale=guidance_scale,
                 guidance_rescale=guidance_rescale,
@@ -516,18 +517,18 @@ class OpenSoraInversionPipeline(OpenSoraPipeline):
         prompt_embeds_target = prompt_embeds_target if prompt_embeds_target is not None else prompt_embeds
         prompt_embeds_2_target = prompt_embeds_2_target if prompt_embeds_2_target is not None else prompt_embeds_2
         prompt_attention_mask_target = prompt_attention_mask_target if prompt_attention_mask_target is not None else prompt_attention_mask
-        self.scheduler._step_index = 0
+        self.scheduler._step_index = num_inference_steps - num_inverse_steps
         self.scheduler.sigmas = reversed(self.scheduler.sigmas)
-        self.scheduler.timesteps = reversed(self.scheduler.timesteps)   
-        print(f"self.scheduler.timesteps: {self.scheduler.timesteps}")
+        self.scheduler.timesteps = timesteps
         print(f"self.scheduler.sigmas: {self.scheduler.sigmas}")
+        print(f"self.scheduler.timesteps: {self.scheduler.timesteps}")
         with self.progress_bar(total=min(num_inference_steps, num_inverse_steps)) as progress_bar:
             new_latents = self.sample(
                 latents=noised_latents,
                 prompt_embeds=prompt_embeds_target,
                 prompt_embeds_2=prompt_embeds_2_target,
                 prompt_attention_mask=prompt_attention_mask_target,
-                timesteps=timesteps,
+                timesteps=t,
                 num_warmup_steps=0,
                 guidance_scale=guidance_scale,
                 guidance_rescale=guidance_rescale,
@@ -578,14 +579,14 @@ if __name__ == "__main__":
 
     class Args:
         ae_path = '/home/save_dir/lzj/Middle888'
-        model_path = '/home/save_dir/runs/t2v_1_5_dit_bs16x8x32_lr1e-4_256x256_192x192_new6b_14kpretrained/checkpoint-20000/model_ema'
+        model_path = '/home/save_dir/runs/t2v_1_5_dit_bs16x8x32_lr1e-4_256x256_192x192_new6b_14kpretrained/checkpoint-96000/model_ema'
         text_encoder_name_1 = '/home/save_dir/pretrained/t5/t5-v1_1-xl'
         text_encoder_name_2 = '/home/save_dir/pretrained/clip/models--laion--CLIP-ViT-bigG-14-laion2B-39B-b160k/snapshots/bc7788f151930d91b58474715fdce5524ad9a189'
         input_image_path = '/home/save_dir/projects/gyy/mmdit/Open-Sora-Plan/validation_dir/i2v_0011.png'
         prompt = 'A coffee cup with "anytext" foam floating on it.'
         negative_prompt = ''
-        num_inference_steps = 50
-        num_inverse_steps = 25
+        num_inference_steps = 100
+        num_inverse_steps = 40
         use_linear_quadratic_schedule = True
         height = 256
         width = 256
@@ -600,7 +601,7 @@ if __name__ == "__main__":
 
     vae = WFVAEModelWrapper(args.ae_path)
     vae.vae = vae.vae.to(device=device, dtype=weight_dtype).eval()
-    vae.vae_scale_factor = [4, 8, 8]
+    vae.vae_scale_factor = [8, 8, 8]
 
     text_encoder_1 = T5EncoderModel.from_pretrained(args.text_encoder_name_1, torch_dtype=weight_dtype).eval()
     tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1)
