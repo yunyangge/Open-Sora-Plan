@@ -540,6 +540,7 @@ class OpenSoraPipeline(DiffusionPipeline):
                 print(f"use linear quadratic schedule, sigmas: {sigmas}, approximate_steps: {min(num_inference_steps * 10, 1000)}")
             sigmas = self.scheduler.set_sigmas(num_inference_steps=num_inference_steps, device=device, sigmas=sigmas)
             timesteps = sigmas.clone() * 1000
+            timesteps = timesteps[:-1]
             num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
             self._num_timesteps = len(timesteps)
         # 5. Prepare latent variables

@@ -4,7 +4,6 @@ from diffusers.schedulers import (
     HeunDiscreteScheduler, EulerAncestralDiscreteScheduler,
     DEISMultistepScheduler, KDPM2AncestralDiscreteScheduler, 
     DPMSolverSinglestepScheduler, CogVideoXDDIMScheduler, 
-    FlowMatchEulerDiscreteScheduler
     )
 from einops import rearrange
 import time
@@ -34,6 +33,7 @@ from opensora.sample.pipeline_inpaint import OpenSoraInpaintPipeline
 from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3
 from opensora.models.diffusion.opensora_v1_3.modeling_inpaint import OpenSoraInpaint_v1_3
 from opensora.utils.utils import set_seed
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler as FlowMatchEulerDiscreteScheduler
 from transformers import T5EncoderModel, T5Tokenizer, AutoTokenizer, MT5EncoderModel, CLIPTextModelWithProjection
 
 def get_scheduler(args):
