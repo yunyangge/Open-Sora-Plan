@@ -121,8 +121,14 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
             `torch.FloatTensor`:
                 A scaled input sample.
         """
+        sample_dtype = sample.dtype
+        sigmas = sigmas.float()
+        noise = noise.float()
+        sample = sample.float()
 
         noised_sample = sigmas * noise + (1.0 - sigmas) * sample
+
+        noised_sample = noised_sample.to(sample_dtype)
 
         return noised_sample
     
