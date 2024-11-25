@@ -1,5 +1,7 @@
 
+from json import encoder
 from typing import List, Optional, Union
+from idna import encode
 from tqdm import tqdm
 
 import torch
@@ -12,7 +14,7 @@ except:
     torch_npu = None
     npu_config = None
 
-from opensora.schedulers.scheduling_flow_match_euler_discrete import FlowMatchEulerScheduler
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler
 from opensora.schedulers.inversion import flow_matching_inversion
 
 class InversionEvaluationPipeline:
@@ -21,7 +23,6 @@ class InversionEvaluationPipeline:
         model,
         num_inference_steps: int,
         num_inversion_steps: Union[int, List[int]],
-        sigmas: Optional[List[torch.Tensor]] = None,
         do_classifier_free_guidance: bool = True,
         guidance_scale: float = 7.0,
         loss_fn = F.mse_loss,
@@ -36,8 +37,6 @@ class InversionEvaluationPipeline:
 
         self.scheduler = FlowMatchEulerScheduler()
 
-        self.sigmas = sigmas
-
         self.do_classifier_free_guidance = do_classifier_free_guidance
         self.guidance_scale = guidance_scale
 
@@ -50,6 +49,7 @@ class InversionEvaluationPipeline:
         encoder_hidden_states,
         encoder_attention_mask,
         pooled_projections,
+        sigmas=None,
         **kwargs,
     ):
         
@@ -64,7 +64,7 @@ class InversionEvaluationPipeline:
                 encoder_hidden_states=encoder_hidden_states,
                 encoder_attention_mask=encoder_attention_mask,
                 pooled_projections=pooled_projections,
-                sigmas=self.sigmas,
+                sigmas=sigmas,
                 do_classifier_free_guidance=self.do_classifier_free_guidance,
                 guidance_scale=self.guidance_scale,
                 num_inference_steps=self.num_inversion_steps,
@@ -75,6 +75,41 @@ class InversionEvaluationPipeline:
 
         return validation_losses
     
+    def eval_and_profile(
+        self,
+        latents,
+        attention_mask,
+        encoder_hidden_states,
+        encoder_attention_mask,
+        pooled_projections,
+        sigmas=None,
+        **kwargs,   
+    ):
+        
+        print('----------------------------------Inversion Evaluation Profiler--------------------------------------')
+        print('Validation Setting:')
+        print(f'num_inference_steps: {self.num_inference_steps}, do_classifier_free_guidance: {self.do_classifier_free_guidance}, guidance_scale: {self.guidance_scale}')
+        print('Your Sigmas:')
+        print(sigmas)
+
+        validation_losses = self.batch_eval(
+            latents=latents,
+            attention_mask=attention_mask,
+            encoder_hidden_states=encoder_hidden_states,
+            encoder_attention_mask=encoder_attention_mask,
+            pooled_projections=pooled_projections,
+            sigmas=sigmas
+        )
+
+        print('Inverison Validation Loss at This Batch:')
+        for num_inv_steps, val_loss in zip(self.num_inversion_steps, validation_losses):
+            print(f'num_inversion_steps: {num_inv_steps}, validation_loss: {val_loss}')
+        
+        print('Average Validation Loss in All Inversion Steps:')
+        print(sum(validation_losses) / len(validation_losses))
+        print('------------------------------------------------------------------------------------------------------')
+        
+        
     
 
 

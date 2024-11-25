@@ -78,7 +78,7 @@ from opensora.utils.tracker_utils import is_swanlab_available, is_wandb_availabl
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
-from opensora.schedulers.scheduling_flow_match_euler_discrete import FlowMatchEulerScheduler
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler
 # from opensora.utils.utils import monitor_npu_power
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
@@ -850,10 +850,14 @@ def main(args):
                 logit_mean=args.logit_mean,
                 logit_std=args.logit_std,
                 mode_scale=args.mode_scale,
-            )
-
+            ).to(device=accelerator.device)
+            timesteps = sigmas.clone() * 1000
+            
+            while sigmas.ndim < model_input.ndim:
+                sigmas = sigmas.unsqueeze(-1)
             # Add noise according to flow matching.
             noisy_model_input = noise_scheduler.add_noise(sample=model_input, sigmas=sigmas, noise=noise)
+            
 
         model_pred = model(
             noisy_model_input,

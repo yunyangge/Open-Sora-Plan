@@ -122,12 +122,6 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
                 A scaled input sample.
         """
 
-        if sigmas.shape[0] != sample.shape[0]:
-            raise ValueError("sigmas should have the same batch size as the sample")
-        
-        while sigmas.ndim < sample.ndim:
-            sigmas = sigmas.unsqueeze(-1)
-
         noised_sample = sigmas * noise + (1.0 - sigmas) * sample
 
         return noised_sample
@@ -137,7 +131,7 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
         batch_size: int, 
         logit_mean: float = None, 
         logit_std: float = None, 
-        mode_scale: float = None
+        mode_scale: float = None,
     ):
         """Compute the density for sampling the sigmas when doing SD3 training.
 
@@ -155,7 +149,8 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
         else:
             sigmas = torch.rand(size=(batch_size,), device="cpu")
 
-        sigmas = torch.where(sigmas > self.sigma_eps, sigmas, torch.ones_like(sigmas) * self.sigma_eps)
+        sigmas = torch.where(sigmas > self._sigma_eps, sigmas, torch.ones_like(sigmas) * self._sigma_eps)
+
         return sigmas
     
     def compute_loss_weighting_for_sd3(self, sigmas=None):
@@ -176,7 +171,7 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
 
     def sigma_shift(
         self, 
-        sigmas: Union[float, torch.FloatTensor], 
+        sigmas: Union[float, torch.Tensor], 
         shift: float, 
         dynamic: Optional[bool] = False, 
         mu: Optional[float] = None,
@@ -186,7 +181,7 @@ class FlowMatchEulerScheduler(SchedulerMixin, ConfigMixin):
             sigmas_ = shift * sigmas / (1 + (shift - 1) * sigmas)
         else:
             sigmas_ = math.exp(mu) / (math.exp(mu) + (1 / sigmas - 1) ** gamma)
-        if isinstance(sigmas_, torch.FloatTensor):
+        if isinstance(sigmas_, torch.Tensor):
             sigmas_ = torch.where(sigmas_ > self.sigma_eps, sigmas_, torch.ones_like(sigmas_) * self.sigma_eps)
         else:
             sigmas_ = max(sigmas_, self.sigma_eps)
