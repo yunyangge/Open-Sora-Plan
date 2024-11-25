@@ -63,7 +63,6 @@ from diffusers import DDPMScheduler, PNDMScheduler, DPMSolverMultistepScheduler,
 from diffusers.optimization import get_scheduler
 from diffusers.training_utils import compute_snr
 from diffusers.utils import check_min_version, is_wandb_available
-from diffusers.training_utils import compute_density_for_timestep_sampling, compute_loss_weighting_for_sd3
 
 from opensora.models.causalvideovae import ae_stride_config, ae_channel_config
 from opensora.models.causalvideovae import ae_norm, ae_denorm
@@ -78,6 +77,7 @@ from opensora.utils.utils import explicit_uniform_sampling, get_common_weights, 
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler
 
 # from opensora.utils.utils import monitor_npu_power
 

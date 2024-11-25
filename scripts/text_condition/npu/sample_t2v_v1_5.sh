@@ -3,7 +3,7 @@ export TRANSFORMERS_OFFLINE=1
 
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29512 \
     -m opensora.sample.sample \
-    --model_path /home/save_dir/runs/t2v_1_5_dit_bs16x8x32_lr1e-4_256x256_192x192_new6b_14kpretrained/checkpoint-54255/model_ema \
+    --model_path /home/save_dir/runs/SUV/dit/dit_bs8x8x32_lr5e-5_256x256_192x192_final/checkpoint-71733/model_ema \
     --version v1_5 \
     --num_frames 1 \
     --height 256 \
@@ -14,12 +14,12 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --ma
     --text_prompt examples/sora.txt \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
-    --save_img_path "./t2v_new6b_54k_28step_ema" \
+    --save_img_path "./SUV/dit/200k_step100_lq_ema" \
     --fps 18 \
     --guidance_scale 7.0 \
-    --num_sampling_steps 28 \
+    --num_sampling_steps 100 \
     --max_sequence_length 512 \
     --sample_method FlowMatchEulerDiscrete \
     --seed 1234 \
     --num_samples_per_prompt 1 \
-    # --use_linear_quadratic_schedule
+    --use_linear_quadratic_schedule
