@@ -105,5 +105,7 @@ log*
 *lzj*
 final*
 opensora/train/*debug.py
-mmdit*
+*mmdit*
 vpred*
+merge_model*
+counter.txt
