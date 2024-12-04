@@ -680,26 +680,36 @@ def main(args):
         x = x.to(accelerator.device, dtype=ae.vae.dtype)  # B C T H W
 
         attn_mask = attn_mask.to(accelerator.device)  # B T H W
-        input_ids_1 = input_ids_1.to(accelerator.device)  # B 1 L
-        cond_mask_1 = cond_mask_1.to(accelerator.device)  # B 1 L
-        input_ids_2 = input_ids_2.to(accelerator.device) # B 1 L
-        cond_mask_2 = cond_mask_2.to(accelerator.device) # B 1 L
+        input_ids_1 = input_ids_1.to(accelerator.device)  # B 3 L
+        cond_mask_1 = cond_mask_1.to(accelerator.device)  # B 3 L
+        # input_ids_2 = input_ids_2.to(accelerator.device) # B 1 L
+        # cond_mask_2 = cond_mask_2.to(accelerator.device) # B 1 L
 
         with torch.no_grad():
-            B, N, L = input_ids_1.shape  # B 1 L
-            # use batch inference
-            input_ids_1 = input_ids_1.reshape(-1, L)
-            cond_mask_1 = cond_mask_1.reshape(-1, L)
-            cond_1 = text_enc_1(input_ids_1, cond_mask_1)  # B L D
-            cond_1 = cond_1.reshape(B, N, L, -1)
-            cond_mask_1 = cond_mask_1.reshape(B, N, L)
+            input_ids = torch.chunk(input_ids_1, 3, dim=1)
+            cond_masks = torch.chunk(cond_mask_1, 3, dim=1)
+            
+            cond_list, cond_mask_list = [], []
+            for input_id, cond_mask in zip(input_ids, cond_masks):
+                B, N, L = input_id.shape  # B 1 L
+                # use batch inference
+                input_id = input_id.reshape(-1, L)
+                cond_mask = cond_mask.reshape(-1, L)
 
-            # use text_enc_1 to encode key_text
-            input_ids_2 = input_ids_2.reshape(-1, L)
-            cond_mask_2 = cond_mask_2.reshape(-1, L)
-            cond_2 = text_enc_1(input_ids_2, cond_mask_2)  # B L D
-            cond_2 = cond_2.reshape(B, N, L, -1) # [b, 1, l, d]
-            cond_mask_2 = cond_mask_2.reshape(B, N, L) # [b, 1, l]
+                cond = text_enc_1(input_id, cond_mask).reshape(B, N, L, -1)
+                mask = cond_mask.reshape(B, N, L)
+
+                cond_list.append(cond)
+                cond_mask_list.append(mask)
+
+            cond_1 = torch.cat(cond_list, dim=0) # 3B 1 L D
+            cond_mask_1 = torch.cat(cond_mask_list, dim=0)# 3B 1 L
+            
+            # input_ids_2 = input_ids_2.reshape(-1, L)
+            # cond_mask_2 = cond_mask_2.reshape(-1, L)
+            # cond_2 = text_enc_2(input_ids_2, cond_mask_2)  # B L D
+            # cond_2 = cond_2.reshape(B, N, L, -1) # [b, 1, l, d]
+            # cond_mask_2 = cond_mask_2.reshape(B, N, L) # [b, 1, l]
 
             # Map input images to latent space + normalize latents
             x, masked_x, mask = x[:, :3], x[:, 3:6], x[:, 6:7]
@@ -775,8 +785,6 @@ def main(args):
                     attention_mask=attn_mask,
                     encoder_hidden_states=cond_1,
                     encoder_attention_mask=cond_mask_1, 
-                    key_encoder_hidden_states=cond_2,
-                    key_encoder_attention_mask=cond_mask_2,
                     key_frame_edge=key_frame_edge,
                     key_frame_idx=key_frame_idx
                     )

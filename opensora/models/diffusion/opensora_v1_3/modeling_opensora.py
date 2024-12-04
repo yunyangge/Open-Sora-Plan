@@ -84,7 +84,7 @@ class OpenSoraT2V_v1_3(ModelMixin, ConfigMixin):
         
         self.transformer_blocks = nn.ModuleList(
             [
-                TransitionTransformerBlock(
+                BasicTransformerBlock(
                     self.config.hidden_size,
                     self.config.num_attention_heads,
                     self.config.attention_head_dim,
@@ -186,6 +186,7 @@ class OpenSoraT2V_v1_3(ModelMixin, ConfigMixin):
                 head_num = self.config.num_attention_heads
         else:
             head_num = None
+        
         for sparse_n in [1, 4]:
             sparse_mask[sparse_n] = Attention.prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_num)
         # 2. Blocks

@@ -11,7 +11,7 @@ from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.normalization import AdaLayerNormSingle
 from diffusers.models.embeddings import PixArtAlphaTextProjection
-from opensora.models.diffusion.opensora_v1_3.modules import BasicTransformerBlock, Attention
+from opensora.models.diffusion.opensora_v1_3.modules import TransitionTransformerBlock, TransitionAttention
 from opensora.models.diffusion.common import PatchEmbed2D
 from opensora.utils.utils import to_2tuple
 try:
@@ -59,18 +59,14 @@ class EdgeEmbeddingModule(nn.Module):
         return latent
 
 
-def CalculateWeights(key_idx, frame_num, frame_token_num, weighted_function='hard_function'):
-    weights = torch.zeros(1, int(frame_num * frame_token_num), 1) # [b, n, c]
+def CalculateWeights(idx, latent_t_size, latent_hw_size, weighted_function='hard_function'):
+    weights = torch.zeros(1, int(latent_t_size * latent_hw_size), 1) # [b, n, c]
 
     if weighted_function == 'hard_function':
-        weights[:, int(frame_token_num*key_idx.item()): int(frame_token_num*(key_idx.item()+1))] = 1.
+        weights[:, int(latent_hw_size*idx): int(latent_hw_size*(idx+1))] = 1.
     else:
-        a_1, b_1 = 1/key_idx, 0
-        a_2, b_2 = 1/(key_idx-frame_num), -frame_num/(key_idx-frame_num)
-        def y(x, a, b):
-            return a*x+b
-        
-    weights = weights.to(key_idx.device)
+        pass
+
     return weights
 
 def reconstitute_checkpoint(pretrained_checkpoint, model_state_dict):
@@ -147,8 +143,57 @@ class OpenSoraTransition(OpenSoraT2V):
         self._init_patched_inputs_for_transition()
         self.add_edge_layer_num = num_layers // 4
 
-    def _init_patched_inputs_for_transition(self):
+    def _init_patched_inputs(self):
 
+        self.config.sample_size = (self.config.sample_size_h, self.config.sample_size_w)
+        interpolation_scale_thw = (
+            self.config.interpolation_scale_t, 
+            self.config.interpolation_scale_h, 
+            self.config.interpolation_scale_w
+            )
+        
+        self.caption_projection = PixArtAlphaTextProjection(
+            in_features=self.config.caption_channels, hidden_size=self.config.hidden_size
+        )
+
+        self.pos_embed = PatchEmbed2D(
+            patch_size=self.config.patch_size,
+            in_channels=self.config.in_channels,
+            embed_dim=self.config.hidden_size,
+        )
+        
+        self.transformer_blocks = nn.ModuleList(
+            [
+                TransitionTransformerBlock(
+                    self.config.hidden_size,
+                    self.config.num_attention_heads,
+                    self.config.attention_head_dim,
+                    dropout=self.config.dropout,
+                    cross_attention_dim=self.config.cross_attention_dim,
+                    activation_fn=self.config.activation_fn,
+                    attention_bias=self.config.attention_bias,
+                    only_cross_attention=self.config.only_cross_attention,
+                    double_self_attention=self.config.double_self_attention,
+                    upcast_attention=self.config.upcast_attention,
+                    norm_elementwise_affine=self.config.norm_elementwise_affine,
+                    norm_eps=self.config.norm_eps,
+                    interpolation_scale_thw=interpolation_scale_thw, 
+                    sparse1d=self.config.sparse1d if i > 1 and i < 30 else False, 
+                    sparse_n=self.config.sparse_n, 
+                    sparse_group=i % 2 == 1, 
+                )
+                for i in range(self.config.num_layers)
+            ]
+        )
+        self.norm_out = nn.LayerNorm(self.config.hidden_size, elementwise_affine=False, eps=1e-6)
+        self.scale_shift_table = nn.Parameter(torch.randn(2, self.config.hidden_size) / self.config.hidden_size**0.5)
+        self.proj_out = nn.Linear(
+            self.config.hidden_size, self.config.patch_size_t * self.config.patch_size * self.config.patch_size * self.out_channels
+        )
+        self.adaln_single = AdaLayerNormSingle(self.config.hidden_size)
+
+    def _init_patched_inputs_for_transition(self):
+        
         self.config.sample_size = to_2tuple(self.config.sample_size)
 
         self.pos_embed_masked_hidden_states = nn.ModuleList(
@@ -184,11 +229,7 @@ class OpenSoraTransition(OpenSoraT2V):
             ]
         )
 
-        self.key_caption_projection = PixArtAlphaTextProjection(
-            in_features=self.config.caption_channels, hidden_size=self.config.hidden_size
-        )
-
-    def _operate_on_patched_inputs(self, hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx, key_encoder_hidden_states):
+    def _operate_on_patched_inputs(self, hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx):
         b, c, t, h, w = hidden_states.shape
         assert hidden_states.shape[1] == 2 * self.config.in_channels + self.vae_scale_factor_t
         in_channels = self.config.in_channels
@@ -208,8 +249,13 @@ class OpenSoraTransition(OpenSoraT2V):
         embedded_edge = torch.cat([embedded_edge for i in range(t)], dim=1) # [b, t*h*w, c]
 
         # print(self.config.patch_size, hidden_states.shape, input_hidden_states.shape, key_frame_edge.shape)
-        weights = CalculateWeights(key_frame_idx, t, (h*w)//(self.config.patch_size*self.config.patch_size))
-        
+        latent_hw_size = (h*w)//(self.config.patch_size*self.config.patch_size)
+        start_weights = CalculateWeights(0, t, latent_hw_size).to(encoder_hidden_states.device)
+        mid_weights = CalculateWeights(key_frame_idx.item(), t, latent_hw_size).to(encoder_hidden_states.device)
+        end_weights = CalculateWeights(t-1, t, latent_hw_size).to(encoder_hidden_states.device)
+
+        weights = torch.cat([start_weights, mid_weights, end_weights], dim=0)
+        # logger.debug(f"weights: {weights.shape}")
         # input_hidden_states: [b, (t, h, w), c]
         hidden_states = input_hidden_states + input_masked_hidden_states + input_mask
         
@@ -218,15 +264,11 @@ class OpenSoraTransition(OpenSoraT2V):
             timestep, added_cond_kwargs, batch_size=batch_size, hidden_dtype=self.dtype
         )  # b 6d, b d
 
-        encoder_hidden_states = self.caption_projection(encoder_hidden_states)  # b, 1, l, d or b, 1, l, d
-        assert encoder_hidden_states.shape[1] == 1
-        encoder_hidden_states = rearrange(encoder_hidden_states, 'b 1 l d -> (b 1) l d')
+        encoder_hidden_states = self.caption_projection(encoder_hidden_states)  # 3b, 1, l, d
+        assert encoder_hidden_states.shape[1] == 1 # for transition caption inputs
+        encoder_hidden_states = rearrange(encoder_hidden_states, 'b y l d -> (b y) l d')
 
-        key_encoder_hidden_states = self.key_caption_projection(key_encoder_hidden_states)  # b, 1, l, d or b, 1, l, d
-        assert key_encoder_hidden_states.shape[1] == 1
-        key_encoder_hidden_states = rearrange(key_encoder_hidden_states, 'b 1 l d -> (b 1) l d')
-
-        return hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights, key_encoder_hidden_states
+        return hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights
 
     def transformer_model_custom_load_state_dict(self, pretrained_model_path):
         pretrained_model_path = os.path.join(pretrained_model_path, 'diffusion_pytorch_model.*')
@@ -269,8 +311,6 @@ class OpenSoraTransition(OpenSoraT2V):
         attention_mask: Optional[torch.Tensor] = None,
         encoder_hidden_states: Optional[torch.Tensor] = None,
         encoder_attention_mask: Optional[torch.Tensor] = None,
-        key_encoder_hidden_states: Optional[torch.Tensor] = None,
-        key_encoder_attention_mask: Optional[torch.Tensor] = None,
         key_frame_edge: Optional[torch.Tensor] = None,
         key_frame_idx: Optional[torch.Tensor] = None,
         return_dict: bool = True,
@@ -308,28 +348,27 @@ class OpenSoraTransition(OpenSoraT2V):
 
         # convert encoder_attention_mask to a bias the same way we do for attention_mask
         if encoder_attention_mask is not None and encoder_attention_mask.ndim == 3:  
-            # encoder_attention_mask: [b, 1, thw]
+            # encoder_attention_mask: [3b, 1, l]
             encoder_attention_mask = (1 - encoder_attention_mask.to(self.dtype)) * -10000.0
-            key_encoder_attention_mask = (1 - key_encoder_attention_mask.to(self.dtype)) * -10000.0
 
         # 1. Input
         frame = ((frame - 1) // self.config.patch_size_t + 1) if frame % 2 == 1 else frame // self.config.patch_size_t  # patchfy
         height, width = hidden_states.shape[-2] // self.config.patch_size, hidden_states.shape[-1] // self.config.patch_size
 
-        hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights, key_encoder_hidden_states = self._operate_on_patched_inputs(
-            hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx, key_encoder_hidden_states
+        hidden_states, encoder_hidden_states, timestep, embedded_timestep, embedded_edge, weights = self._operate_on_patched_inputs(
+            hidden_states, encoder_hidden_states, timestep, batch_size, frame, key_frame_edge, key_frame_idx
         )
-        # embedded_edge: [b, thw, dim], weights: [b, thw, 1]
-        
-        weighted_embedded_edge = embedded_edge * weights
-        
-        # To
-        # x            (t*h*w b d) or (t//sp*h*w b d)
-        # cond_1       (l b d) or (l//sp b d)
+
         hidden_states = rearrange(hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
-        encoder_hidden_states = rearrange(encoder_hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
-        key_encoder_hidden_states = rearrange(key_encoder_hidden_states, 'b s h -> s b h', b=batch_size).contiguous()
-        weighted_embedded_edge = rearrange(weighted_embedded_edge, 'b s h -> s b h', b=batch_size).contiguous()
+        encoder_hidden_states = rearrange(encoder_hidden_states, 'b s h -> s b h').contiguous()
+        embedded_edge = rearrange(embedded_edge, 'b s h -> s b h', b=batch_size).contiguous()
+        weights = rearrange(weights, 'b s h -> s b h').contiguous()
+
+        # hidden_states : [thw, b, d]
+        # encoder_hidden_states: [l, b*3, d]
+        # embedded_edge: [b, thw, d]
+        # weights: [b, thw, 1]
+        
         timestep = timestep.view(batch_size, 6, -1).transpose(0, 1).contiguous()
 
         sparse_mask = {}
@@ -342,14 +381,14 @@ class OpenSoraTransition(OpenSoraT2V):
             head_num = None
         
         for sparse_n in [1, 4]:
-            sparse_mask[sparse_n] = Attention.prepare_sparse_mask(attention_mask, encoder_attention_mask, key_encoder_attention_mask, sparse_n, head_num)
+            sparse_mask[sparse_n] = TransitionAttention.prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_num)
         
         # 2. Blocks
         for i, block in enumerate(self.transformer_blocks):
             if i > 1 and i < 30:
-                attention_mask, encoder_attention_mask, key_encoder_attention_mask = sparse_mask[block.attn1.processor.sparse_n][block.attn1.processor.sparse_group]
+                attention_mask, encoder_attention_mask = sparse_mask[block.attn1.processor.sparse_n][block.attn1.processor.sparse_group]
             else:
-                attention_mask, encoder_attention_mask, key_encoder_attention_mask = sparse_mask[1][block.attn1.processor.sparse_group]
+                attention_mask, encoder_attention_mask = sparse_mask[1][block.attn1.processor.sparse_group]
             
             # self.training = true, self.gradient_checkpointing = true
             if self.training and self.gradient_checkpointing:
@@ -374,9 +413,8 @@ class OpenSoraTransition(OpenSoraT2V):
                     frame, 
                     height, 
                     width, 
-                    key_encoder_hidden_states,
-                    key_encoder_attention_mask,
-                    weighted_embedded_edge,
+                    embedded_edge,
+                    weights,
                     **ckpt_kwargs,
                 )
             else:
@@ -389,9 +427,8 @@ class OpenSoraTransition(OpenSoraT2V):
                     frame=frame, 
                     height=height, 
                     width=width, 
-                    key_encoder_hidden_states=key_encoder_hidden_states,
-                    key_encoder_attention_mask=key_encoder_attention_mask,
-                    weighted_embedded_edge=weighted_embedded_edge,
+                    embedded_edge=embedded_edge,
+                    weights=weights,
                 )
 
         # To (b, t*h*w, h) or (b, t//sp*h*w, h)

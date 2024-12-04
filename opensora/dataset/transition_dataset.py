@@ -151,11 +151,11 @@ class Transition_dataset(T2V_dataset):
         key_frame_cap = video_data['key_frame_caption'][key_frame_selected_index]
         key_frame_idx = video_data['key_idx'][key_frame_selected_index] - video_data['start_frame_idx']
 
+        text_list = []
         key_text = [key_frame_cap]
         key_text = text_preprocessing(key_text, support_Chinese=self.support_Chinese)
-
-        global_text = ["A coherent creative transition video."]
-        global_text = text_preprocessing(global_text, support_Chinese=self.support_Chinese)
+        for i in range(3):
+            text_list.append(key_text)
 
         sample_h = video_data['resolution']['sample_height']
         sample_w = video_data['resolution']['sample_width']
@@ -198,36 +198,23 @@ class Transition_dataset(T2V_dataset):
         video = torch.cat([video, masked_video, transition_invisible_mask], dim=1)  # T 2C+1 H W
         video = video.transpose(0, 1)  # T C H W -> C T H W
 
-        text_tokens_and_mask_1 = self.tokenizer_1(
-            global_text,
-            max_length=self.model_max_length,
-            padding='max_length',
-            truncation=True,
-            return_attention_mask=True,
-            add_special_tokens=True,
-            return_tensors='pt'
-        )
-        input_ids_1 = text_tokens_and_mask_1['input_ids']
-        cond_mask_1 = text_tokens_and_mask_1['attention_mask']
+        input_id_list, cond_mask_list = [], []
+        for text in text_list:
+            text_tokens_and_mask = self.tokenizer_1(
+                text,
+                max_length=self.model_max_length,
+                padding='max_length',
+                truncation=True,
+                return_attention_mask=True,
+                add_special_tokens=True,
+                return_tensors='pt'
+            )
+            input_id_list.append(text_tokens_and_mask['input_ids'])
+            cond_mask_list.append(text_tokens_and_mask['attention_mask'])
         
-        text_tokens_and_mask_2 = self.tokenizer_1(
-            key_text,
-            max_length=self.model_max_length,
-            padding='max_length',
-            truncation=True,
-            return_attention_mask=True,
-            add_special_tokens=True,
-            return_tensors='pt'
-        )
-        input_ids_2 = text_tokens_and_mask_2['input_ids'] # [1, 512]
-        cond_mask_2 = text_tokens_and_mask_2['attention_mask'] # [1, 512]
-
-        # print(f"global_text: {global_text}, key_text: {global_text}")
-        # print(f"input_ids_1: {input_ids_1}, input_ids_2: {input_ids_2}")
-        # print(f"input_ids_1.shape: {input_ids_1.shape}, input_ids_2.shape: {input_ids_2.shape}")
-        # print(f"cond_mask_1: {cond_mask_1}, cond_mask_2: {cond_mask_2}")
-        # print(f"cond_mask_1.shape: {cond_mask_1.shape}, cond_mask_2.shape: {cond_mask_2.shape}")
-
+        input_ids_1, cond_mask_1 = torch.cat(input_id_list, dim=0), torch.cat(cond_mask_list, dim=0)
+        input_ids_2, cond_mask_2 = None, None
+        
         return {
             "pixel_values": video,
             "input_ids_1": input_ids_1,
@@ -235,7 +222,6 @@ class Transition_dataset(T2V_dataset):
             "input_ids_2": input_ids_2,
             "cond_mask_2": cond_mask_2
         }
-
 
     def drop(self, text, is_video=True):
         rand_num = random.random()
