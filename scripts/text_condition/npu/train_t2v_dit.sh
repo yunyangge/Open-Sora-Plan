@@ -32,13 +32,19 @@ accelerate launch \
     --ae_path "/home/save_dir/lzj/Middle888" \
     --sample_rate 1 \
     --num_frames 1 \
-    --max_hxw 65536 \
-    --min_hxw 36864 \
-    --force_5_ratio \
+    --force_resolution \
+    --max_height 288 \
+    --max_width 512 \
+    --max_h_div_w_ratio=0.875 \
+    --min_h_div_w_ratio=0.5 \
+    --max_hxw 147456 \
+    --min_hxw 147456 \
     --gradient_checkpointing \
     --train_batch_size=32 \
     --dataloader_num_workers 20 \
     --learning_rate=1e-4 \
+    --adam_weight_decay=1e-4 \
+    --adam_epsilon=1e-15 \
     --lr_scheduler="constant_with_warmup" \
     --mixed_precision="bf16" \
     --report_to="wandb" \
@@ -54,7 +60,7 @@ accelerate launch \
     --seed 1024 \
     --group_data \
     --use_decord \
-    --output_dir="/home/save_dir/runs/SUV/dit/$PROJECT" \
+    --output_dir="/mnt/sfs_turbo/runs/SUV/dit/$PROJECT" \
     --vae_fp32 \
     --rf_scheduler \
     --proj_name "$PROJECT" \
@@ -62,13 +68,11 @@ accelerate launch \
     --skip_abnormal_step --ema_decay_grad_clipping 0.99 \
     --trained_data_global_step 0 \
     --use_ema \
-    --ema_update_freq 50 \
-    --ema_decay 0.99 \
+    --ema_update_freq 1 \
+    --ema_decay 0.9999 \
+    # --force_5_ratio \
     # --enable_tiling \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \
     # --min_hxw 36864 \
     # --force_5_ratio \
-    # --force_resolution \
-    # --max_height 768 \
-    # --max_width 768 \

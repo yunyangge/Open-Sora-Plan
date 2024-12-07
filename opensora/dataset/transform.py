@@ -316,7 +316,7 @@ def get_hw_for_ratio(ratio_h, ratio_w, max_hxw, hw_stride):
         h = int(ratio_h * k * hw_stride)
         w = int(ratio_w * k * hw_stride)
     else:
-        k = np.sqrt(max_hxw / (ratio_h * ratio_w))
+        k = floor(np.sqrt(max_hxw / (ratio_h * ratio_w)))
         h = int(ratio_h * k)
         w = int(ratio_w * k)
     return h, w
@@ -360,7 +360,7 @@ def maxhwresize(ori_height, ori_width, max_hxw, force_5_ratio=True, hw_stride=16
             target_h, target_w = get_hw_for_ratio(ratio_h, ratio_w, max_hxw, hw_stride)
             new_height, new_width = shortsideresize(ori_height, ori_width, (target_h, target_w), skip_low_resolution=False)
         else:
-            scale_factor = np.sqrt(max_hxw / (ori_height * ori_width))
+            scale_factor = floor(np.sqrt(max_hxw / (ori_height * ori_width)))
             new_height = int(ori_height * scale_factor)
             new_width = int(ori_width * scale_factor)
     else:
@@ -950,7 +950,7 @@ if __name__ == '__main__':
     from torchvision import transforms
     import torch
 
-    max_hxw = 256 * 256
+    max_hxw = 2560 * 2560
     hw_stride = 16
 
     transform = transforms.Compose([
@@ -958,7 +958,7 @@ if __name__ == '__main__':
         SpatialStrideCropVideo(stride=hw_stride, force_5_ratio=True), 
     ])
 
-    image = torch.randn([1, 3, 180, 180])
+    image = torch.randn([1, 3, 1900, 1700])
     print(transform(image).shape)
 
 

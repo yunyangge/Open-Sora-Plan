@@ -150,16 +150,19 @@ class T2V_dataset(Dataset):
         self.max_hxw = args.max_hxw
         self.min_hxw = args.min_hxw
         self.sp_size = args.sp_size
+        self.train_image_batch_size = args.train_image_batch_size
         assert self.speed_factor >= 1
         self.video_reader = 'decord' if args.use_decord else 'opencv'
         self.ae_stride_t = args.ae_stride_t
         self.total_batch_size = args.total_batch_size
         self.seed = 42
         self.generator = torch.Generator().manual_seed(self.seed) 
-        self.hw_aspect_thr = 2.0  # just a threshold
+        self.max_h_div_w_ratio = args.max_h_div_w_ratio  # just a threshold
+        self.min_h_div_w_ratio = args.min_h_div_w_ratio if args.min_h_div_w_ratio is not None else 1 / self.max_h_div_w_ratio
         self.too_long_factor = 5.0
         self.random_data = args.random_data
         self.force_5_ratio = args.force_5_ratio
+        self.train_video_only = args.train_video_only
 
         self.support_Chinese = False
         if 'mt5' in args.text_encoder_name_1:
@@ -177,7 +180,7 @@ class T2V_dataset(Dataset):
         self.lengths = self.sample_size
 
         self.executor = ThreadPoolExecutor(max_workers=1)
-        self.timeout = 60
+        self.timeout = 30
 
     def __len__(self):
         return len(self.cap_list)
@@ -197,11 +200,12 @@ class T2V_dataset(Dataset):
 
     def get_data(self, idx):
         data = self.cap_list.iloc[idx]
+        # print(data)
         path = data['path']
-        if path.endswith('.mp4'):
+        if not isinstance(path, list) and path.endswith('.mp4'):
             return self.get_video(data)
         else:
-            return self.get_image(data)
+            return self.get_batch_image(data)
     
     def get_video(self, video_data):
         video_path = video_data['path']
@@ -227,9 +231,9 @@ class T2V_dataset(Dataset):
         if not isinstance(text, list):
             text = [text]
         text = [random.choice(text)]
-        if video_data.get('aesthetic', None) is not None or video_data.get('aes', None) is not None:
-            aes = video_data.get('aesthetic', None) or video_data.get('aes', None)
-            text = [add_aesthetic_notice_video(text[0], aes)]
+        # if video_data.get('aesthetic', None) is not None or video_data.get('aes', None) is not None:
+        #     aes = video_data.get('aesthetic', None) or video_data.get('aes', None)
+        #     text = [add_aesthetic_notice_video(text[0], aes)]
         text = text_preprocessing(text, support_Chinese=self.support_Chinese)
 
         text = text if random.random() > self.cfg else ""
@@ -243,8 +247,8 @@ class T2V_dataset(Dataset):
             add_special_tokens=True,
             return_tensors='pt'
         )
-        input_ids_1 = text_tokens_and_mask_1['input_ids']
-        cond_mask_1 = text_tokens_and_mask_1['attention_mask']
+        input_ids_1 = text_tokens_and_mask_1['input_ids']  # 1 512
+        cond_mask_1 = text_tokens_and_mask_1['attention_mask']  # 1 512
         
         input_ids_2, cond_mask_2 = None, None
         if self.tokenizer_2 is not None:
@@ -257,36 +261,51 @@ class T2V_dataset(Dataset):
                 add_special_tokens=True,
                 return_tensors='pt'
             )
-            input_ids_2 = text_tokens_and_mask_2['input_ids']
-            cond_mask_2 = text_tokens_and_mask_2['attention_mask']
+            input_ids_2 = text_tokens_and_mask_2['input_ids']  # 1 77
+            cond_mask_2 = text_tokens_and_mask_2['attention_mask']  # 1 77
 
         return dict(
             pixel_values=video, input_ids_1=input_ids_1, cond_mask_1=cond_mask_1, 
             input_ids_2=input_ids_2, cond_mask_2=cond_mask_2,
             )
 
-    def get_image(self, image_data):
-        sample_h = image_data['resolution']['sample_height']
-        sample_w = image_data['resolution']['sample_width']
 
+    def get_batch_image(self, image_data):
+        sample_h = image_data['resolution'][0]['sample_height']
+        sample_w = image_data['resolution'][0]['sample_width']
+        batch_images = [self.get_image(path, cap) for path, cap in zip(image_data['path'], image_data['cap'])]
+        keys = list(batch_images[0].keys())
+        batch_images_dict = {k: torch.cat([batch_images[i][k] for i in range(self.train_image_batch_size)]) for k in keys}
+        '''
+        pixel_values bs_i*C, 1, H, W
+        input_ids_1 bs_i, l
+        cond_mask_1 bs_i, l
+        input_ids_2 bs_i, l
+        cond_mask_2 bs_i, l
+        '''
+        image = batch_images_dict['pixel_values']
+        assert image.shape[2] == sample_h and image.shape[3] == sample_w, f"image_data: {image_data}, but found image {image.shape}"
+
+        return batch_images_dict
+
+    def get_image(self, path, cap):
 
         if self.random_data:
             image = torch.rand(1, 3, sample_h, sample_w)
         else:
-            image = Image.open(image_data['path']).convert('RGB')  # [h, w, c]
+            image = Image.open(path).convert('RGB')  # [h, w, c]
             image = torch.from_numpy(np.array(image))  # [h, w, c]
             image = rearrange(image, 'h w c -> c h w').unsqueeze(0)  #  [1 c h w]
             image = self.transform(image) #  [1 C H W] -> num_img [1 C H W]
-            
-        assert image.shape[2] == sample_h and image.shape[3] == sample_w, f"image_data: {image_data}, but found image {image.shape}"
         
         image = image.transpose(0, 1)  # [1 C H W] -> [C 1 H W]
 
-        caps = image_data['cap'] if isinstance(image_data['cap'], list) else [image_data['cap']]
-        caps = [random.choice(caps)]
-        if image_data.get('aesthetic', None) is not None or image_data.get('aes', None) is not None:
-            aes = image_data.get('aesthetic', None) or image_data.get('aes', None)
-            caps = [add_aesthetic_notice_image(caps[0], aes)]
+        caps = cap if isinstance(cap, list) else [cap]
+        # caps = [random.choice(caps)]
+        caps = [caps[0]]
+        # if image_data.get('aesthetic', None) is not None or image_data.get('aes', None) is not None:
+        #     aes = image_data.get('aesthetic', None) or image_data.get('aes', None)
+        #     caps = [add_aesthetic_notice_image(caps[0], aes)]
         text = text_preprocessing(caps, support_Chinese=self.support_Chinese)
         text = text if random.random() > self.cfg else ""
 
@@ -362,6 +381,8 @@ class T2V_dataset(Dataset):
                 if path.endswith('.mp4'):
                     cnt_vid += 1
                 elif path.endswith('.jpg'):
+                    if self.train_video_only:
+                        continue
                     cnt_img += 1
 
                 # ======no aesthetic=====
@@ -411,7 +432,7 @@ class T2V_dataset(Dataset):
 
                             # filter aspect
                             is_pick = filter_resolution(
-                                sample_h, sample_w, max_h_div_w_ratio=self.hw_aspect_thr, min_h_div_w_ratio=1/self.hw_aspect_thr
+                                sample_h, sample_w, max_h_div_w_ratio=self.max_h_div_w_ratio, min_h_div_w_ratio=self.min_h_div_w_ratio
                                 )
                             if not is_pick:
                                 if path.endswith('.mp4'):
@@ -423,9 +444,15 @@ class T2V_dataset(Dataset):
                             i['resolution'].update(dict(sample_height=sample_h, sample_width=sample_w))
                             
                         else:
-                            aspect = self.max_height / self.max_width
+                            # filter h and w
+                            if height * width < self.min_hxw:
+                                if path.endswith('.mp4'):
+                                    cnt_vid_res_too_small += 1
+                                elif path.endswith('.jpg'):
+                                    cnt_img_res_too_small += 1
+                                continue
                             is_pick = filter_resolution(
-                                height, width, max_h_div_w_ratio=self.hw_aspect_thr*aspect, min_h_div_w_ratio=1/self.hw_aspect_thr*aspect
+                                height, width, max_h_div_w_ratio=self.max_h_div_w_ratio, min_h_div_w_ratio=self.min_h_div_w_ratio
                                 )
                             if not is_pick:
                                 if path.endswith('.mp4'):
@@ -527,6 +554,63 @@ class T2V_dataset(Dataset):
                 f"Mean: {stats_aesthetic['mean']}, Var: {stats_aesthetic['variance']}, Std: {stats_aesthetic['std_dev']}\n"
                 f"Min: {stats_aesthetic['min']}, Max: {stats_aesthetic['max']}")
 
+
+
+        img_shape_idx_dict = {}
+        vid_shape_idx_dict = {}
+        for shape, idx in shape_idx_dict.items():
+            if shape.split('x')[0] == '1':
+                img_shape_idx_dict[shape] = idx
+            else:
+                vid_shape_idx_dict[shape] = idx
+                
+        new_cap_list_batch_image = []
+        sample_size_batch_image = []
+        for shape, idx in img_shape_idx_dict.items():
+            idx_per_batch = [idx[i:i + self.train_image_batch_size] for i in range(0, len(idx), self.train_image_batch_size)]
+            if len(idx_per_batch[-1]) != self.train_image_batch_size:
+                idx_per_batch = idx_per_batch[:-1]  # 丢掉最后一个local batch，因为不足train_image_batch_size，但丢掉后也不一定满足global batch
+            shape = f'{self.train_image_batch_size}{shape[1:]}'   # 1x288x384 -> 4x288x384
+
+            for batch in idx_per_batch:
+                batch_items = [new_cap_list[batch_i] for batch_i in batch]
+                batch_items = {k: [item.get(k, None) for item in batch_items] for k in batch_items[0].keys()}  # 'path': ['', '', '', '']
+                new_cap_list_batch_image.append(batch_items)
+                sample_size_batch_image.append(shape)
+
+        img_shape_idx_dict = {}
+        for idx, shape in enumerate(sample_size_batch_image):
+            if img_shape_idx_dict.get(shape, None) is None:
+                img_shape_idx_dict[shape] = [idx]
+            else:
+                img_shape_idx_dict[shape].append(idx)
+
+        
+        new_cap_list_video = []
+        sample_size_video = []
+        for shape, idx in vid_shape_idx_dict.items():
+            for i in idx:
+                new_cap_list_video.append(new_cap_list[i])
+                sample_size_video.append(sample_size[i])
+
+        vid_shape_idx_dict = {}
+        for idx, shape in enumerate(sample_size_video):
+            # item = new_cap_list_video[idx + len(new_cap_list_batch_image)]
+            # shape_ = f"{len(item['sample_frame_index'])}x{item['resolution']['sample_height']}x{item['resolution']['sample_width']}"
+            # assert shape == shape_
+            if vid_shape_idx_dict.get(shape, None) is None:
+                vid_shape_idx_dict[shape] = [idx + len(new_cap_list_batch_image)]
+            else:
+                vid_shape_idx_dict[shape].append(idx + len(new_cap_list_batch_image))
+        
+        new_cap_list = new_cap_list_batch_image + new_cap_list_video
+        sample_size = sample_size_batch_image + sample_size_video
+        shape_idx_dict = {}
+        shape_idx_dict.update(img_shape_idx_dict)
+        shape_idx_dict.update(vid_shape_idx_dict)
+
+        counter = Counter(sample_size)
+        print(f'Counter(sample_size): {counter}\nafter filter: {len(new_cap_list)}')
         return pd.DataFrame(new_cap_list), sample_size, shape_idx_dict
     
     def decord_read(self, video_data):
@@ -544,7 +628,6 @@ class T2V_dataset(Dataset):
         frame_indices = self.get_actual_frame(
             fps, start_frame_idx, clip_total_frames, path, predefine_num_frames, predefine_frame_indice
             )
-        
         # video_data = decord_vr.get_batch(frame_indices).asnumpy()
         # video_data = torch.from_numpy(video_data)
         video_data = decord_vr.get_batch(frame_indices)

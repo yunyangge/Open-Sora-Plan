@@ -11,7 +11,7 @@ from diffusers.configuration_utils import ConfigMixin, register_to_config
 from diffusers.models.modeling_utils import ModelMixin
 from diffusers.models.normalization import RMSNorm
 from diffusers.models.embeddings import PixArtAlphaTextProjection
-from opensora.models.diffusion.opensora_v1_5.modules import CombinedTimestepTextProjEmbeddings, BasicTransformerBlock, AdaNorm
+from opensora.models.diffusion.opensora_v1_5.modules import CombinedTimestepTextProjEmbeddings, BasicTransformerBlock, AdaNorm, PositionGetter3D, RoPE3D
 from opensora.utils.utils import to_2tuple
 from opensora.models.diffusion.common import PatchEmbed2D
 try:
@@ -83,6 +83,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         out_channels: Optional[int] = None,
         num_layers: List[int] = [2, 4, 8, 4, 2], 
         sparse_n: List[int] = [1, 4, 16, 4, 1], 
+        double_ff: bool = False,
         dropout: float = 0.0,
         attention_bias: bool = True,
         sample_size_h: Optional[int] = None,
@@ -101,7 +102,8 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         pooled_projection_dim: int = 1024, 
         timestep_embed_dim: int = 512,
         norm_cls: str = 'rms_norm', 
-        skip_connection: bool = False
+        skip_connection: bool = False, 
+        explicit_uniform_rope: bool = False, 
     ):
         super().__init__()
         # Set some common variables used across the board.
@@ -120,8 +122,6 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
         if not self.config.sparse1d:
             self.config.sparse_n = self.sparse_n = [1] * len(self.config.sparse_n)
 
-        print(self.config.sparse_n)
-
         self._init_patched_inputs()
 
     def _set_gradient_checkpointing(self, module, value=False):
@@ -131,7 +131,6 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
     def _init_patched_inputs(self):
 
         # 0. some param
-        self.config.sample_size = (self.config.sample_size_h, self.config.sample_size_w)
         interpolation_scale_thw = (
             self.config.interpolation_scale_t, 
             self.config.interpolation_scale_h, 
@@ -154,6 +153,13 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
 
         # 3. anthor text embedding
         self.caption_projection = nn.Linear(self.config.caption_channels, self.config.hidden_size)
+
+        # 4. rope
+        self.rope = RoPE3D(interpolation_scale_thw=interpolation_scale_thw)
+        self.position_getter = PositionGetter3D(
+            self.config.sample_size_t, self.config.sample_size_h, self.config.sample_size_w, 
+            self.config.explicit_uniform_rope
+        )
 
         # forward transformer blocks
         self.transformer_blocks = []
@@ -195,6 +201,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                         norm_elementwise_affine=self.config.norm_elementwise_affine,
                         norm_eps=self.config.norm_eps,
                         interpolation_scale_thw=interpolation_scale_thw, 
+                        double_ff=self.config.double_ff,
                         sparse1d=self.config.sparse1d if sparse_n > 1 else False, 
                         sparse_n=sparse_n, 
                         sparse_group=i % 2 == 1 if sparse_n > 1 else False, 
@@ -305,19 +312,25 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                 )
 
         # 2. Blocks
+        pos_thw = self.position_getter(
+            batch_size, t=frame, h=height, w=width, 
+            device=hidden_states.device, training=self.training
+        )
+        video_rotary_emb = self.rope(self.config.attention_head_dim, pos_thw, hidden_states.device, hidden_states.dtype)
+
         hidden_states, encoder_hidden_states, skip_connections = self._operate_on_enc(
             hidden_states, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
             )
         
         hidden_states, encoder_hidden_states = self._operate_on_mid(
             hidden_states, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
             )
         
         hidden_states, encoder_hidden_states = self._operate_on_dec(
             hidden_states, skip_connections, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
             )
 
         # To (b, t*h*w, h) or (b, t//sp*h*w, h)
@@ -335,7 +348,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
 
     def _operate_on_enc(
             self, hidden_states, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
         ):
         
         skip_connections = []
@@ -363,6 +376,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                         attention_mask,
                         encoder_hidden_states,
                         embedded_timestep,
+                        video_rotary_emb, 
                         frame, 
                         height, 
                         width, 
@@ -374,6 +388,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                         attention_mask=attention_mask,
                         encoder_hidden_states=encoder_hidden_states,
                         embedded_timestep=embedded_timestep,
+                        video_rotary_emb=video_rotary_emb, 
                         frame=frame, 
                         height=height, 
                         width=width, 
@@ -389,7 +404,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
 
     def _operate_on_mid(
             self, hidden_states, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
         ):
         
         for idx_, block in enumerate(self.transformer_blocks[len(self.config.num_layers)//2]):
@@ -418,6 +433,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                     attention_mask,
                     encoder_hidden_states,
                     embedded_timestep,
+                    video_rotary_emb, 
                     frame, 
                     height, 
                     width, 
@@ -429,6 +445,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                     attention_mask=attention_mask,
                     encoder_hidden_states=encoder_hidden_states,
                     embedded_timestep=embedded_timestep,
+                    video_rotary_emb=video_rotary_emb, 
                     frame=frame, 
                     height=height, 
                     width=width, 
@@ -443,7 +460,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
 
     def _operate_on_dec(
             self, hidden_states, skip_connections, encoder_hidden_states, 
-            embedded_timestep, frame, height, width
+            embedded_timestep, video_rotary_emb, frame, height, width
         ):
         
         for idx, stage_block in enumerate(self.transformer_blocks[-(len(self.config.num_layers)//2):]):
@@ -483,6 +500,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                         attention_mask,
                         encoder_hidden_states,
                         embedded_timestep,
+                        video_rotary_emb, 
                         frame, 
                         height, 
                         width, 
@@ -494,6 +512,7 @@ class OpenSoraT2V_v1_5(ModelMixin, ConfigMixin):
                         attention_mask=attention_mask,
                         encoder_hidden_states=encoder_hidden_states,
                         embedded_timestep=embedded_timestep,
+                        video_rotary_emb=video_rotary_emb, 
                         frame=frame, 
                         height=height, 
                         width=width, 

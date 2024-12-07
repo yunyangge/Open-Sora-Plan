@@ -1,4 +1,5 @@
 
+import random
 import torch
 from torch import nn
 from typing import Optional, Tuple
@@ -35,21 +36,34 @@ except:
 class PositionGetter3D(object):
     """ return positions of patches """
 
-    def __init__(self, ):
+    def __init__(self,  max_t, max_h, max_w, explicit_uniform_rope=False):
         self.cache_positions = {}
+        self.max_t = max_t
+        self.max_h = max_h
+        self.max_w = max_w
+        self.explicit_uniform_rope = explicit_uniform_rope
         
-    def __call__(self, b, t, h, w, device):
-        if not (b,t,h,w) in self.cache_positions:
+    def __call__(self, b, t, h, w, device, training=True):
+        # random.randint is [a, b], but torch.randint is [a, b)
+        s_t = random.randint(0, self.max_t-t) if self.explicit_uniform_rope and training else 0
+        e_t = s_t + t
+        s_h = random.randint(0, self.max_h-h) if self.explicit_uniform_rope and training else 0
+        e_h = s_h + h
+        s_w = random.randint(0, self.max_w-w) if self.explicit_uniform_rope and training else 0
+        e_w = s_w + w
+        # print(f'{self.explicit_uniform_rope}, {training}, {b},{s_t},{e_t},{s_h},{e_h},{s_w},{e_w}')
+        if not (b,s_t,e_t,s_h,e_h,s_w,e_w) in self.cache_positions:
             x = torch.arange(w, device=device)
             y = torch.arange(h, device=device)
             z = torch.arange(t, device=device)
             pos = torch.cartesian_prod(z, y, x)
             pos = pos.reshape(t * h * w, 3).transpose(0, 1).reshape(3, -1, 1).contiguous().expand(3, -1, b).clone()
             poses = (pos[0].contiguous(), pos[1].contiguous(), pos[2].contiguous())
-            max_poses = (int(poses[0].max()), int(poses[1].max()), int(poses[2].max()))
+            max_poses = (e_t, e_h, e_w)
+            min_poses = (s_t, s_h, s_w)
 
-            self.cache_positions[b, t, h, w] = (poses, max_poses)
-        pos = self.cache_positions[b, t, h, w]
+            self.cache_positions[b,s_t,e_t,s_h,e_h,s_w,e_w] = (poses, min_poses, max_poses)
+        pos = self.cache_positions[b,s_t,e_t,s_h,e_h,s_w,e_w]
 
         return pos
     
@@ -64,16 +78,16 @@ class RoPE3D(torch.nn.Module):
         self.interpolation_scale_w = interpolation_scale_thw[2]
         self.cache = {}
 
-    def get_cos_sin(self, D, seq_len, device, dtype, interpolation_scale=1):
-        if (D, seq_len, device, dtype) not in self.cache:
+    def get_cos_sin(self, D, seq_start, seq_end, device, dtype, interpolation_scale=1):
+        if (D, seq_start, seq_start, seq_end, device, dtype) not in self.cache:
             inv_freq = 1.0 / (self.base ** (torch.arange(0, D, 2).float().to(device) / D))
-            t = torch.arange(seq_len, device=device, dtype=inv_freq.dtype) / interpolation_scale
+            t = torch.arange(seq_start, seq_end, device=device, dtype=inv_freq.dtype) / interpolation_scale
             freqs = torch.einsum("i,j->ij", t, inv_freq).to(dtype)
             freqs = torch.cat((freqs, freqs), dim=-1)
             cos = freqs.cos()  # (Seq, Dim)
             sin = freqs.sin()
-            self.cache[D, seq_len, device, dtype] = (cos, sin)
-        return self.cache[D, seq_len, device, dtype]
+            self.cache[D, seq_start, seq_start, seq_end, device, dtype] = (cos, sin)
+        return self.cache[D, seq_start, seq_start, seq_end, device, dtype]
 
     def forward(self, dim, positions, device, dtype):
         """
@@ -86,20 +100,24 @@ class RoPE3D(torch.nn.Module):
         assert dim % 16 == 0, "number of dimensions should be a multiple of 16"
         D_t = dim // 16 * 4
         D = dim // 16 * 6
-        poses, max_poses = positions
+        poses, min_poses, max_poses = positions
         assert len(poses) == 3 and poses[0].ndim == 2 # Batch, Seq, 3
-        cos_t, sin_t = self.get_cos_sin(D_t, max_poses[0] + 1, device, dtype, self.interpolation_scale_t)
-        cos_y, sin_y = self.get_cos_sin(D, max_poses[1] + 1, device, dtype, self.interpolation_scale_h)
-        cos_x, sin_x = self.get_cos_sin(D, max_poses[2] + 1, device, dtype, self.interpolation_scale_w)
-        return poses, cos_t, sin_t, cos_y, sin_y, cos_x, sin_x
+        cos_t, sin_t = self.get_cos_sin(D_t, min_poses[0], max_poses[0], device, dtype, self.interpolation_scale_t)
+        cos_y, sin_y = self.get_cos_sin(D, min_poses[1], max_poses[1], device, dtype, self.interpolation_scale_h)
+        cos_x, sin_x = self.get_cos_sin(D, min_poses[2], max_poses[2], device, dtype, self.interpolation_scale_w)
+
+        cos_t, sin_t = compute_rope1d(poses[0], cos_t, sin_t)
+        cos_y, sin_y = compute_rope1d(poses[1], cos_y, sin_y)
+        cos_x, sin_x = compute_rope1d(poses[2], cos_x, sin_x)
+        return cos_t, sin_t, cos_y, sin_y, cos_x, sin_x
+    
     
 def rotate_half(x):
     x1, x2 = x[..., : x.shape[-1] // 2], x[..., x.shape[-1] // 2:]
     return torch.cat((-x2, x1), dim=-1)
-
-def apply_rope1d(tokens, pos1d, cos, sin):
+    
+def compute_rope1d(pos1d, cos, sin):
     """
-        * tokens: ntokens x batch_size x nheads x dim
         * pos1d: ntokens x batch_size
     """
     assert pos1d.ndim == 2
@@ -107,18 +125,24 @@ def apply_rope1d(tokens, pos1d, cos, sin):
     cos = torch.nn.functional.embedding(pos1d, cos)[:, :, None, :]
     sin = torch.nn.functional.embedding(pos1d, sin)[:, :, None, :]
 
+    return cos, sin
+
+def apply_rope1d(tokens, cos, sin):
+    """
+        * tokens: ntokens x batch_size x nheads x dim
+    """
     return (tokens * cos) + (rotate_half(tokens) * sin)
     
 def apply_rotary_emb(tokens, video_rotary_emb):
-    poses, cos_t, sin_t, cos_y, sin_y, cos_x, sin_x = video_rotary_emb
+    cos_t, sin_t, cos_y, sin_y, cos_x, sin_x = video_rotary_emb
     # split features into three along the feature dimension, and apply rope1d on each half
     dim = tokens.shape[-1]
     D_t = dim // 16 * 4
     D = dim // 16 * 6
     t, y, x = torch.split(tokens, [D_t, D, D], dim=-1)
-    t = apply_rope1d(t, poses[0], cos_t, sin_t)
-    y = apply_rope1d(y, poses[1], cos_y, sin_y)
-    x = apply_rope1d(x, poses[2], cos_x, sin_x)
+    t = apply_rope1d(t, cos_t, sin_t)
+    y = apply_rope1d(y, cos_y, sin_y)
+    x = apply_rope1d(x, cos_x, sin_x)
     tokens = torch.cat((t, y, x), dim=-1)
     return tokens
 
@@ -417,6 +441,7 @@ class BasicTransformerBlock(nn.Module):
         final_dropout: bool = False,
         ff_inner_dim: Optional[int] = None,
         ff_bias: bool = False,
+        double_ff: bool = False,
         attention_out_bias: bool = True,
         context_pre_only: bool = False,
         interpolation_scale_thw: Tuple[int] = (1, 1, 1), 
@@ -473,8 +498,17 @@ class BasicTransformerBlock(nn.Module):
             bias=ff_bias,
         )
 
-        self.rope = RoPE3D(interpolation_scale_thw=interpolation_scale_thw)
-        self.position_getter = PositionGetter3D()
+        self.double_ff = double_ff
+        if self.double_ff:
+            self.ff_enc = FeedForward(
+                dim,
+                dropout=dropout,
+                activation_fn=activation_fn,
+                final_dropout=final_dropout,
+                inner_dim=ff_inner_dim,
+                bias=ff_bias,
+            )
+
     
     def forward(
         self,
@@ -482,29 +516,19 @@ class BasicTransformerBlock(nn.Module):
         attention_mask: Optional[torch.FloatTensor] = None,
         encoder_hidden_states: Optional[torch.FloatTensor] = None,
         embedded_timestep: Optional[torch.LongTensor] = None,
+        video_rotary_emb: Optional[torch.FloatTensor] = None,
         frame: int = None, 
         height: int = None, 
         width: int = None, 
     ) -> torch.FloatTensor:
-        
         # 0. Prepare rope embedding
         vis_seq_length, batch_size = hidden_states.size(0), hidden_states.size(1)
-        pos_thw = self.position_getter(batch_size, t=frame, h=height, w=width, device=hidden_states.device)
-        video_rotary_emb = self.rope(self.attention_head_dim, pos_thw, hidden_states.device, hidden_states.dtype)
 
-        # print(f'hidden_states input', 
-        #         f'max {hidden_states.max()}, min {hidden_states.min()}, mean {hidden_states.mean()}, std {hidden_states.std()}')
-        # print(f'encoder_hidden_states input', 
-        #         f'max {encoder_hidden_states.max()}, min {encoder_hidden_states.min()}, mean {encoder_hidden_states.mean()}, std {encoder_hidden_states.std()}')
         # 1. Self-Attention
         # norm & scale & shift
         norm_hidden_states, norm_encoder_hidden_states, gate_msa, enc_gate_msa = self.norm1(
             hidden_states, encoder_hidden_states, embedded_timestep
             )
-        # print(f'norm_hidden_states norm1', 
-        #         f'max {norm_hidden_states.max()}, min {norm_hidden_states.min()}, mean {norm_hidden_states.mean()}, std {norm_hidden_states.std()}')
-        # print(f'norm_encoder_hidden_states norm1', 
-        #         f'max {norm_encoder_hidden_states.max()}, min {norm_encoder_hidden_states.min()}, mean {norm_encoder_hidden_states.mean()}, std {norm_encoder_hidden_states.std()}')
         # attn
         attn_hidden_states, attn_encoder_hidden_states = self.attn1(
             norm_hidden_states,
@@ -515,43 +539,27 @@ class BasicTransformerBlock(nn.Module):
             attention_mask=attention_mask, 
             video_rotary_emb=video_rotary_emb, 
         )
-        # print(f'attn_hidden_states attn1', 
-        #         f'max {attn_hidden_states.max()}, min {attn_hidden_states.min()}, mean {attn_hidden_states.mean()}, std {attn_hidden_states.std()}')
-        # print(f'attn_encoder_hidden_states attn1', 
-        #         f'max {attn_encoder_hidden_states.max()}, min {attn_encoder_hidden_states.min()}, mean {attn_encoder_hidden_states.mean()}, std {attn_encoder_hidden_states.std()}')
         # residual & gate
         hidden_states = hidden_states + gate_msa * attn_hidden_states
         encoder_hidden_states = encoder_hidden_states + enc_gate_msa * attn_encoder_hidden_states
 
-        # print(f'(gate_msa * attn_hidden_states) gate', 
-        #         f'max {(gate_msa * attn_hidden_states).max()}, min {(gate_msa * attn_hidden_states).min()}, mean {(gate_msa * attn_hidden_states).mean()}, std {(gate_msa * attn_hidden_states).std()}')
-        # print(f'(enc_gate_msa * attn_encoder_hidden_states) gate', 
-        #         f'max {(enc_gate_msa * attn_encoder_hidden_states).max()}, min {(enc_gate_msa * attn_encoder_hidden_states).min()}, mean {(enc_gate_msa * attn_encoder_hidden_states).mean()}, std {(enc_gate_msa * attn_encoder_hidden_states).std()}')
-        
-        # print(f'hidden_states residual & gate', 
-        #         f'max {hidden_states.max()}, min {hidden_states.min()}, mean {hidden_states.mean()}, std {hidden_states.std()}')
-        # print(f'encoder_hidden_states residual & gate', 
-        #         f'max {encoder_hidden_states.max()}, min {encoder_hidden_states.min()}, mean {encoder_hidden_states.mean()}, std {encoder_hidden_states.std()}')
         # 1. Share Feed-Forward
         # norm & scale & shift
         norm_hidden_states, norm_encoder_hidden_states, gate_ff, enc_gate_ff = self.norm2(
             hidden_states, encoder_hidden_states, embedded_timestep
         )
-        # print(f'norm_hidden_states norm & scale & shift', 
-        #         f'max {norm_hidden_states.max()}, min {norm_hidden_states.min()}, mean {norm_hidden_states.mean()}, std {norm_hidden_states.std()}')
-        # print(f'norm_encoder_hidden_states norm & scale & shift', 
-        #         f'max {norm_encoder_hidden_states.max()}, min {norm_encoder_hidden_states.min()}, mean {norm_encoder_hidden_states.mean()}, std {norm_encoder_hidden_states.std()}')
-        # ffn
-        norm_hidden_states = torch.cat([norm_hidden_states, norm_encoder_hidden_states], dim=0)
-        ff_output = self.ff(norm_hidden_states)
-        # print(f'ff_output ff', 
-        #         f'max {ff_output.max()}, min {ff_output.min()}, mean {ff_output.mean()}, std {ff_output.std()}')
-        # residual & gate
-        hidden_states = hidden_states + gate_ff * ff_output[:vis_seq_length]
-        encoder_hidden_states = encoder_hidden_states + enc_gate_ff * ff_output[vis_seq_length:]
-        # print(f'hidden_states ffn residual & gate', 
-        #         f'max {hidden_states.max()}, min {hidden_states.min()}, mean {hidden_states.mean()}, std {hidden_states.std()}')
-        # print(f'encoder_hidden_states ffn residual & gate', 
-        #         f'max {encoder_hidden_states.max()}, min {encoder_hidden_states.min()}, mean {encoder_hidden_states.mean()}, std {encoder_hidden_states.std()}')
+        
+        if self.double_ff:
+            vis_ff_output = self.ff(norm_hidden_states)
+            enc_ff_output = self.ff_enc(norm_encoder_hidden_states)
+            hidden_states = hidden_states + gate_ff * vis_ff_output
+            encoder_hidden_states = encoder_hidden_states + enc_gate_ff * enc_ff_output
+        else:
+            # ffn
+            norm_hidden_states = torch.cat([norm_hidden_states, norm_encoder_hidden_states], dim=0)
+            ff_output = self.ff(norm_hidden_states)
+            # residual & gate
+            hidden_states = hidden_states + gate_ff * ff_output[:vis_seq_length]
+            encoder_hidden_states = encoder_hidden_states + enc_gate_ff * ff_output[vis_seq_length:]
 
         return hidden_states, encoder_hidden_states

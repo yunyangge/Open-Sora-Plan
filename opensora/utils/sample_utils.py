@@ -4,7 +4,6 @@ from diffusers.schedulers import (
     HeunDiscreteScheduler, EulerAncestralDiscreteScheduler,
     DEISMultistepScheduler, KDPM2AncestralDiscreteScheduler, 
     DPMSolverSinglestepScheduler, CogVideoXDDIMScheduler, 
-    FlowMatchEulerDiscreteScheduler
     )
 from einops import rearrange
 import time
@@ -31,9 +30,8 @@ from opensora.utils.utils import set_seed
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.sample.pipeline_inpaint import OpenSoraInpaintPipeline
-from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3
-from opensora.models.diffusion.opensora_v1_3.modeling_inpaint import OpenSoraInpaint_v1_3
 from opensora.utils.utils import set_seed
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler as FlowMatchEulerDiscreteScheduler
 from transformers import T5EncoderModel, T5Tokenizer, AutoTokenizer, MT5EncoderModel, CLIPTextModelWithProjection
 
 def get_scheduler(args):
@@ -115,18 +113,7 @@ def prepare_pipeline(args, dtype, device):
     else:
         text_encoder_2, tokenizer_2 = None, None
 
-    if args.version == 'v1_3':
-        if args.model_type == 'inpaint' or args.model_type == 'i2v':
-            transformer_model = OpenSoraInpaint_v1_3.from_pretrained(
-                args.model_path, cache_dir=args.cache_dir,
-                device_map=None, torch_dtype=weight_dtype
-                ).eval()
-        else:
-            transformer_model = OpenSoraT2V_v1_3.from_pretrained(
-                args.model_path, cache_dir=args.cache_dir,
-                device_map=None, torch_dtype=weight_dtype
-                ).eval()
-    elif args.version == 'v1_5':
+    if args.version == 'v1_5':
         if args.model_type == 'inpaint' or args.model_type == 'i2v':
             raise NotImplementedError('Inpainting model is not available in v1_5')
         else:
@@ -291,6 +278,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 height=args.height,
                 width=args.width,
                 num_inference_steps=args.num_sampling_steps,
+                use_linear_quadratic_schedule=args.use_linear_quadratic_schedule,
                 guidance_scale=args.guidance_scale,
                 num_samples_per_prompt=args.num_samples_per_prompt,
                 max_sequence_length=args.max_sequence_length,
@@ -390,7 +378,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 dist.all_gather_into_tensor(gathered_tensor, video_grids_to_gather.contiguous())
                 video_grids = gathered_tensor.cpu()
 
-                which_to_save = torch.sum(video_grids, dim=(1, 2, 3)).bool()
+                which_to_save = torch.sum(video_grids, dim=list(range(video_grids.ndim))[1:]).bool()
                 video_grids = video_grids[which_to_save]
                 dist.barrier()
             else:
@@ -487,6 +475,7 @@ def get_args():
     parser.add_argument('--sp', action='store_true')
 
     parser.add_argument('--v1_5_scheduler', action='store_true')
+    parser.add_argument('--use_linear_quadratic_schedule', action='store_true')
     parser.add_argument('--conditional_pixel_values_path', type=str, default=None)
     parser.add_argument('--mask_type', type=str, default=None)
     parser.add_argument('--crop_for_hw', action='store_true')

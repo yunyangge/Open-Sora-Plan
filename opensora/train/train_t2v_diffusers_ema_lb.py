@@ -241,9 +241,14 @@ def create_ema_model(
             
     if checkpoint_path:
         ema_model_path = os.path.join(checkpoint_path, "model_ema")
-        if os.path.exists(ema_model_path):
-            ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
-            logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
+    elif args.pretrained_ema:
+        ema_model_path = args.pretrained_ema
+    else:
+        ema_model_path = None
+
+    if ema_model_path:
+        ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
+        logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
     else:
         # we load weights from original model instead of deepcopy
         model = model_cls.from_config(model_config)
@@ -940,7 +945,6 @@ def main(args):
             else:
                 loss = loss_mse.mean()
                 
-            print(f"loss: {loss}, device: {accelerator.device}")
                 
         timesteps_list = accelerator.gather(timesteps)
         if torch.isnan(loss).any() or torch.isinf(loss).any():
@@ -1025,24 +1029,21 @@ def main(args):
 
         x = x.to(accelerator.device, dtype=ae.vae.dtype, non_blocking=True)  # B C T H W
         attn_mask = attn_mask.to(accelerator.device, non_blocking=True)  # B T H W
-        input_ids_1 = input_ids_1.to(accelerator.device, non_blocking=True)  # B 1 L
-        cond_mask_1 = cond_mask_1.to(accelerator.device, non_blocking=True)  # B 1 L
-        input_ids_2 = input_ids_2.to(accelerator.device, non_blocking=True) if input_ids_2 is not None else input_ids_2 # B 1 L
-        cond_mask_2 = cond_mask_2.to(accelerator.device, non_blocking=True) if cond_mask_2 is not None else cond_mask_2 # B 1 L
+        input_ids_1 = input_ids_1.to(accelerator.device, non_blocking=True)  # B L
+        cond_mask_1 = cond_mask_1.to(accelerator.device, non_blocking=True)  # B L
+        input_ids_2 = input_ids_2.to(accelerator.device, non_blocking=True) if input_ids_2 is not None else input_ids_2 # B L
+        cond_mask_2 = cond_mask_2.to(accelerator.device, non_blocking=True) if cond_mask_2 is not None else cond_mask_2 # B L
         
         with torch.no_grad():
-            B, N, L = input_ids_1.shape  # B 1 L
-            # use batch inference
-            input_ids_1 = input_ids_1.reshape(-1, L)
-            cond_mask_1 = cond_mask_1.reshape(-1, L)
+            B, L = input_ids_1.shape  # B L
             if args.random_data:
                 cond_1 = torch.rand(B, L, 2048, device=x.device, dtype=weight_dtype)
             else:
                 cond_1 = text_enc_1(input_ids_1, cond_mask_1)  # B L D
-            cond_1 = cond_1.reshape(B, N, L, -1)
-            cond_mask_1 = cond_mask_1.reshape(B, N, L)
+            cond_1 = cond_1.reshape(B, 1, L, -1)
+            cond_mask_1 = cond_mask_1.reshape(B, 1, L)
             if text_enc_2 is not None:
-                B_, N_, L_ = input_ids_2.shape  # B 1 L
+                B_, L_ = input_ids_2.shape  # B 1 L
                 input_ids_2 = input_ids_2.reshape(-1, L_)
                 if args.random_data:
                     cond_2 = torch.rand(B, 1280, device=x.device, dtype=weight_dtype)
@@ -1237,12 +1238,16 @@ if __name__ == "__main__":
     parser.add_argument("--max_width", type=int, default=240)
     parser.add_argument("--max_hxw", type=int, default=None)
     parser.add_argument("--min_hxw", type=int, default=None)
+    parser.add_argument("--max_h_div_w_ratio", type=float, default=2.0)
+    parser.add_argument("--min_h_div_w_ratio", type=float, default=None)
     parser.add_argument("--ood_img_ratio", type=float, default=0.0)
     parser.add_argument("--use_img_from_vid", action="store_true")
     parser.add_argument("--model_max_length", type=int, default=512)
     parser.add_argument('--cfg', type=float, default=0.1)
     parser.add_argument("--dataloader_num_workers", type=int, default=10, help="Number of subprocesses to use for data loading. 0 means that the data will be loaded in the main process.")
     parser.add_argument("--train_batch_size", type=int, default=16, help="Batch size (per device) for the training dataloader.")
+    parser.add_argument("--train_image_batch_size", type=int, default=1, help="Image batch size (per device) for the training dataloader.")
+    parser.add_argument("--train_video_only", action="store_true")
     parser.add_argument("--group_data", action="store_true")
     parser.add_argument("--hw_stride", type=int, default=32)
     parser.add_argument("--force_resolution", action="store_true")
@@ -1265,6 +1270,7 @@ if __name__ == "__main__":
     parser.add_argument("--text_encoder_name_2", type=str, default=None)
     parser.add_argument("--cache_dir", type=str, default='./cache_dir')
     parser.add_argument("--pretrained", type=str, default=None)
+    parser.add_argument("--pretrained_ema", type=str, default=None)
     parser.add_argument('--sparse1d', action='store_true')
     parser.add_argument('--sparse_n', type=int, default=2)
     parser.add_argument('--skip_connection', action='store_true')
