@@ -22,14 +22,14 @@ accelerate launch \
     --cache_dir "../cache_dir" \
     --text_encoder_name_1 "google/mt5-xxl" \
     --dataset transition \
-    --data "/home/save_dir/projects/chengxinhua/transition_data" \
+    --data "/home/save_dir/projects/chengxinhua/data_processor" \
     --ae WFVAEModel_D8_4x8x8 \
     --ae_path "/home/save_dir/lzj/formal_8dim/latent8" \
     --vae_fp32 \
     --sample_rate 1 \
     --num_frames 93 \
     --max_hxw 236544 \
-    --min_hxw 102400 \
+    --min_hxw 204800 \
     --snr_gamma 5.0 \
     --interpolation_scale_t 1.0 \
     --interpolation_scale_h 1.0 \
@@ -47,6 +47,7 @@ accelerate launch \
     --checkpointing_steps=500 \
     --allow_tf32 \
     --model_max_length 512 \
+    --use_ema \
     --ema_start_step 0 \
     --cfg 0.1 \
     --speed_factor 1.0 \
@@ -57,13 +58,15 @@ accelerate launch \
     --train_fps 24 \
     --seed 1234 \
     --trained_data_global_step 0 \
-    --group_data \
     --use_decord \
     --prediction_type "v_prediction" \
-    --output_dir="/home/save_dir/runs/$PROJECT" \
-    --mask_config scripts/train_configs/mask_config.yaml \
-    --default_text_ratio 0.5 \
-    
+    --output_dir="/home/save_dir/projects/chengxinhua/weights/$PROJECT" \
+    --default_text_ratio 0.1 \
+    --pretrained_transformer_model_path="/home/save_dir/pretrained/any93x640x640_i2v" \
+    --adam_weight_decay 0.0 \
+    --data_repeat_num 1 \
+
     2>&1 | tee -a "logs/log_$(date +'%Y%m%d_%H%M%S').txt"
-    # --use_ema \
+    # 
     # --resume_from_checkpoint="latest" \
+    # --group_data \

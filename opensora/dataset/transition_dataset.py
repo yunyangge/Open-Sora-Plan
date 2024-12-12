@@ -55,6 +55,7 @@ class Transition_dataset(T2V_dataset):
         )
 
         self.condition_transform = condition_transform
+        self.data_repeat_num = args.data_repeat_num
 
     def __getitem__(self, idx):
         try:
@@ -74,9 +75,9 @@ class Transition_dataset(T2V_dataset):
         
         with open(json_path, 'r') as f:
             sub_list = json.load(f)
-        # ### for debug
-        # sub_list = sub_list*64
-        # ###
+        # 
+        # sub_list = sub_list * self.data_repeat_num
+        #
         logger.info(f'Start to build transition.json, including {len(sub_list)} items in total.')
         for index, i in enumerate(tqdm(sub_list)):
             # get path
@@ -110,11 +111,12 @@ class Transition_dataset(T2V_dataset):
             i['fps'] = 24
             closest_num_frames = find_closest_y(
                 i['num_frames'], vae_stride_t=self.ae_stride_t, model_ds_t=self.sp_size
-            )
-            margin = (i['num_frames'] - closest_num_frames) // 2
-            i['start_frame_idx'] = margin
+            ) - 1
+            i['start_frame_idx'] = 0
             frame_indices = np.arange(i['start_frame_idx'], i['start_frame_idx']+closest_num_frames).astype(int)
             i['sample_frame_index'] = frame_indices.tolist()
+            # TODO: 
+            i['sample_frame_index'] = i['sample_frame_index'] + [i['sample_frame_index'][-1]]
 
             new_cap_list.append(i)
             pre_define_shape = f"{len(i['sample_frame_index'])}x{sample_h}x{sample_w}"
@@ -133,6 +135,7 @@ class Transition_dataset(T2V_dataset):
             else:
                 shape_idx_dict[shape].append(idx)
         logger.info(f'Finish to build transition.json, including {len(new_cap_list)} valid items in total')
+        logger.info(f'Sample size includes {shape_idx_dict.keys()}')
         return new_cap_list, sample_size, shape_idx_dict
     
 
@@ -148,15 +151,18 @@ class Transition_dataset(T2V_dataset):
 
         key_frame_path = os.path.join(video_data['video_dir'], f'key_frame_{key_frame_selected_index}.jpg')
         key_frame_edge_path = os.path.join(video_data['video_dir'], f'key_frame_{key_frame_selected_index}_edge.jpg')
-        key_frame_cap = video_data['key_frame_caption'][key_frame_selected_index]
+        key_frame_cap = video_data['key_captions'][key_frame_selected_index]
         key_frame_idx = video_data['key_idx'][key_frame_selected_index] - video_data['start_frame_idx']
 
+        start_frame_cap = video_data['start_caption']
+        end_frame_cap = video_data['end_caption']
+        
         text_list = []
-        key_text = [key_frame_cap]
-        key_text = text_preprocessing(key_text, support_Chinese=self.support_Chinese)
-        for i in range(3):
-            text_list.append(key_text)
 
+        text_list.append(text_preprocessing([start_frame_cap], support_Chinese=self.support_Chinese))
+        text_list.append(text_preprocessing([key_frame_cap], support_Chinese=self.support_Chinese))
+        text_list.append(text_preprocessing([end_frame_cap], support_Chinese=self.support_Chinese))
+        
         sample_h = video_data['resolution']['sample_height']
         sample_w = video_data['resolution']['sample_width']
 

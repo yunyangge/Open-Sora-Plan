@@ -449,7 +449,7 @@ class OpenSoraTransitionAttnProcessor:
         sequence_length, batch_size, _ = (
             hidden_states.shape if encoder_hidden_states is None else encoder_hidden_states.shape
         )
-        
+
         query = attn.to_q(hidden_states)
         key = attn.to_k(encoder_hidden_states)
         value = attn.to_v(encoder_hidden_states)
@@ -459,8 +459,8 @@ class OpenSoraTransitionAttnProcessor:
         FA_head_num = attn.heads
         total_frame = frame
         
-        query = repeat(query, 's b d -> s (k b) d', k=batch_size)
-
+        query = repeat(query, 's b d -> s (k b) d', k=3)
+        
         if self.sparse1d:
             query, pad_len = self._sparse_1d(query, total_frame, height, width)
             
@@ -731,6 +731,7 @@ class TransitionTransformerBlock(nn.Module):
     ) -> torch.FloatTensor:
         # -1. Add control info
         start_weight, key_weight, end_weight = weights.chunk(3, dim=1)
+        
         hidden_states = hidden_states + embedded_edge * key_weight
 
         # 0. Self-Attention

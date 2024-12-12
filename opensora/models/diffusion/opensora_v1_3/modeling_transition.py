@@ -288,7 +288,7 @@ class OpenSoraTransition(OpenSoraT2V):
             if 'model' in pretrained_checkpoint:
                 pretrained_checkpoint = pretrained_checkpoint['model']
         checkpoint = reconstitute_checkpoint(pretrained_checkpoint, model_state_dict)
-        logger.debug(checkpoint)
+        # logger.debug(checkpoint)
         if not 'pos_embed_masked_hidden_states.0.proj' in checkpoint:
             checkpoint['pos_embed_masked_hidden_states.0.proj.weight'] = checkpoint['pos_embed.proj.weight']
             checkpoint['pos_embed_masked_hidden_states.0.proj.bias'] = checkpoint['pos_embed.proj.bias']

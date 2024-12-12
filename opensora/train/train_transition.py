@@ -135,9 +135,7 @@ def main(args):
     if accelerator.is_main_process:
         if args.output_dir is not None:
             os.makedirs(args.output_dir, exist_ok=True)
-            # backup the config file
-            shutil.copy(args.mask_config, os.path.join(args.output_dir, "mask_config.yaml"))
-
+            
     # For mixed precision training we cast all non-trainable weigths to half-precision
     # as these weights are only used for inference, keeping weights in full precision is not required.
     weight_dtype = torch.float32
@@ -993,18 +991,11 @@ if __name__ == "__main__":
     parser.add_argument("--train_sp_batch_size", type=int, default=1, help="Batch size for sequence parallel training")
 
     # inpaint
-    parser.add_argument("--mask_config", type=str, default=None)
     parser.add_argument("--default_text_ratio", type=float, default=0.5) # for inpainting mode
     parser.add_argument("--pretrained_transformer_model_path", type=str, default=None)
+    parser.add_argument("--data_repeat_num", type=int, default=1, help="times for repeating dataset")
+
 
     args = parser.parse_args()
-
-    assert args.mask_config is not None, 'mask_config is required!'
-    with open(args.mask_config, 'r') as f:
-        yaml_config = yaml.safe_load(f)
-    
-    for key, value in yaml_config.items():
-        if not hasattr(args, key):
-            setattr(args, key, value)
 
     main(args)

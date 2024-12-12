@@ -31,8 +31,11 @@ from opensora.utils.utils import set_seed
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.sample.pipeline_inpaint import OpenSoraInpaintPipeline
+from opensora.sample.pipeline_transition import OpenSoraTransitionPipeline
+
 from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3
 from opensora.models.diffusion.opensora_v1_3.modeling_inpaint import OpenSoraInpaint_v1_3
+from opensora.models.diffusion.opensora_v1_3.modeling_transition import OpenSoraTransition
 from transformers import T5EncoderModel, T5Tokenizer, AutoTokenizer, MT5EncoderModel, CLIPTextModelWithProjection
 
 def get_scheduler(args):
@@ -121,7 +124,7 @@ def prepare_pipeline(args, dtype, device):
                 device_map=None, torch_dtype=weight_dtype
                 ).eval()
         elif args.model_type == 'transition':
-            transformer_model = OpenSoraInpaint_v1_3.from_pretrained(
+            transformer_model = OpenSoraTransition.from_pretrained(
                 args.model_path, cache_dir=args.cache_dir,
                 device_map=None, torch_dtype=weight_dtype
                 ).eval()
@@ -148,7 +151,7 @@ def prepare_pipeline(args, dtype, device):
     if args.model_type == 'inpaint' or args.model_type == 'i2v':
         pipeline_class = OpenSoraInpaintPipeline
     elif args.model_type == 'transition':
-        pipeline_class = OpenSoraInpaintPipeline
+        pipeline_class = OpenSoraTransitionPipeline
     else:
         pipeline_class = OpenSoraPipeline
 
@@ -277,11 +280,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
     def generate(prompt, conditional_pixel_values_path=None, mask_type=None):
         
         if args.caption_refiner is not None:
-            if args.model_type != 'inpaint' or args.model_type == 'i2v':
-                refine_prompt = caption_refiner_model.get_refiner_output(prompt)
-                print(f'\nOrigin prompt: {prompt}\n->\nRefine prompt: {refine_prompt}')
-                prompt = refine_prompt
-            elif args.model_type != 'transition':
+            if args.model_type == 't2v' or args.model_type == 'i2v':
                 refine_prompt = caption_refiner_model.get_refiner_output(prompt)
                 print(f'\nOrigin prompt: {prompt}\n->\nRefine prompt: {refine_prompt}')
                 prompt = refine_prompt
