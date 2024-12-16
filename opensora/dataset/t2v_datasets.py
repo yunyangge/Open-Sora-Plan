@@ -627,7 +627,7 @@ class T2V_dataset(Dataset):
 
         frame_indices = self.get_actual_frame(
             fps, start_frame_idx, clip_total_frames, path, predefine_num_frames, predefine_frame_indice
-            )
+        )
         # video_data = decord_vr.get_batch(frame_indices).asnumpy()
         # video_data = torch.from_numpy(video_data)
         video_data = decord_vr.get_batch(frame_indices)

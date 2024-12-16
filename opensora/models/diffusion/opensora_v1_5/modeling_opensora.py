@@ -24,7 +24,6 @@ except:
     from opensora.utils.parallel_states import get_sequence_parallel_state, nccl_info
 
 
-
 def prepare_sparse_mask(attention_mask, encoder_attention_mask, sparse_n, head_num):
     attention_mask = attention_mask.unsqueeze(1)
     encoder_attention_mask = encoder_attention_mask.unsqueeze(1)

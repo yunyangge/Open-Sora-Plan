@@ -78,12 +78,19 @@ def get_scheduler(args):
     scheduler = scheduler_cls(**kwargs)
     return scheduler
 
-def prepare_pipeline(args, dtype, device):
+def prepare_pipeline(args, device):
     
-    weight_dtype = dtype
+    dtype_mapping = {
+        'fp16': torch.float16, 
+        'fp32': torch.float32, 
+        'bf16': torch.bfloat16
+    }
+    
+    ae_dtype = dtype_mapping[args.ae_dtype]
+    weight_dtype = dtype_mapping[args.weight_dtype]
 
     vae = ae_wrapper[args.ae](args.ae_path)
-    vae.vae = vae.vae.to(device=device, dtype=weight_dtype).eval()
+    vae.vae = vae.vae.to(device=device, dtype=ae_dtype).eval()
     vae.vae_scale_factor = ae_stride_config[args.ae]
     if args.enable_tiling:
         vae.vae.enable_tiling()
@@ -447,6 +454,8 @@ def get_args():
     parser.add_argument("--num_frames", type=int, default=1)
     parser.add_argument("--height", type=int, default=512)
     parser.add_argument("--width", type=int, default=512)
+    parser.add_argument("--ae_dtype", type=str, default='fp16')
+    parser.add_argument("--weight_dtype", type=str, default='fp16')
     parser.add_argument("--device", type=str, default='cuda:0')
     parser.add_argument("--cache_dir", type=str, default='./cache_dir')
     parser.add_argument("--caption_refiner", type=str, default=None)

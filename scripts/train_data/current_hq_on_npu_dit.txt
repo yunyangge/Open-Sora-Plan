@@ -1,8 +1,4 @@
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part23_1_2329212.pkl
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part6_1_2329221.pkl
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part28_1_2329202.pkl
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part2_1_2329202.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part6_2558342.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part13_2556958.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part56_2557722.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part36_2556997.pkl
+/home/obs_data,/home/save_dir/captions/video_cap_1129_2/video_cap_1337217_16.pkl
+/home/obs_data,/home/save_dir/captions/video_cap_1129_2/video_cap_1337217_17.pkl
+/home/obs_data,/home/save_dir/captions/video_cap_1129_2/video_cap_1337217_18.pkl
+/home/obs_data,/home/save_dir/captions/video_cap_1129_2/video_cap_1337217_19.pkl

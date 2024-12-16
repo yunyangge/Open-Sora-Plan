@@ -146,6 +146,11 @@ def apply_rotary_emb(tokens, video_rotary_emb):
     tokens = torch.cat((t, y, x), dim=-1)
     return tokens
 
+def maybe_clamp_tensor(x, max_value=65504.0, min_value=-65504.0, training=True):
+    if not training and x.dtype == torch.float16:
+        x = torch.nan_to_num_(x, posinf=max_value, neginf=min_value)
+    return x
+
 class CombinedTimestepTextProjEmbeddings(nn.Module):
     def __init__(self, timestep_embed_dim, embedding_dim, pooled_projection_dim):
         super().__init__()
@@ -523,9 +528,10 @@ class BasicTransformerBlock(nn.Module):
     ) -> torch.FloatTensor:
         # 0. Prepare rope embedding
         vis_seq_length, batch_size = hidden_states.size(0), hidden_states.size(1)
-
         # 1. Self-Attention
         # norm & scale & shift
+        hidden_states = maybe_clamp_tensor(hidden_states, training=self.training)
+        encoder_hidden_states = maybe_clamp_tensor(encoder_hidden_states, training=self.training)
         norm_hidden_states, norm_encoder_hidden_states, gate_msa, enc_gate_msa = self.norm1(
             hidden_states, encoder_hidden_states, embedded_timestep
             )
@@ -545,6 +551,8 @@ class BasicTransformerBlock(nn.Module):
 
         # 1. Share Feed-Forward
         # norm & scale & shift
+        hidden_states = maybe_clamp_tensor(hidden_states, training=self.training)
+        encoder_hidden_states = maybe_clamp_tensor(encoder_hidden_states, training=self.training)
         norm_hidden_states, norm_encoder_hidden_states, gate_ff, enc_gate_ff = self.norm2(
             hidden_states, encoder_hidden_states, embedded_timestep
         )

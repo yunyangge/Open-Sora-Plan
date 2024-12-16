@@ -17,6 +17,8 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 
 accelerate launch \
     --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
+    --num_machines=${NUM_MACHINES} \
+    --num_processes=${NUM_PROCESSES} \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_t2v_diffusers_ema_lb.py \

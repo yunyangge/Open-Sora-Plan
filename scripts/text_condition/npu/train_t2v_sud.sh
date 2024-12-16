@@ -17,6 +17,8 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 
 accelerate launch \
     --config_file scripts/accelerate_configs/multi_node_example_by_deepspeed.yaml \
+    --num_machines=${NUM_MACHINES} \
+    --num_processes=${NUM_PROCESSES} \
     --machine_rank=${MACHINE_RANK} \
     --main_process_ip=${MAIN_PROCESS_IP_VALUE} \
     opensora/train/train_t2v_diffusers_ema_lb.py \
@@ -31,17 +33,18 @@ accelerate launch \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
     --sample_rate 1 \
-    --num_frames 1 \
+    --num_frames 65 \
     --force_resolution \
     --max_height 288 \
     --max_width 512 \
+    --train_video_only \
     --max_h_div_w_ratio=0.875 \
     --min_h_div_w_ratio=0.5 \
     --max_hxw 147456 \
     --min_hxw 147456 \
     --gradient_checkpointing \
-    --train_batch_size=32 \
-    --dataloader_num_workers 20 \
+    --train_batch_size=2 \
+    --dataloader_num_workers 10 \
     --learning_rate=1e-4 \
     --adam_weight_decay=1e-4 \
     --adam_epsilon=1e-15 \
@@ -60,7 +63,7 @@ accelerate launch \
     --seed 1024 \
     --group_data \
     --use_decord \
-    --output_dir="/mnt/sfs_turbo/runs/SUV/sud/$PROJECT" \
+    --output_dir="/home/save_dir/runs/SUV/sud/$PROJECT" \
     --vae_fp32 \
     --rf_scheduler \
     --proj_name "$PROJECT" \
@@ -70,7 +73,6 @@ accelerate launch \
     --use_ema \
     --ema_update_freq 1 \
     --ema_decay 0.9999 \
-    # --enable_tiling \
     # --force_5_ratio \
     # --resume_from_checkpoint="latest" \
     # --max_hxw 65536 \

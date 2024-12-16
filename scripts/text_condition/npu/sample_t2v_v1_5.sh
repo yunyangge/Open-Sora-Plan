@@ -1,11 +1,11 @@
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29512 \
+ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29512 \
     -m opensora.sample.sample \
-    --model_path /mnt/sfs_turbo/runs/SUV/dit/dit_bs8x8x32_lr1e-4_wd1e-4_eps1e-15_288x512_only_hengping_final/checkpoint-81865/model_ema \
+    --model_path /home/save_dir/runs/SUV/suv/suv_video_bs32x8x2_lr1e-4_wd1e-4_eps1e-15_f65_288x512_final/checkpoint-57963/model_ema \
     --version v1_5 \
-    --num_frames 1 \
+    --num_frames 65 \
     --height 288 \
     --width 512 \
     --cache_dir "../cache_dir" \
@@ -14,12 +14,15 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --ma
     --text_prompt examples/sora.txt \
     --ae WFVAEModel_D32_8x8x8 \
     --ae_path "/home/save_dir/lzj/Middle888" \
-    --save_img_path "./SUV/suv/image_288_512_82k_step100_lq1000_ema" \
+    --save_img_path "./SUV/suv/video_final_288_512_step100_ema" \
     --fps 18 \
-    --guidance_scale 7.0 \
+    --guidance_scale 4.0 \
     --num_sampling_steps 100 \
     --max_sequence_length 512 \
     --sample_method FlowMatchEulerDiscrete \
     --seed 1234 \
     --num_samples_per_prompt 1 \
+    --ae_dtype 'fp16' \
+    --weight_dtype 'fp16' \
+    --enable_tiling \
     --use_linear_quadratic_schedule
