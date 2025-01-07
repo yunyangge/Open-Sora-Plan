@@ -16,13 +16,13 @@ import deepspeed
 import accelerate
 from torch import inf
 from PIL import Image
-from typing import Union, Iterable
+from typing import Optional, Union, Iterable
 import collections
 from collections import OrderedDict
 from torch.utils.tensorboard import SummaryWriter
 import wandb
 import time
-
+from torch import Generator
 from diffusers.utils import is_bs4_available, is_ftfy_available
 
 import html
@@ -87,6 +87,26 @@ def explicit_uniform_sampling(T, n, rank, bsz, device):
     sampled_timesteps = sampled_timesteps.long()
     return sampled_timesteps
 
+def compute_density_for_timestep_sampling(
+    weighting_scheme: str, batch_size: int, logit_mean: float = None, logit_std: float = None, mode_scale: float = None, 
+    generator: Optional[Generator] = None
+):
+    """Compute the density for sampling the timesteps when doing SD3 training.
+
+    Courtesy: This was contributed by Rafie Walker in https://github.com/huggingface/diffusers/pull/8528.
+
+    SD3 paper reference: https://arxiv.org/abs/2403.03206v1.
+    """
+    if weighting_scheme == "logit_normal":
+        # See 3.1 in the SD3 paper ($rf/lognorm(0.00,1.00)$).
+        u = torch.normal(mean=logit_mean, std=logit_std, size=(batch_size,), device="cpu", generator=generator)
+        u = torch.nn.functional.sigmoid(u)
+    elif weighting_scheme == "mode":
+        u = torch.rand(size=(batch_size,), device="cpu", generator=generator)
+        u = 1 - u - mode_scale * (torch.cos(math.pi * u / 2) ** 2 - 1 + u)
+    else:
+        u = torch.rand(size=(batch_size,), device="cpu", generator=generator)
+    return u
 
 #################################################################################
 #                             Training Clip Gradients                           #
@@ -254,38 +274,6 @@ def write_tensorboard(writer, *args):
     '''
     if dist.get_rank() == 0:  # real tensorboard
         writer.add_scalar(args[0], args[1], args[2])
-
-def monitor_npu_power():
-    result = subprocess.run(["npu-smi", "info"], stdout=subprocess.PIPE, text=True)
-    avg_power = 0
-
-    for line in result.stdout.splitlines():
-        if line.startswith('|'):
-            parts = line.split('|')
-            if '910' in parts[1]:
-                match = re.search(r'\d+\.\d+', parts[3])
-                avg_power += float(match.group())
-
-    avg_power /= 8
-    return avg_power
-
-def wandb_log_npu_power():
-    if wandb.run is None:
-        raise NotImplementedError("wandb is not initialized")
-    
-    def log():
-        while True:
-            log_dict = {
-                "npu_power": monitor_npu_power(),
-            }
-            if wandb.run is None:
-                break
-            wandb.log(log_dict, commit=False)
-            time.sleep(1)
-            
-    log_thread = threading.Thread(target=log)
-    log_thread.daemon = True 
-    log_thread.start()
 
     
 #################################################################################

@@ -165,7 +165,7 @@ class OpenSoraInpaint_v1_3(OpenSoraT2V):
                 pretrained_checkpoint = pretrained_checkpoint['model']
         checkpoint = reconstitute_checkpoint(pretrained_checkpoint, model_state_dict)
 
-        if not 'pos_embed_masked_hidden_states.0.weight' in checkpoint:
+        if not 'pos_embed_masked_hidden_states.0.proj.weight' in checkpoint:
             checkpoint['pos_embed_masked_hidden_states.0.proj.weight'] = checkpoint['pos_embed.proj.weight']
             checkpoint['pos_embed_masked_hidden_states.0.proj.bias'] = checkpoint['pos_embed.proj.bias']
 

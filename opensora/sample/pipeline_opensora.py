@@ -7,6 +7,7 @@ import torch
 from einops import rearrange
 from transformers import CLIPTextModelWithProjection, CLIPTokenizer, CLIPImageProcessor, MT5Tokenizer, T5EncoderModel
 
+from diffusers.schedulers import DDPMScheduler
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 from diffusers.callbacks import MultiPipelineCallbacks, PipelineCallback
 from diffusers.image_processor import VaeImageProcessor
@@ -436,9 +437,17 @@ class OpenSoraPipeline(DiffusionPipeline):
         callback_on_step_end_tensor_inputs: List[str] = ["latents"],
         guidance_rescale: float = 0.7,
         max_sequence_length: int = 512,
+        use_linear_quadratic_schedule: bool = False, 
         device = None, 
+        first_linear_monitor_step: int = 100,
+        second_linear_monitor_step: int = 0,
+        third_linear_monitor_step: int = 0,
+        pivot: float = 0.1,
+        pivot_1: float = 1.0,
+        use_two_linear_schedule: bool = False, 
+        use_three_linear_schedule: bool = False
     ):
-        
+        assert (not use_linear_quadratic_schedule) or (not use_two_linear_schedule) or (not use_three_linear_schedule)
         if isinstance(callback_on_step_end, (PipelineCallback, MultiPipelineCallbacks)):
             callback_on_step_end_tensor_inputs = callback_on_step_end.tensor_inputs
 
@@ -536,6 +545,7 @@ class OpenSoraPipeline(DiffusionPipeline):
             self._num_timesteps = len(timesteps)
         else:
             sigmas = None
+            assert use_linear_quadratic_schedule or use_two_linear_schedule or use_three_linear_schedule
             if use_linear_quadratic_schedule:
                 sigmas = opensora_linear_quadratic_schedule(num_inference_steps=num_inference_steps, approximate_steps=min(num_inference_steps * 10, 1000))
                 sigmas = np.array(sigmas)
@@ -628,7 +638,6 @@ class OpenSoraPipeline(DiffusionPipeline):
                 if get_sequence_parallel_state():
                     attention_mask = attention_mask.repeat(1, world_size, 1, 1)
                 # ==================make sp=====================================
-
                 noise_pred = self.transformer(
                     latent_model_input,
                     attention_mask=attention_mask, 

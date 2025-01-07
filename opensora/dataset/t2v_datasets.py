@@ -178,7 +178,7 @@ class T2V_dataset(Dataset):
             self.support_Chinese = True
 
         s = time.time()
-        self.cap_list, self.sample_size, self.shape_idx_dict = self.define_frame_index(self.data)
+        self.cap_list, self.sample_size, self.shape_idx_dict, self.max_thw = self.define_frame_index(self.data)
         logger.info(f'Data length: {len(self.cap_list)}')
         print(f'Data length: {len(self.cap_list)}')
         gc.collect()
@@ -605,7 +605,7 @@ class T2V_dataset(Dataset):
     def decord_read(self, video_data):
         path = video_data['path']
         predefine_frame_indice = video_data['sample_frame_index']
-        start_frame_idx = video_data['start_frame_idx']
+        start_frame_idx, end_frame_idx = video_data['cut'][0], video_data['cut'][1]
         clip_total_frames = video_data['num_frames']
         fps = video_data['fps']
         s_x, e_x, s_y, e_y = video_data.get('crop', [None, None, None, None])

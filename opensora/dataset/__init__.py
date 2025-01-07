@@ -86,7 +86,6 @@ if __name__ == "__main__":
     import imageio
     import numpy as np
     from einops import rearrange
-    # from opensora.dataset.t2v_datasets_cp import T2V_dataset
 
     args = type('args', (), 
     {
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         'cache_dir': '../cache_dir', 
         'data': '/home/image_data/gyy/mmdit/Open-Sora-Plan/scripts/train_data/image_data_debug_on_npu.txt', 
         'train_fps': 18, 
-        'drop_short_ratio': 1.0, 
+        'drop_short_ratio': 0.0, 
         'speed_factor': 1.0, 
         'cfg': 0.1, 
         'text_encoder_name_1': 'google/mt5-xxl', 
@@ -121,10 +120,11 @@ if __name__ == "__main__":
         'patch_size_t': 1, 
         'total_batch_size': 256, 
         'sp_size': 1, 
-        'max_hxw': 256*256, 
-        'min_hxw': 192*192, 
+        'max_hxw': 384*384, 
+        'min_hxw': 384*288, 
         'force_5_ratio': True, 
         'random_data': False, 
+        'train_image_batch_size': 1
     }
     )
     accelerator = Accelerator()

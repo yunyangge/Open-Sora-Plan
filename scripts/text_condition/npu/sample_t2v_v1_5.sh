@@ -1,7 +1,7 @@
 export HF_DATASETS_OFFLINE=1 
 export TRANSFORMERS_OFFLINE=1
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 8 --master_port 29512 \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nnodes=1 --nproc_per_node 1 --master_port 29512 \
     -m opensora.sample.sample \
     --model_path /home/ma-user/work/checkpoint/gyy/runs/t2v_suv_from_dit_288x512_384x384_32x8x16_lr1e-4_wd1e-5_eps1e-15_total_recap/checkpoint-52500/model_ema \
     --version v1_5 \
