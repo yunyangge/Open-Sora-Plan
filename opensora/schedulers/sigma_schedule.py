@@ -61,6 +61,5 @@ def opensora_linear_quadratic_schedule(num_inference_steps, approximate_steps=10
     ]
     sigmas = linear_sigmas + quadratic_sigmas + [1.0]
     sigmas = [1.0 - x for x in sigmas]
-    sigmas.pop(-1) # remove 0
     return sigmas
 

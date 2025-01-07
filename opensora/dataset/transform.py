@@ -255,7 +255,7 @@ class RandomCropVideo:
         return f"{self.__class__.__name__}(size={self.size})"
 
 
-RATIOS = [
+MULTI_RATIOS = [
     [16, 9],
     [9, 16],
     [1, 1],
@@ -263,19 +263,22 @@ RATIOS = [
     [3, 4]
 ]
 
-def find_closest_ratio(h, w):
+ONE_RATIO = [[9, 16]]
+
+
+def find_closest_ratio(h, w, ratios=MULTI_RATIOS):
     input_ratio = h / w
-    closest_ratio = min(RATIOS, key=lambda r: abs(r[0]/r[1] - input_ratio))
+    closest_ratio = min(ratios, key=lambda r: abs(r[0]/r[1] - input_ratio))
     return closest_ratio[0], closest_ratio[1]
 
-def get_params(h, w, stride, force_5_ratio=True):
+def get_params(h, w, stride, ratios=None):
 
-    if not force_5_ratio:
+    if ratios is None:
         th, tw = h // stride * stride, w // stride * stride
         i = (h - th) // 2
         j = (w - tw) // 2
     else:
-        ratio_h, ratio_w = find_closest_ratio(h, w)
+        ratio_h, ratio_w = find_closest_ratio(h, w, ratios)
         if h / w > ratio_h / ratio_w:
             target_h, target_w = int(w * ratio_h / ratio_w), w
         else:
@@ -290,9 +293,16 @@ def get_params(h, w, stride, force_5_ratio=True):
     return i, j, th, tw 
     
 class SpatialStrideCropVideo:
-    def __init__(self, stride, force_5_ratio=True):
+    def __init__(self, stride, force_5_ratio=True, force_ratio=True):
         self.stride = stride
         self.force_5_ratio = force_5_ratio
+        self.force_ratio = force_ratio
+        if self.force_5_ratio:
+            self.ratios = MULTI_RATIOS
+        elif self.force_ratio:
+            self.ratios = ONE_RATIO
+        else:
+            self.ratios = None
 
     def __call__(self, clip):
         """
@@ -303,7 +313,7 @@ class SpatialStrideCropVideo:
                 size is (T, C, OH, OW)
         """
         h, w = clip.shape[-2:] 
-        i, j, h, w = get_params(h, w, self.stride, self.force_5_ratio)
+        i, j, h, w = get_params(h, w, self.stride, self.ratios)
         return crop(clip, i, j, h, w)
 
 
@@ -352,11 +362,11 @@ def longsideresize(h, w, size, skip_low_resolution):
         w = size[1]
     return h, w
 
-def maxhwresize(ori_height, ori_width, max_hxw, force_5_ratio=True, hw_stride=16):
+def maxhwresize(ori_height, ori_width, max_hxw, ratios=None, hw_stride=16):
 
     if ori_height * ori_width > max_hxw:
-        if force_5_ratio:
-            ratio_h, ratio_w = find_closest_ratio(ori_height, ori_width)
+        if ratios is not None:
+            ratio_h, ratio_w = find_closest_ratio(ori_height, ori_width, ratios)
             target_h, target_w = get_hw_for_ratio(ratio_h, ratio_w, max_hxw, hw_stride)
             new_height, new_width = shortsideresize(ori_height, ori_width, (target_h, target_w), skip_low_resolution=False)
         else:
@@ -364,8 +374,8 @@ def maxhwresize(ori_height, ori_width, max_hxw, force_5_ratio=True, hw_stride=16
             new_height = int(ori_height * scale_factor)
             new_width = int(ori_width * scale_factor)
     else:
-        if force_5_ratio:
-            ratio_h, ratio_w = find_closest_ratio(ori_height, ori_width)
+        if ratios is not None:
+            ratio_h, ratio_w = find_closest_ratio(ori_height, ori_width, ratios)
             target_h, target_w = get_hw_for_ratio(ratio_h, ratio_w, ori_height * ori_width, hw_stride)
             new_height, new_width = shortsideresize(ori_height, ori_width, (target_h, target_w), skip_low_resolution=False)
         else:
@@ -419,13 +429,21 @@ class MaxHWStrideResizeVideo:
             max_hxw,
             interpolation_mode="bilinear",
             force_5_ratio=True,
+            force_ratio=True,
             hw_stride=16,
     ):
         self.max_hxw = max_hxw
         self.interpolation_mode = interpolation_mode
         self.force_5_ratio = force_5_ratio
+        self.force_ratio = force_ratio
         self.hw_stride = hw_stride
         
+        if self.force_5_ratio:
+            self.ratios = MULTI_RATIOS
+        elif self.force_ratio:
+            self.ratios = ONE_RATIO
+        else:
+            self.ratios = None
 
     def __call__(self, clip):
         """
@@ -435,7 +453,7 @@ class MaxHWStrideResizeVideo:
             torch.tensor: scale resized video clip.
         """
         _, _, h, w = clip.shape
-        tr_h, tr_w = maxhwresize(h, w, self.max_hxw, force_5_ratio=self.force_5_ratio, hw_stride=self.hw_stride)
+        tr_h, tr_w = maxhwresize(h, w, self.max_hxw, ratios=self.ratios, hw_stride=self.hw_stride)
         if h == tr_h and w == tr_w:
             return clip
         resize_clip = resize(clip, target_size=(tr_h, tr_w),
@@ -951,14 +969,14 @@ if __name__ == '__main__':
     import torch
 
     max_hxw = 384 * 384
-    hw_stride = 64
+    hw_stride = 16
 
     transform = transforms.Compose([
-        MaxHWStrideResizeVideo(max_hxw=max_hxw, force_5_ratio=True, hw_stride=hw_stride), 
-        SpatialStrideCropVideo(stride=hw_stride, force_5_ratio=True), 
+        MaxHWStrideResizeVideo(max_hxw=max_hxw, force_5_ratio=False, force_ratio=True, hw_stride=hw_stride), 
+        SpatialStrideCropVideo(stride=hw_stride, force_5_ratio=False, force_ratio=True,), 
     ])
 
-    image = torch.randn([1, 3, 352, 640])
+    image = torch.randn([1, 3, 384, 384])
     print(transform(image).shape)
 
 

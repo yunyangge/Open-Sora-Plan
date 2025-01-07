@@ -1,0 +1,4 @@
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part20_cap8196714.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part21_cap8196714.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part22_cap8196713.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part23_cap8196713.pkl

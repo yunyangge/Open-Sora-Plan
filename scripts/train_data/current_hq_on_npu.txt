@@ -1,4 +1,4 @@
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part3_0_2329198.pkl
-/mnt/sfs_turbo/coyo,/home/save_dir/captions/coyo_non_exists_1031_split/part3_1_2329199.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part6_2558342.pkl
-/home/save_dir/recap_datacomp_1b_data/output,/home/save_dir/captions/exists_1022/part7_2557526.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part0_cap8196714.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part1_cap8196714.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part2_cap8196714.pkl
+/home/ma-user/work/datasets/coyo/coyo,/home/ma-user/work/datasets/captions/1221_qwen_all_pkl/coyo1/part3_cap8196714.pkl

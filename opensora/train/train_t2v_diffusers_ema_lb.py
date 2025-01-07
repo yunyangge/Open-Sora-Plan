@@ -59,11 +59,10 @@ from tqdm.auto import tqdm
 import json
 import copy
 import diffusers
-from diffusers import DDPMScheduler, PNDMScheduler, DPMSolverMultistepScheduler, CogVideoXDDIMScheduler, FlowMatchEulerDiscreteScheduler
+from diffusers import DDPMScheduler, PNDMScheduler, DPMSolverMultistepScheduler, CogVideoXDDIMScheduler
 from diffusers.optimization import get_scheduler
 from diffusers.training_utils import compute_snr
 from diffusers.utils import check_min_version, is_wandb_available
-from diffusers.training_utils import compute_density_for_timestep_sampling, compute_loss_weighting_for_sd3
 
 from opensora.models.causalvideovae import ae_stride_config, ae_channel_config
 from opensora.models.causalvideovae import ae_norm, ae_denorm
@@ -74,11 +73,12 @@ from opensora.models import CausalVAEModelWrapper
 from opensora.models.diffusion import Diffusion_models, Diffusion_models_class
 from opensora.utils.dataset_utils import Collate, LengthGroupedSampler
 from opensora.utils.ema_utils import EMAModel
-from opensora.utils.utils import explicit_uniform_sampling, get_common_weights, wandb_log_npu_power
+from opensora.utils.utils import explicit_uniform_sampling, get_common_weights
+from opensora.utils.tracker_utils import is_swanlab_available, is_wandb_available, WandBTracker, SwanLabTracker
 from opensora.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 from opensora.sample.pipeline_opensora import OpenSoraPipeline
 from opensora.models.causalvideovae import ae_stride_config, ae_wrapper
-
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler
 # from opensora.utils.utils import monitor_npu_power
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
@@ -241,9 +241,14 @@ def create_ema_model(
             
     if checkpoint_path:
         ema_model_path = os.path.join(checkpoint_path, "model_ema")
-        if os.path.exists(ema_model_path):
-            ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
-            logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
+    elif args.pretrained_ema:
+        ema_model_path = args.pretrained_ema
+    else:
+        ema_model_path = None
+
+    if ema_model_path:
+        ema_model = EMAModel.from_pretrained(ema_model_path, model_cls=model_cls)
+        logger.info(f'Successully resume EMAModel from {ema_model_path}', main_process_only=True)
     else:
         # we load weights from original model instead of deepcopy
         model = model_cls.from_config(model_config)
@@ -272,9 +277,27 @@ def main(args):
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         mixed_precision=args.mixed_precision,
-        log_with=args.report_to,
+        log_with=None,
         project_config=accelerator_project_config,
     )
+
+    # We need to initialize the trackers we use, and also store our configuration.
+    # The trackers initializes automatically on the main process.
+    if args.report_to == "wandb":
+        if not is_wandb_available():
+            raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
+        project_name = os.path.basename(args.proj_name or args.output_dir)
+        run_name = args.log_name or args.proj_name or args.output_dir
+        tracker = WandBTracker(project_name, config=vars(args), name=run_name)
+    elif args.report_to == "swanlab":
+        if not is_swanlab_available():
+            raise ImportError("Make sure to install swanlab if you want to use it for logging during training.")
+        project_name = os.path.basename(args.proj_name or args.output_dir)
+        experiment_name = args.log_name or args.proj_name or args.output_dir
+        tracker = SwanLabTracker(project_name, experiment_name=experiment_name)
+        tracker.store_init_configuration(vars(args))
+
+    accelerator.trackers = [tracker]
 
     if args.skip_abnormal_step and accelerator.distributed_type == DistributedType.DEEPSPEED:
         from opensora.utils.deepspeed_utils import backward
@@ -282,19 +305,6 @@ def main(args):
 
     if args.num_frames != 1:
         initialize_sequence_parallel_state(args.sp_size)
-
-    if args.report_to == "wandb":
-        if not is_wandb_available():
-            raise ImportError("Make sure to install wandb if you want to use it for logging during training.")
-        wandb_init_kwargs = {"wandb": {"name": args.log_name or args.proj_name or args.output_dir}}
-
-    # We need to initialize the trackers we use, and also store our configuration.
-    # The trackers initializes automatically on the main process.
-    if accelerator.is_main_process:
-        accelerator.init_trackers(os.path.basename(args.proj_name or args.output_dir), config=vars(args), 
-                                  init_kwargs=wandb_init_kwargs if args.report_to == "wandb" else None)
-        if torch_npu is not None:
-            wandb_log_npu_power()
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -476,6 +486,7 @@ def main(args):
                         weights.pop()
             if args.use_ema:
                 ema_model.save_pretrained(os.path.join(output_dir, "model_ema"))
+                accelerator.wait_for_everyone()
 
         accelerator.register_save_state_pre_hook(save_model_hook)
         
@@ -516,8 +527,7 @@ def main(args):
         kwargs['beta_schedule'] = "scaled_linear"
         noise_scheduler = DDPMScheduler(**kwargs)
     elif args.rf_scheduler:
-        noise_scheduler = FlowMatchEulerDiscreteScheduler()
-        noise_scheduler_copy = copy.deepcopy(noise_scheduler)
+        noise_scheduler = FlowMatchEulerScheduler(weighting_scheme=args.weighting_scheme, sigma_eps=0.0)
     else:
         noise_scheduler = DDPMScheduler(**kwargs)
     # =======================================================================================================
@@ -709,18 +719,6 @@ def main(args):
     )
     progress_info = ProgressInfo(global_step, train_loss=0.0, max_grad_norm=0.0)
 
-    
-    def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
-        sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)  # 0.001, 1
-        schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)  # 1, 1000
-        timesteps = timesteps.to(accelerator.device)
-        step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps]
-
-        sigma = sigmas[step_indices].flatten()
-        while len(sigma.shape) < n_dim:
-            sigma = sigma.unsqueeze(-1)
-        return sigma
-
     def sync_gradients_info(loss):
         # Checks if the accelerator has performed an optimization step behind the scenes
         if args.use_ema and progress_info.global_step % args.ema_update_freq == 0:
@@ -751,6 +749,11 @@ def main(args):
         if args.use_ema and (progress_info.global_step - 1) % args.ema_update_freq == 0:
             log_dict.update(dict(cur_decay_value=cur_decay_value))
         accelerator.log(log_dict, step=progress_info.global_step)
+        if torch_npu is not None:
+            if args.report_to == "wandb":
+                accelerator.get_tracker('wandb').log_npu_infos(step=progress_info.global_step)
+            elif args.report_to == "swanlab":
+                accelerator.get_tracker('swanlab').log_npu_infos(step=progress_info.global_step)
 
         if torch_npu is not None and npu_config is not None:
             npu_config.print_msg(f"Step: [{progress_info.global_step}], local_loss={loss.detach().item()}, "
@@ -811,7 +814,6 @@ def main(args):
         progress_info.max_train_loss = 0.0
         progress_info.min_timesteps = 1.0
         progress_info.max_timesteps = 1000.0
-
         return RuningType.normal
 
     def run(step_, model_input, model_kwargs, prof):
@@ -844,21 +846,20 @@ def main(args):
         else:
             # Sample a random timestep for each image
             # for weighting schemes where we sample timesteps non-uniformly
-            u = compute_density_for_timestep_sampling(
-                weighting_scheme=args.weighting_scheme,
+            sigmas = noise_scheduler.compute_density_for_sigma_sampling(
                 batch_size=bsz,
                 logit_mean=args.logit_mean,
                 logit_std=args.logit_std,
                 mode_scale=args.mode_scale,
-            )
-            indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
-            timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-
+            ).to(device=accelerator.device)
+            timesteps = sigmas.clone() * 1000
+            
+            while sigmas.ndim < model_input.ndim:
+                sigmas = sigmas.unsqueeze(-1)
             # Add noise according to flow matching.
-            # zt = (1 - texp) * x + texp * z1
-            sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
-            noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
-
+            noisy_model_input = noise_scheduler.add_noise(sample=model_input, sigmas=sigmas, noise=noise)
+            
+        noisy_model_input = noisy_model_input.to(dtype=weight_dtype)
         model_pred = model(
             noisy_model_input,
             timesteps,
@@ -928,7 +929,7 @@ def main(args):
 
             # these weighting schemes use a uniform timestep sampling
             # and instead post-weight the loss
-            weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
+            weighting = noise_scheduler.compute_loss_weighting_for_sd3(sigmas=sigmas)
 
             # flow matching loss
             target = noise - model_input
@@ -1023,24 +1024,21 @@ def main(args):
 
         x = x.to(accelerator.device, dtype=ae.vae.dtype, non_blocking=True)  # B C T H W
         attn_mask = attn_mask.to(accelerator.device, non_blocking=True)  # B T H W
-        input_ids_1 = input_ids_1.to(accelerator.device, non_blocking=True)  # B 1 L
-        cond_mask_1 = cond_mask_1.to(accelerator.device, non_blocking=True)  # B 1 L
-        input_ids_2 = input_ids_2.to(accelerator.device, non_blocking=True) if input_ids_2 is not None else input_ids_2 # B 1 L
-        cond_mask_2 = cond_mask_2.to(accelerator.device, non_blocking=True) if cond_mask_2 is not None else cond_mask_2 # B 1 L
+        input_ids_1 = input_ids_1.to(accelerator.device, non_blocking=True)  # B L
+        cond_mask_1 = cond_mask_1.to(accelerator.device, non_blocking=True)  # B L
+        input_ids_2 = input_ids_2.to(accelerator.device, non_blocking=True) if input_ids_2 is not None else input_ids_2 # B L
+        cond_mask_2 = cond_mask_2.to(accelerator.device, non_blocking=True) if cond_mask_2 is not None else cond_mask_2 # B L
         
         with torch.no_grad():
-            B, N, L = input_ids_1.shape  # B 1 L
-            # use batch inference
-            input_ids_1 = input_ids_1.reshape(-1, L)
-            cond_mask_1 = cond_mask_1.reshape(-1, L)
+            B, L = input_ids_1.shape  # B L
             if args.random_data:
                 cond_1 = torch.rand(B, L, 2048, device=x.device, dtype=weight_dtype)
             else:
                 cond_1 = text_enc_1(input_ids_1, cond_mask_1)  # B L D
-            cond_1 = cond_1.reshape(B, N, L, -1)
-            cond_mask_1 = cond_mask_1.reshape(B, N, L)
+            cond_1 = cond_1.reshape(B, 1, L, -1)
+            cond_mask_1 = cond_mask_1.reshape(B, 1, L)
             if text_enc_2 is not None:
-                B_, N_, L_ = input_ids_2.shape  # B 1 L
+                B_, L_ = input_ids_2.shape  # B 1 L
                 input_ids_2 = input_ids_2.reshape(-1, L_)
                 if args.random_data:
                     cond_2 = torch.rand(B, 1280, device=x.device, dtype=weight_dtype)
@@ -1113,7 +1111,6 @@ def main(args):
         else:
             with accelerator.accumulate(model):
                 # assert not torch.any(torch.isnan(x)), 'after vae'
-                x = x.to(weight_dtype)
                 model_kwargs = dict(
                     encoder_hidden_states=cond_1, attention_mask=attn_mask, 
                     encoder_attention_mask=cond_mask_1, 
@@ -1235,16 +1232,21 @@ if __name__ == "__main__":
     parser.add_argument("--max_width", type=int, default=240)
     parser.add_argument("--max_hxw", type=int, default=None)
     parser.add_argument("--min_hxw", type=int, default=None)
+    parser.add_argument("--max_h_div_w_ratio", type=float, default=2.0)
+    parser.add_argument("--min_h_div_w_ratio", type=float, default=None)
     parser.add_argument("--ood_img_ratio", type=float, default=0.0)
     parser.add_argument("--use_img_from_vid", action="store_true")
     parser.add_argument("--model_max_length", type=int, default=512)
     parser.add_argument('--cfg', type=float, default=0.1)
     parser.add_argument("--dataloader_num_workers", type=int, default=10, help="Number of subprocesses to use for data loading. 0 means that the data will be loaded in the main process.")
     parser.add_argument("--train_batch_size", type=int, default=16, help="Batch size (per device) for the training dataloader.")
+    parser.add_argument("--train_image_batch_size", type=int, default=1, help="Image batch size (per device) for the training dataloader.")
+    parser.add_argument("--train_video_only", action="store_true")
     parser.add_argument("--group_data", action="store_true")
     parser.add_argument("--hw_stride", type=int, default=32)
     parser.add_argument("--force_resolution", action="store_true")
     parser.add_argument("--force_5_ratio", action="store_true")
+    parser.add_argument("--force_ratio", action="store_true")
     parser.add_argument("--trained_data_global_step", type=int, default=None)
     parser.add_argument("--use_decord", action="store_true")
     parser.add_argument('--random_data', action='store_true')
@@ -1263,6 +1265,7 @@ if __name__ == "__main__":
     parser.add_argument("--text_encoder_name_2", type=str, default=None)
     parser.add_argument("--cache_dir", type=str, default='./cache_dir')
     parser.add_argument("--pretrained", type=str, default=None)
+    parser.add_argument("--pretrained_ema", type=str, default=None)
     parser.add_argument('--sparse1d', action='store_true')
     parser.add_argument('--sparse_n', type=int, default=2)
     parser.add_argument('--skip_connection', action='store_true')

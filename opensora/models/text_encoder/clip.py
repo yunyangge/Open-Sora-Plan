@@ -12,7 +12,7 @@ class CLIPWrapper(nn.Module):
         super(CLIPWrapper, self).__init__()
         self.model_name = args.text_encoder_name_2
         if torch_npu is not None:
-            self.model_name = '/home/save_dir/pretrained/clip/models--laion--CLIP-ViT-bigG-14-laion2B-39B-b160k/snapshots/bc7788f151930d91b58474715fdce5524ad9a189'
+            self.model_name = '/home/ma-user/work/checkpoint/pretrained/clip'
         else:
             self.model_name = '/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k'
         print(f'Loading CLIP model from {self.model_name}...')

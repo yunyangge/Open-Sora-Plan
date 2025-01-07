@@ -4,7 +4,6 @@ from diffusers.schedulers import (
     HeunDiscreteScheduler, EulerAncestralDiscreteScheduler,
     DEISMultistepScheduler, KDPM2AncestralDiscreteScheduler, 
     DPMSolverSinglestepScheduler, CogVideoXDDIMScheduler, 
-    FlowMatchEulerDiscreteScheduler
     )
 from einops import rearrange
 import time
@@ -34,6 +33,7 @@ from opensora.sample.pipeline_inpaint import OpenSoraInpaintPipeline
 from opensora.models.diffusion.opensora_v1_3.modeling_opensora import OpenSoraT2V_v1_3
 from opensora.models.diffusion.opensora_v1_3.modeling_inpaint import OpenSoraInpaint_v1_3
 from opensora.utils.utils import set_seed
+from opensora.schedulers.scheduling_flow_match_euler import FlowMatchEulerScheduler as FlowMatchEulerDiscreteScheduler
 from transformers import T5EncoderModel, T5Tokenizer, AutoTokenizer, MT5EncoderModel, CLIPTextModelWithProjection
 
 def get_scheduler(args):
@@ -80,12 +80,18 @@ def get_scheduler(args):
     scheduler = scheduler_cls(**kwargs)
     return scheduler
 
-def prepare_pipeline(args, dtype, device):
+weight_dtype_mapping = {
+  'fp16': torch.float16, 
+  'fp32': torch.float32, 
+  'bf16': torch.bfloat16, 
+}
+def prepare_pipeline(args, device):
     
-    weight_dtype = dtype
+    weight_dtype = weight_dtype_mapping[args.weight_dtype]
+    vae_dtype = weight_dtype_mapping[args.vae_dtype]
 
     vae = ae_wrapper[args.ae](args.ae_path)
-    vae.vae = vae.vae.to(device=device, dtype=weight_dtype).eval()
+    vae.vae = vae.vae.to(device=device, dtype=vae_dtype).eval()
     vae.vae_scale_factor = ae_stride_config[args.ae]
     if args.enable_tiling:
         vae.vae.enable_tiling()
@@ -245,13 +251,16 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
         mask_type = args.mask_type if args.mask_type is not None else None
 
     positive_prompt = """
-    high quality, high aesthetic, {}
+    high quality, {}
     """
 
     negative_prompt = """
-    nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, 
-    low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry.
+    Worst quality, Normal quality, Low quality, Low res, Blurry, Jpeg artifacts, Grainy, watermark, banner, 
+    Cropped, Out of frame, Out of focus, Bad anatomy, Bad proportions, Deformed, Disconnected limbs, Disfigured, 
+    username, error, sketch, duplicate, ugly, monochrome, horror, geometry, mutation, disgusting, overexposed, underexposed.
     """
+    
+    # negative_prompt = ""
     
     def generate(prompt, conditional_pixel_values_path=None, mask_type=None):
         
@@ -282,6 +291,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 guidance_scale=args.guidance_scale,
                 num_samples_per_prompt=args.num_samples_per_prompt,
                 max_sequence_length=args.max_sequence_length,
+                guidance_rescale=args.guidance_rescale
             ).videos
         else:
             videos = pipeline(
@@ -295,6 +305,7 @@ def run_model_and_save_samples(args, pipeline, caption_refiner_model=None, enhan
                 guidance_scale=args.guidance_scale,
                 num_samples_per_prompt=args.num_samples_per_prompt,
                 max_sequence_length=args.max_sequence_length,
+                guidance_rescale=args.guidance_rescale
             ).videos
         if enhance_video_model is not None:
             # b t h w c
@@ -470,6 +481,7 @@ def get_args():
     parser.add_argument("--text_encoder_name_2", type=str, default=None)
     parser.add_argument("--save_img_path", type=str, default="./sample_videos/t2v")
     parser.add_argument("--guidance_scale", type=float, default=7.5)
+    parser.add_argument("--guidance_rescale", type=float, default=0.7)
     parser.add_argument("--sample_method", type=str, default="PNDM")
     parser.add_argument("--num_sampling_steps", type=int, default=50)
     parser.add_argument("--fps", type=int, default=24)
@@ -493,6 +505,8 @@ def get_args():
     parser.add_argument('--mask_type', type=str, default=None)
     parser.add_argument('--crop_for_hw', action='store_true')
     parser.add_argument('--max_hxw', type=int, default=236544) # 480*480
+    parser.add_argument('--weight_dtype', type=str, default='fp32') # 480*480
+    parser.add_argument('--vae_dtype', type=str, default='fp16') # 480*480
     args = parser.parse_args()
     assert not (args.sp and args.num_frames == 1)
     return args

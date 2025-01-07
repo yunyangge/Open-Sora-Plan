@@ -26,20 +26,20 @@ def getdataset(args):
         resize = [CenterCropResizeVideo((args.max_height, args.max_width)), ]
     else:
         resize = [
-            MaxHWStrideResizeVideo(max_hxw=args.max_hxw, force_5_ratio=args.force_5_ratio, hw_stride=args.hw_stride, interpolation_mode="bicubic"), 
-            SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio), 
+            MaxHWStrideResizeVideo(max_hxw=args.max_hxw, force_5_ratio=args.force_5_ratio, force_ratio=args.force_ratio, hw_stride=args.hw_stride, interpolation_mode="bicubic"), 
+            SpatialStrideCropVideo(stride=args.hw_stride, force_5_ratio=args.force_5_ratio, force_ratio=args.force_ratio), 
         ]
 
     # tokenizer_1 = AutoTokenizer.from_pretrained(args.text_encoder_name_1, cache_dir=args.cache_dir)
     if torch_npu is not None:
-        tokenizer_1 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/t5/t5-v1_1-xl', cache_dir=args.cache_dir)
+        tokenizer_1 = AutoTokenizer.from_pretrained('/home/ma-user/work/checkpoint/pretrained/t5/t5-v1_1-xl', cache_dir=args.cache_dir)
     else:
         tokenizer_1 = AutoTokenizer.from_pretrained('/storage/ongoing/new/Open-Sora-Plan/cache_dir/mt5-xxl', cache_dir=args.cache_dir)
     tokenizer_2 = None
     if args.text_encoder_name_2 is not None:
         # tokenizer_2 = AutoTokenizer.from_pretrained(args.text_encoder_name_2, cache_dir=args.cache_dir)
         if torch_npu is not None:
-            tokenizer_2 = AutoTokenizer.from_pretrained('/home/save_dir/pretrained/clip/models--laion--CLIP-ViT-bigG-14-laion2B-39B-b160k/snapshots/bc7788f151930d91b58474715fdce5524ad9a189', cache_dir=args.cache_dir)
+            tokenizer_2 = AutoTokenizer.from_pretrained('/home/ma-user/work/checkpoint/pretrained/clip', cache_dir=args.cache_dir)
         else:
             tokenizer_2 = AutoTokenizer.from_pretrained('/storage/cache_dir/CLIP-ViT-bigG-14-laion2B-39B-b160k', cache_dir=args.cache_dir)
     if args.dataset == 't2v':
