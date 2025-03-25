@@ -243,8 +243,8 @@ class ResI2VScheduler:
     def training_losses(
         self,
         model_output: torch.Tensor,
-        sample_A: torch.Tensor,
-        sample_B: torch.Tensor,
+        start_frame: torch.Tensor,
+        video: torch.Tensor,
         mask: torch.Tensor = None,
         sigmas: torch.Tensor = None,
         **kwargs
@@ -262,7 +262,7 @@ class ResI2VScheduler:
         weighting = self.compute_loss_weighting_for_sd3(sigmas=sigmas)
 
         # flow matching loss
-        target = sample_A - sample_B
+        target = start_frame - video
 
         # Compute regular loss.
         loss_mse = (weighting.float() * (model_output.float() - target.float()) ** 2).reshape(target.shape[0], -1)
@@ -273,53 +273,37 @@ class ResI2VScheduler:
 
         return loss
 
-
     def q_sample(
         self,
-        x_start: torch.Tensor,
+        start_frame: torch.Tensor,
+        video: torch.Tensor,
         sigmas: torch.Tensor = None,
-        noise: torch.Tensor = None,
         **kwargs
     ) -> torch.Tensor:
-        """
-        Diffuse the data for a given number of diffusion steps.
-        In other words, sample from q(x_t | x_0).
-        :param x_start: the initial data batch.
-        :param sigmas: interpolation factor in flow matching.
-        :param noise: if specified, the split-out normal noise.
-        :return: A noisy version of x_start.
-        """
-        b, c, _, _, _ = x_start.shape
-        if noise is None:
-            noise = torch.randn_like(x_start)
-        if noise.shape != x_start.shape:
-            raise ValueError("The shape of noise and x_start must be equal.")
+        b, c, _, _, _ = start_frame.shape
+        if start_frame.shape != video.shape:
+            raise ValueError("start_frame and video should have the same shape")
         if sigmas is None:
-            sigmas = self.compute_density_for_sigma_sampling(b).to(x_start.device)
+            sigmas = self.compute_density_for_sigma_sampling(b).to(start_frame.device)
             timesteps = sigmas.clone() * 1000
-            while sigmas.ndim < x_start.ndim:
+            while sigmas.ndim < start_frame.ndim:
                 sigmas = sigmas.unsqueeze(-1)
             self.broadcast_timesteps(sigmas)
             self.broadcast_timesteps(timesteps)
 
-        x_t = self.add_noise(x_start, sigmas, noise)
-        return dict(x_t=x_t, noise=noise, timesteps=timesteps, sigmas=sigmas)
+        x_t = self.interpolate(start_frame, video, sigmas)
+        return dict(x_t=x_t, timesteps=timesteps, sigmas=sigmas)
 
     def sample(
         self,
         model: Callable,
-        shape: Union[List, Tuple],
-        latents: torch.Tensor,
+        start_frame: torch.Tensor,
         model_kwargs: dict = None,
         added_cond_kwargs: dict = None,
         extra_step_kwargs: dict = None,
         **kwargs
     ):
 
-        if not isinstance(shape, (tuple, list)):
-            raise AssertionError("param shape is incorrect")
-        if latents is None:
-            latents = torch.randn(*shape, device=self.device)
         if added_cond_kwargs:
             model_kwargs.update(added_cond_kwargs)
 
