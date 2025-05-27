@@ -29,6 +29,10 @@ def save_video_with_opencv(video, save_path, fps=18, quality="medium"):
     else:
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 适用于 .avi
     out = cv2.VideoWriter(save_path, fourcc, fps, frame_size)
+
+    if isinstance(video, torch.Tensor):
+        video = video.cpu().numpy()
+
     for frame in video:
         frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # OpenCV 需要 BGR 格式
         out.write(frame_bgr)
@@ -50,7 +54,7 @@ def optimize_video(save_path, quality):
     os.system(ffmpeg_cmd)
     print(f"✅ 优化后视频已保存至: {optimized_path}")
 
-def save_image_or_videos(videos, save_path, start_idx, fps, value_range=(0, 1), normalize=True):
+def save_image_or_videos(videos, save_path, start_idx, fps=24, value_range=(0, 1), normalize=True):
     os.makedirs(save_path, exist_ok=True)
     if videos.ndim == 5:
         if videos.shape[1] == 1: # image
@@ -76,6 +80,10 @@ def save_video_grid(videos, nrow=None):
     b, t, h, w, c = videos.shape
     if nrow is None:
         nrow = math.ceil(math.sqrt(b))
+
+    if nrow > 20:
+        raise ValueError("Video grid is too large, so we will not save it.")
+    
     ncol = math.ceil(b / nrow)
     padding = 1
     video_grid = torch.zeros(
@@ -110,9 +118,9 @@ def load_prompts(prompt):
     if os.path.exists(prompt):
         with open(prompt, "r") as f:
             lines = f.readlines()
-            if len(lines) > 100:
+            if len(lines) > 1000:
                 print("The file has more than 100 lines of prompts, we can only proceed the first 100")
-                lines = lines[:100]
+                lines = lines[:1000]
             prompts = [line.strip() for line in lines]
         return prompts
     else:

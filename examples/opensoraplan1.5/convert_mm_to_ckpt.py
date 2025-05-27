@@ -245,7 +245,7 @@ def convert(load_dir, save_dir, ema=False):
 
     
 if __name__ == "__main__":
-    load_dir = '/work/share/checkpoint/gyy/osp/105x288x512_node48_tp4_bs4_gc2_lr1e-4_wd1e-4/iter_0007000'
-    save_dir = '/work/share/projects/gyy/mindspeed/Open-Sora-Plan/test_ckpt/test_48_node_step7k'
+    load_dir = '/work/share1/checkpoint/gyy/osp/121x576x1024_node64_tp4_bs1_gc4_lr1e-5_wd1e-2_hq/iter_0003936/'
+    save_dir = '/work/share/projects/gyy/mindspeed/Open-Sora-Plan/test_ckpt/test_ac_121_576_hq_03936'
     ema = True
     convert(load_dir, save_dir, ema=ema)

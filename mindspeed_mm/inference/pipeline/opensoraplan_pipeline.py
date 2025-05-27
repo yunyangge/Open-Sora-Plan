@@ -62,7 +62,6 @@ class OpenSoraPlanPipeline(MMPipeline, InputsCheckMixin, MMEncoderMixin):
         negative_prompt: Optional[str] = None,
         negative_prompt_embeds: Optional[torch.Tensor] = None,
         negative_prompt_embeds_2: Optional[torch.Tensor] = None,
-        use_linear_quadratic_schedule: bool = True,
         eta: float = 0.0,
         num_samples_per_prompt: Optional[int] = 1,
         guidance_scale: float = 4.5,
@@ -212,7 +211,6 @@ class OpenSoraPlanPipeline(MMPipeline, InputsCheckMixin, MMEncoderMixin):
                         "prompt_embeds_2": prompt_embeds_2,
                         "added_cond_kwargs": added_cond_kwargs,
                         "prompt_attention_mask": prompt_embeds_attention_mask,
-                        "use_linear_quadratic_schedule": use_linear_quadratic_schedule,
                         "return_dict": False}
         if self.model_type == "i2v":
             model_kwargs.update(i2v_kwargs)
