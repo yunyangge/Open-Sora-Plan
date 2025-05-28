@@ -205,8 +205,8 @@ def open_video(file_path, start_frame_idx, num_frames, frame_interval=1):
 
 
 def get_resize_transform(
-        ori_height,
-        ori_width,
+        ori_height=None,
+        ori_width=None,
         height=None,
         width=None,
         crop_for_hw=False,

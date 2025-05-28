@@ -548,6 +548,23 @@ class VideoProcesser:
                 return y
         return -1
 
+
+class ResI2VVideoProcesser(VideoProcesser):
+    def find_closest_y(self, x, vae_stride_t=4, model_ds_t=1):
+        if x < self.min_num_frames:
+            return -1
+        x -= 1
+        for y in range(x, self.min_num_frames - 2, -1):
+            if (y - 1) % vae_stride_t == 0 and ((y - 1) // vae_stride_t + 1) % model_ds_t == 0:
+                # 4, 8: y in [29, 61, 93, 125, 157, 189, 221, 253, 285, 317, 349, 381, 413, 445, 477, 509, ...]
+                # 4, 4: y in [29, 45, 61, 77, 93, 109, 125, 141, 157, 173, 189, 205, 221, 237, 253, 269, 285, 301, 317, 333, 349, 365, 381, 397, 413, 429, 445, 461, 477, 493, 509, ...]
+                # 8, 1: y in [33, 41, 49, 57, 65, 73, 81, 89, 97, 105]
+                # 8, 2: y in [41, 57, 73, 89, 105]
+                # 8, 4: y in [57, 89]
+                # 8, 8: y in [57]
+                return y + 1
+        return -1
+
 # # TODO: not suported now
 # def type_ratio_normalize(mask_type_ratio_dict):
 #     for k, v in mask_type_ratio_dict.items():

@@ -12,6 +12,7 @@ from mindspeed_mm.data.data_utils.constants import (
     PROMPT_IDS, 
     PROMPT_MASK, 
     VIDEO, 
+    START_FRAME,
     VIDEO_MASK,
     PROMPT_IDS_2,
     PROMPT_MASK_2
@@ -224,7 +225,37 @@ class Collate:
 
         return (pad_batch_tubes, attention_mask, input_ids, cond_mask, input_ids_2, cond_mask_2)
 
+# only supported for fixed length now
+class ResI2VCollate:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, batch):
+        batch_tubes = torch.stack([i[VIDEO] for i in batch])  # [b c t h w]
+        start_frames = torch.stack([i[START_FRAME] for i in batch])  # [b c 1 h w]
+        input_ids = torch.stack([i[PROMPT_IDS] for i in batch])  # [b 1 l]
+        cond_mask = torch.stack([i[PROMPT_MASK] for i in batch])  # [b 1 l]
+        input_ids_2 = [i[PROMPT_IDS_2] for i in batch]  # b [1 l]
+        cond_mask_2 = [i[PROMPT_MASK_2] for i in batch]  # b [1 l]
+        if all([i is None for i in input_ids_2]):
+            input_ids_2 = None
+        if all([i is None for i in cond_mask_2]):
+            cond_mask_2 = None
+        if input_ids_2 is not None:
+            input_ids_2 = torch.stack(input_ids_2)  # [b 1 l]
+        if cond_mask_2 is not None:
+            cond_mask_2 = torch.stack(cond_mask_2)  # [b 1 l]
+        return {
+            VIDEO: batch_tubes,
+            START_FRAME: start_frames,
+            PROMPT_IDS: input_ids,
+            PROMPT_MASK: cond_mask,
+            PROMPT_IDS_2: input_ids_2,
+            PROMPT_MASK_2: cond_mask_2
+        }
+            
 DATA_COLLATOR = {
     "Default": Collate,
     "GroupLength": Collate,
+    "ResI2V": ResI2VCollate,
 }

@@ -199,17 +199,22 @@ class StatefulDistributedSampler(DistributedSampler):
         dataset: Dataset,
         num_replicas: Optional[int] = None,
         rank: Optional[int] = None,
-        shuffle: bool = True,
+        shuffle: bool = False,
+        consumed_samples: int = 0,
         seed: int = 0,
         drop_last: bool = False,
     ) -> None:
         super().__init__(dataset, num_replicas, rank, shuffle, seed, drop_last)
         self.start_index: int = 0
+        self.consumed_samples = consumed_samples // num_replicas
 
     def __iter__(self) -> Iterator:
         iterator = super().__iter__()
         indices = list(iterator)
-        indices = indices[self.start_index :]
+        self.start_index = self.consumed_samples % self.num_samples
+        indices = indices[self.start_index:]
+        actual_indices_len = len(indices)
+        self.consumed_samples += actual_indices_len
         return iter(indices)
 
     def __len__(self) -> int:

@@ -4,6 +4,7 @@ from mindspeed_mm.data.dataloader.dataloader import (
     prepare_variable_dataloader,
 )
 from mindspeed_mm.data.datasets.t2v_dataset import T2VDataset, DynamicVideoTextDataset
+from mindspeed_mm.data.datasets.resi2v_dataset import ResI2VDataset
 
 __all__ = [
     "build_mm_dataset", "build_mm_dataloader"
@@ -29,6 +30,8 @@ def build_mm_dataset(dataset_param):
     preprocess_param = dataset_param["preprocess_parameters"]
     if dataset_type == "t2v":
         return T2VDataset(basic_param, preprocess_param, **dataset_param)
+    elif dataset_type == 'resi2v':
+        return ResI2VDataset(basic_param, preprocess_param, **dataset_param)
     else:
         raise NotImplementedError(dataset_type)
 

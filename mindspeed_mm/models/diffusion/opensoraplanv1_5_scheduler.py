@@ -365,7 +365,7 @@ class OpenSoraPlanScheduler:
         
         with tqdm(total=self.num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-                latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
+                latent_model_input = latents
                 timestep = t.expand(latent_model_input.shape[0])
                 attention_mask = torch.ones_like(latent_model_input)[:, 0].to(device=self.device)
 

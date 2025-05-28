@@ -1,5 +1,5 @@
 {
-    "frames": 121,
+    "frames": 57,
     "allow_tf32": false,
     "allow_internal_format": false,
     "load_video_features": false,
@@ -35,7 +35,7 @@
          1.1250, -0.2578, -2.1094,  1.0391,  1.1797, -1.2422, -0.2988, -0.9570],
         "t_interpolation": "trilinear",
         "use_attention": true,
-        "use_tiling": true,
+        "use_tiling": false,
         "from_pretrained": "/work/share/checkpoint/pretrained/vae/Middle888/merged.ckpt",
         "dtype": "fp32"
       },
@@ -52,19 +52,19 @@
         "low_cpu_mem_usage": false
     },
     "predictor": {
-        "model_id": "SparseUMMDiT",
-        "num_layers": [2, 4, 6, 8, 6, 4, 2],
-        "sparse_n": [1, 2, 4, 8, 4, 2, 1],
-        "double_ff": true,
-        "sparse1d": true,
-        "num_heads": 24,
+        "model_id": "ResI2VMMDiT",
+        "num_layers": [2, 2, 2, 4, 2, 2, 2],
+        "sparse_n": [1, 1, 1, 1, 1, 1, 1],
+        "double_ff": false,
+        "sparse1d": false,
+        "num_heads": 16,
         "head_dim": 128,
         "in_channels": 32,
         "out_channels": 32,
-        "timestep_embed_dim": 1024,
+        "timestep_embed_dim": 768,
         "caption_channels": 2048,
         "pooled_projection_dim": 1280,
-        "skip_connection": true,
+        "skip_connection": false,
         "dropout": 0.0,
         "attention_bias": true,
         "patch_size": 2,
@@ -72,7 +72,7 @@
         "activation_fn": "gelu-approximate",
         "norm_elementwise_affine": false,
         "norm_eps": 1e-06,
-        "from_pretrained": "/work/share/projects/gyy/mindspeed/Open-Sora-Plan/test_ckpt/test_ac_121_576_1e-5_09658/model_ema.pt"
+        "from_pretrained": null
     },
     "diffusion": {
         "model_id": "OpenSoraPlan",

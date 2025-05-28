@@ -2,10 +2,11 @@ from torch import nn
 from megatron.training.utils import print_rank_0
 
 from mindspeed_mm.models.common.checkpoint import load_checkpoint
-from .dits import SparseUMMDiT
+from .dits import SparseUMMDiT, ResI2VMMDiT
 
 PREDICTOR_MODEL_MAPPINGS = {
     "SparseUMMDiT": SparseUMMDiT,
+    "ResI2VMMDiT": ResI2VMMDiT
 }
 
 

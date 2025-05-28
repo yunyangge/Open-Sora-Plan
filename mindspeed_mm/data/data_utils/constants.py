@@ -8,6 +8,7 @@ VIDEO = "video"
 VIDEO_MASK = "video_mask"
 FILE_INFO = "file"
 CAPTIONS = "captions"
+START_FRAME = "start_frame"
 IMG_FPS = 120
 MODEL_CONSTANTS = {
     'llava': {

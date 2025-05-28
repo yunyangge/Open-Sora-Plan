@@ -126,7 +126,7 @@ class SparseUMMDiT(MultiModalModule):
 
         self.in_channels = in_channels
         self.out_channels = in_channels if out_channels is None else out_channels
-        hidden_size = num_heads * head_dim
+        self.hidden_size = hidden_size = num_heads * head_dim
         self.num_layers = num_layers
         self.sparse_n = sparse_n
         self.patch_size_t = patch_size_t
